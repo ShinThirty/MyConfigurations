@@ -593,41 +593,6 @@ recursive() {
     done
 }
 
-# Better brazil ws use -p that adds develop desktop as a remote
-# Only adds the desk remote if package already exists
-bpkg() {
-    local root=$(brazil ws show | grep Root | awk -F'Root:' '{print $2}' | awk '{$1=$1};1')
-    if [ ! $root ]; then
-        echo 'Exiting...'
-        return 1
-    fi
-    local package=$1
-    if [ ! $package ]; then
-        echo 'Package name should not be empty...'
-        return 1
-    fi
-    local directory="$root/src/$package"
-    if [ ! -d "$directory" ]; then
-        brazil ws use -p $package
-    fi
-    pushd "$directory" >/dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        echo 'Exiting...'
-        return 1
-    fi
-    local desktop='u96c51d4816555b.ant.amazon.com'
-    local upstream="ssh://$desktop:$root/src/$package"
-    if git config remote.desk.url >/dev/null; then
-        echo 'Remote desk already exists.'
-        git remote set-url desk "$upstream"
-    else
-        git remote add desk "$upstream"
-    fi
-    echo 'Please verify the current defined remotes:'
-    git remote -v
-    popd >/dev/null 2>&1
-}
-
 #######################################################
 # Set the ultimate amazing command prompt
 #######################################################
