@@ -616,6 +616,20 @@ umnt_cloud() {
   rmd $CLOUD_WORKPLACE
 }
 
+# Refresh AWS credentials
+refresh_aws_credentials() {
+  mwinit -o
+  ROLE_ARN=$1
+  response=`curl -L -c ~/.midway/cookie -b ~/.midway/cookie -H "Accept: application/json" \
+            https://iibs-midway.corp.amazon.com/GetAssumeRoleCredentials \
+            --data-urlencode "duration=43200" \
+            -G \
+            --data-urlencode "roleARN=$ROLE_ARN"`
+  aws configure set aws_access_key_id `echo $response | jq -r '.accessKeyId'`
+  aws configure set aws_secret_access_key `echo $response | jq -r '.secretAccessKey'`
+  aws configure set aws_session_token `echo $response | jq -r '.sessionToken'`
+}
+
 #######################################################
 # PATH
 #######################################################
