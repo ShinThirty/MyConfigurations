@@ -617,9 +617,14 @@ umnt_cloud() {
 }
 
 # Refresh AWS credentials
+export DEFAULT_ROLE_ARN=arn:aws:iam::061694775021:role/Development
+export DEFAULT_REGION=us-west-2
 refresh_aws_credentials() {
   mwinit -o
   ROLE_ARN=$1
+  REGION=$2
+  ROLE_ARN=${ROLE_ARN:-DEFAULT_ROLE_ARN}
+  REGION=${REGION:-DEFAULT_REGION}
   response=`curl -L -c ~/.midway/cookie -b ~/.midway/cookie -H "Accept: application/json" \
             https://iibs-midway.corp.amazon.com/GetAssumeRoleCredentials \
             --data-urlencode "duration=43200" \
@@ -628,6 +633,7 @@ refresh_aws_credentials() {
   aws configure set aws_access_key_id `echo $response | jq -r '.accessKeyId'`
   aws configure set aws_secret_access_key `echo $response | jq -r '.secretAccessKey'`
   aws configure set aws_session_token `echo $response | jq -r '.sessionToken'`
+  aws configure set region $REGION
 }
 
 #######################################################
@@ -635,10 +641,6 @@ refresh_aws_credentials() {
 #######################################################
 
 export PATH=$HOME/.toolbox/bin:$PATH
-
-# Local Development
-export PERSONAL_AWS_ACCOUNT=026671186639
-export PERSONAL_AWS_REGION=us-west-2
 
 # Use starship command prompt
 eval "$(starship init bash)"
