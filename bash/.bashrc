@@ -623,8 +623,14 @@ refresh_aws_credentials() {
   mwinit -o
   ROLE_ARN=$1
   REGION=$2
-  ROLE_ARN=${ROLE_ARN:-DEFAULT_ROLE_ARN}
-  REGION=${REGION:-DEFAULT_REGION}
+  if [ -z ${ROLE_ARN:+x} ]
+  then
+    ROLE_ARN=$DEFAULT_ROLE_ARN
+  fi
+  if [ -z ${REGION:+x} ]
+  then
+    REGION=$DEFAULT_REGION
+  fi
   response=`curl -L -c ~/.midway/cookie -b ~/.midway/cookie -H "Accept: application/json" \
             https://iibs-midway.corp.amazon.com/GetAssumeRoleCredentials \
             --data-urlencode "duration=43200" \
