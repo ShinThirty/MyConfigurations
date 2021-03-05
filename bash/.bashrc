@@ -1,3 +1,10 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
 # If not running interactively, don't do anything
 case $- in
 *i*) ;;
@@ -115,6 +122,8 @@ if ! shopt -oq posix; then
     . /usr/share/bash-completion/bash_completion
   elif [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
+  elif [ -f ~/.bash_completion ]; then
+    . ~/.bash_completion
   fi
 fi
 
@@ -230,6 +239,19 @@ alias logs="sudo find /var/log -type f -exec file {} \; | grep 'text' | cut -d' 
 
 # SHA1
 alias sha1='openssl sha1'
+
+# Brazil CLI
+alias bb='brazil-build'
+alias bbr='brazil-build release'
+alias bbenv='brazil-build release && brazil-bootstrap --environmentType test-runtime'
+alias bre='brazil-runtime-exec'
+alias bbra='brazil-recursive-cmd-parallel --allPackages brazil-build release'
+
+# RDE
+alias rdeb='rde wflow run -s build'
+
+# Vim
+alias vim='/apollo/env/envImprovement/bin/vim'
 
 #######################################################
 # SPECIAL FUNCTIONS
@@ -588,10 +610,9 @@ recursive() {
 
 # Google Java Formatter
 google-recursive-format() {
-	find $1 -name '*.java' | xargs java -jar $HOME/google-java-format-1.9-all-deps.jar -r
+	find $1 -name '*.java' | xargs java -jar $HOME/google-java-format-1.9-all-deps.jar -r $2
 }
 
-# Kinit
 # See http://w?User:Daviesza/KinitReduction for more information
 # Request weekly expiration with 30 day renewal, although the
 # server only gives out 10 hour expiration with 7 day renewal.
@@ -617,10 +638,9 @@ umnt_cloud() {
 }
 
 # Refresh AWS credentials
-export DEFAULT_ROLE_ARN=arn:aws:iam::061694775021:role/Development
+export DEFAULT_ROLE_ARN=arn:aws:iam::026671186639:role/Development
 export DEFAULT_REGION=us-west-2
 refresh_aws_credentials() {
-  mwinit -o
   ROLE_ARN=$1
   REGION=$2
   if [ -z ${ROLE_ARN:+x} ]
@@ -636,6 +656,7 @@ refresh_aws_credentials() {
             --data-urlencode "duration=43200" \
             -G \
             --data-urlencode "roleARN=$ROLE_ARN"`
+  echo $response | jq
   aws configure set aws_access_key_id `echo $response | jq -r '.accessKeyId'`
   aws configure set aws_secret_access_key `echo $response | jq -r '.secretAccessKey'`
   aws configure set aws_session_token `echo $response | jq -r '.sessionToken'`
@@ -643,10 +664,14 @@ refresh_aws_credentials() {
 }
 
 #######################################################
-# PATH
+# CUSTOM CONFIGURATION
 #######################################################
 
 export PATH=$HOME/.toolbox/bin:$PATH
+export PATH=/apollo/env/envImprovement/bin:$PATH
+
+export PERSONAL_AWS_ACCOUNT=026671186639
+export DEV_DESKTOP_TLS_CERTIFICATE_ODIN_MATERIAL=com.amazon.certificates.lingnanl.aka.corp.amazon.com-STANDARD_SSL_SERVER_INTERNAL_ENDPOINT-RSA-Chain
 
 # Use starship command prompt
 eval "$(starship init bash)"
