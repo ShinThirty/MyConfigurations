@@ -56,6 +56,9 @@ colorscheme dracula
 " let airline use powerline fonts
 let g:airline_powerline_fonts = 1
 
+" setup ale global fixers
+let g:ale_fixers = {'*': ['remove_trailing_lines', 'trim_whitespace']}
+
 " add fzf to rtp
 set rtp+=/usr/local/opt/fzf
 
