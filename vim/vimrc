@@ -106,8 +106,6 @@ vnoremap p "_dP
 " Use around and ale sources
 " https://github.com/Shougo/ddc-around
 call ddc#custom#patch_global('sources', ['around', 'ale'])
-call ddc#custom#patch_global('sourceParams',
-      \ {'ale': {'cleanResultsWhitespace': v:true}})
 
 " Use matcher_head and sorter_rank.
 " https://github.com/Shougo/ddc-matcher_head
@@ -121,9 +119,11 @@ call ddc#custom#patch_global('sourceOptions', {
 " Change source options
 call ddc#custom#patch_global('sourceOptions', {
       \ 'around': {'mark': 'A'},
+      \ 'ale': {'mark': 'L'},
       \ })
 call ddc#custom#patch_global('sourceParams', {
       \ 'around': {'maxSize': 500},
+      \ 'ale': {'cleanResultsWhitespace': v:true},
       \ })
 
 " Customize settings on a filetype
