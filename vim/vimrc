@@ -119,7 +119,6 @@ call ddc#custom#patch_global('sourceOptions', {
 " Change source options
 call ddc#custom#patch_global('sourceOptions', {
       \ 'around': {'mark': 'A'},
-      \ 'ale': {'mark': 'L'},
       \ })
 call ddc#custom#patch_global('sourceParams', {
       \ 'around': {'maxSize': 500},
