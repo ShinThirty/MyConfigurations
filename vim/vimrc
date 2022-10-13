@@ -89,6 +89,11 @@ let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
 let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
 let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
 
+" tagbar configurations
+nnoremap <silent> <F8> :TagbarToggle<CR>
+nnoremap t] :call tagbar#jumpToNearbyTag(1, 'nearest', 's')<CR>
+nnoremap t[ :call tagbar#jumpToNearbyTag(-1, 'nearest', 's')<CR>
+
 " fdoc is yaml
 autocmd BufRead,BufNewFile *.fdoc set filetype=yaml
 
