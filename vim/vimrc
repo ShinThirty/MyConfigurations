@@ -94,6 +94,9 @@ nnoremap <silent> <F8> :TagbarToggle<CR>
 nnoremap t] :call tagbar#jumpToNearbyTag(1, 'nearest', 's')<CR>
 nnoremap t[ :call tagbar#jumpToNearbyTag(-1, 'nearest', 's')<CR>
 
+" undotree configurations
+nnoremap <silent> <F5> :UndotreeToggle<CR>
+
 " fdoc is yaml
 autocmd BufRead,BufNewFile *.fdoc set filetype=yaml
 
