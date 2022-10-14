@@ -1,7 +1,9 @@
+#!/bin/bash
+
 # Measure zsh startup time
 timezsh() {
-  shell=${1-$SHELL}
-  for i in $(seq 1 10); do /usr/bin/time $shell -i -c exit; done
+	shell=${1-$SHELL}
+	for _ in $(seq 1 10); do /usr/bin/time "$shell" -i -c exit; done
 }
 
 # Use fd (https://github.com/sharkdp/fd) instead of the default find
@@ -9,11 +11,42 @@ timezsh() {
 # - The first argument to the function ($1) is the base path to start traversal
 # - See the source code (completion.{bash,zsh}) for the details.
 _fzf_compgen_path() {
-  fd --hidden --follow --exclude ".git" . "$1"
+	fd --hidden --follow --exclude ".git" . "$1"
 }
 
 # Use fd to generate the list for directory completion
 _fzf_compgen_dir() {
-  fd --type d --hidden --follow --exclude ".git" . "$1"
+	fd --type d --hidden --follow --exclude ".git" . "$1"
 }
 
+# nnn cd on quit
+n() {
+	# Block nesting of nnn in subshells
+	if [[ "${NNNLVL:-0}" -ge 1 ]]; then
+		echo "nnn is already running"
+		return
+	fi
+
+	# The behaviour is set to cd on quit (nnn checks if NNN_TMPFILE is set)
+	# If NNN_TMPFILE is set to a custom path, it must be exported for nnn to
+	# see. To cd on quit only on ^G, remove the "export" and make sure not to
+	# use a custom path, i.e. set NNN_TMPFILE *exactly* as follows:
+	#     NNN_TMPFILE="${XDG_CONFIG_HOME:-$HOME/.config}/nnn/.lastd"
+	export NNN_TMPFILE="${XDG_CONFIG_HOME:-$HOME/.config}/nnn/.lastd"
+
+	# Unmask ^Q (, ^V etc.) (if required, see `stty -a`) to Quit nnn
+	# stty start undef
+	# stty stop undef
+	# stty lwrap undef
+	# stty lnext undef
+
+	# The backslash allows one to alias n to nnn if desired without making an
+	# infinitely recursive alias
+	\nnn "$@"
+
+	if [ -f "$NNN_TMPFILE" ]; then
+		# shellcheck source=/dev/null
+		. "$NNN_TMPFILE"
+		rm -f "$NNN_TMPFILE" >/dev/null
+	fi
+}
