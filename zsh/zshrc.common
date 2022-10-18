@@ -61,3 +61,9 @@ if hash exa 2>/dev/null; then
 	alias llt='exa -lT --git-ignore --level=2 --group-directories-first'
 	alias lT='exa -T --git-ignore --level=4 --group-directories-first'
 fi
+
+# Enable mcfly
+export MCFLY_KEY_SCHEME=vim
+export MCFLY_FUZZY=2
+export MCFLY_HISTORY_LIMIT=10000
+eval "$(mcfly init zsh)"
