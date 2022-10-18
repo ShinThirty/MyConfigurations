@@ -1,3 +1,9 @@
 [submodule "fzf-git"]
 	path = fzf-git
 	url = git@github.com:junegunn/fzf-git.sh.git
+[submodule "cheat/cheatsheets/community"]
+	path = cheat/cheatsheets/community
+	url = git@github.com:cheat/cheatsheets.git
+[submodule "cheat/cheatsheets/personal"]
+	path = cheat/cheatsheets/personal
+	url = git@github.com:ShinThirty/personal-cheatsheets.git

@@ -72,3 +72,14 @@ z() {
 	eval "$(zoxide init zsh)"
 	$0 "$@"
 }
+
+# Cheat integration with FZF
+export CHEAT_USE_FZF=true
+
+# Lazy load cheat autocompletion
+cheat() {
+	unfunction "$0"
+	# shellcheck source=/dev/null
+	source "$HOME/.config/cheat/cheat.zsh"
+	$0 "$@"
+}
