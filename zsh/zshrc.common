@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Measure zsh startup time
 timezsh() {
@@ -19,11 +19,20 @@ _fzf_compgen_dir() {
 	fd --type d --hidden --follow --exclude ".git" . "$1"
 }
 
+# Setting up fzf default options
+export FZF_DEFAULT_OPTS='--height=60% --layout=reverse --info=inline --border --margin=1 --padding=1'
+
 # Setting fd as the default source for fzf
 export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
 
 # To apply the command to CTRL-T as well
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+# Use bat as the previewer for fzf
+alias fzp="fzf --preview 'bat --style=numbers --color=always --line-range :500 {}'"
+
+# Bat theme
+export BAT_THEME='Dracula'
 
 # nnn cd on quit
 n() {
