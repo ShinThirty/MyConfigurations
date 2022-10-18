@@ -65,3 +65,10 @@ n() {
 		rm -f "$NNN_TMPFILE" >/dev/null
 	fi
 }
+
+# Setup zoxide
+z() {
+	unfunction "$0"
+	eval "$(zoxide init zsh)"
+	$0 "$@"
+}
