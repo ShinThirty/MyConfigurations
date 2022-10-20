@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# less auto exits
+alias less="less -FRX"
+
 # Measure zsh startup time
 timezsh() {
 	shell=${1-$SHELL}
