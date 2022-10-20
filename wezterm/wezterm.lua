@@ -140,6 +140,7 @@ return {
         { family = 'JetBrainsMono Nerd Font', weight = 'Bold' },
     },
     font_size = 13.0,
+    hide_tab_bar_if_only_one_tab = true,
     line_height = 1.2,
     tab_bar_at_bottom = true,
     use_fancy_tab_bar = false,
