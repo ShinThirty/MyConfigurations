@@ -7,4 +7,7 @@ return {
     },
     font_size = 13.0,
     line_height = 1.2,
+    tab_bar_at_bottom = true,
+    use_fancy_tab_bar = false,
+    window_decorations = 'RESIZE',
 }
