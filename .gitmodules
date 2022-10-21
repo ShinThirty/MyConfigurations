@@ -7,3 +7,6 @@
 [submodule "cheat/cheatsheets/personal"]
 	path = cheat/cheatsheets/personal
 	url = git@github.com:ShinThirty/personal-cheatsheets.git
+[submodule "vim"]
+	path = vim
+	url = git@github.com:ShinThirty/.vim.git

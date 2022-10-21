@@ -9,6 +9,9 @@ originals=(
 	"$PWD/cheat"
 	"$PWD/git/gitconfig"
 	"$PWD/tmux/tmux.conf"
+	"$PWD/vim"
+	"$PWD/vim/ideavimrc"
+	"$PWD/vim/vimrc"
 	"$PWD/wezterm/wezterm.lua"
 )
 links=(
@@ -16,6 +19,9 @@ links=(
 	"$HOME/.config/cheat"
 	"$HOME/.gitconfig"
 	"$HOME/.tmux.conf"
+	"$HOME/.vim"
+	"$HOME/.ideavimrc"
+	"$HOME/.vimrc"
 	"$HOME/.wezterm.lua"
 )
 
