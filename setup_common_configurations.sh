@@ -15,6 +15,7 @@ statements=(
 	"alias rfv=\"$PWD/zsh/rfv\""
 	"source \"$PWD/zsh/zshrc.common\""
 	"source \"$PWD/fzf-git/fzf-git.sh\""
+	"source \"$PWD/kubectl/kubectl.zsh\""
 )
 
 for index in ${!statements[*]}; do
