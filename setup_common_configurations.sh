@@ -14,6 +14,7 @@ fi
 statements=(
 	"alias rfv=\"$PWD/zsh/rfv\""
 	"source \"$PWD/zsh/zshrc.common\""
+	"fpath=($PWD/zsh/zsh-completions/src "'$fpath)'
 	"source \"$PWD/fzf-git/fzf-git.sh\""
 	"source \"$PWD/kubectl/kubectl.zsh\""
 )
