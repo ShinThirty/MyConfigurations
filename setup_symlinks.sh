@@ -12,6 +12,7 @@ originals=(
 	"$PWD/vim/ideavimrc"
 	"$PWD/vim/vimrc"
 	"$PWD/wezterm/wezterm.lua"
+	"$PWD/zsh/zshrc"
 )
 links=(
 	"$HOME/.config/cheat"
@@ -21,6 +22,7 @@ links=(
 	"$HOME/.ideavimrc"
 	"$HOME/.vimrc"
 	"$HOME/.wezterm.lua"
+	"$HOME/.zshrc"
 )
 
 for index in ${!originals[*]}; do

@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # less auto exits
 alias less="less -FRX"
 

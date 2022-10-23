@@ -1,0 +1,22 @@
+MY_CONFIG_ROOT="$HOME/MyConfigurations"
+
+alias rfv="$MY_CONFIG_ROOT/zsh/rfv"
+source "$MY_CONFIG_ROOT/fzf-git/fzf-git.sh"
+source "$MY_CONFIG_ROOT/kubectl/kubectl.zsh"
+
+# Zsh completions
+fpath=($MY_CONFIG_ROOT/zsh/zsh-completions/src $fpath)
+autoload -Uz compinit promptinit
+compinit
+promptinit
+zstyle ':completion:*' menu select
+
+# Common configurations
+source "$MY_CONFIG_ROOT/common/common.zsh"
+
+# Machine specific configurations
+source "$HOME/.zshrc.local"
+
+# Auto suggestions and syntax highlighting, needs to be always the last lines
+source "$MY_CONFIG_ROOT/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
+source "$MY_CONFIG_ROOT/zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
