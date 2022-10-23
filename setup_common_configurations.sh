@@ -18,6 +18,7 @@ statements=(
 	"source \"$PWD/fzf-git/fzf-git.sh\""
 	"source \"$PWD/kubectl/kubectl.zsh\""
 	"source \"$PWD/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh\""
+	"source \"$PWD/zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh\""
 )
 
 for index in ${!statements[*]}; do
