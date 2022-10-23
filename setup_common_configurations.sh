@@ -17,12 +17,13 @@ statements=(
 	"fpath=($PWD/zsh/zsh-completions/src "'$fpath)'
 	"source \"$PWD/fzf-git/fzf-git.sh\""
 	"source \"$PWD/kubectl/kubectl.zsh\""
+	"source \"$PWD/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh\""
 )
 
 for index in ${!statements[*]}; do
 	statement=${statements[$index]}
 	echo "Adding statement: $statement"
-	if rg -q "$statement" "$HOME/.zshrc"; then
+	if rg -Fq "$statement" "$HOME/.zshrc"; then
 		echo "Found existing $statement"
 	else
 		echo "$statement" >>"$HOME/.zshrc"
