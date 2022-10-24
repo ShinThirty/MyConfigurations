@@ -1,3 +1,6 @@
+focus-follows-mouse: false
+mouse-follows-focus: true
+float-small-windows: true
 mod1:
   - option
 mod2:
