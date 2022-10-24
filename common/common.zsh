@@ -29,7 +29,11 @@ if (( $+commands[fzf] )); then
 		fd --type d --hidden --follow --exclude ".git" . "$1"
 	}
 
-	[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+	if [ -f $HOME/.fzf.zsh ]; then
+		source $HOME/.fzf.zsh
+	else
+		echo "FZF fuzzy completion won't work until its shell completion script is installed"
+	fi
 
 	# Setting up fzf default options
 	export FZF_DEFAULT_OPTS='--height=60% --layout=reverse --info=inline --border --margin=1 --padding=1'
