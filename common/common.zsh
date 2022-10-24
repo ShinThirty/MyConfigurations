@@ -83,14 +83,6 @@ fi
 if (( $+commands[cheat] )); then
 	# Cheat integration with FZF
 	export CHEAT_USE_FZF=true
-
-	# Lazy load cheat autocompletion
-	cheat() {
-		unfunction "$0"
-		# shellcheck source=/dev/null
-		source "$HOME/.config/cheat/cheat.zsh"
-		$0 "$@"
-	}
 fi
 
 # Use exa as ls if exa is installed
