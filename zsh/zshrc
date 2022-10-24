@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 MY_CONFIG_ROOT="$HOME/MyConfigurations"
 
 # fpath changes must come before compinit
@@ -53,6 +60,12 @@ fi
 
 # Machine specific configurations
 source "$HOME/.zshrc.local"
+
+# Powerlevel 10k
+source "$MY_CONFIG_ROOT/powerlevel10k/powerlevel10k.zsh-theme"
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # Auto suggestions and syntax highlighting, needs to be always the last lines
 source "$MY_CONFIG_ROOT/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
