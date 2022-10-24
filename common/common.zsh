@@ -7,54 +7,72 @@ timezsh() {
 	for _ in $(seq 1 10); do /usr/bin/time "$shell" -i -c exit; done
 }
 
-# Use fd (https://github.com/sharkdp/fd) instead of the default find
-# command for listing path candidates.
-# - The first argument to the function ($1) is the base path to start traversal
-# - See the source code (completion.{bash,zsh}) for the details.
-_fzf_compgen_path() {
-	fd --hidden --follow --exclude ".git" . "$1"
-}
+if (( $+commands[fzf] )); then
+	alias rfv="$MY_CONFIG_ROOT/zsh/rfv"
+	source "$MY_CONFIG_ROOT/fzf-git/fzf-git.sh"
 
-# Use fd to generate the list for directory completion
-_fzf_compgen_dir() {
-	fd --type d --hidden --follow --exclude ".git" . "$1"
-}
+	# Use ~~ as the trigger sequence instead of the default **
+	export FZF_COMPLETION_TRIGGER='~~'
 
-# Setting up fzf default options
-export FZF_DEFAULT_OPTS='--height=60% --layout=reverse --info=inline --border --margin=1 --padding=1'
+	export FZF_COMPLETION_OPTS='--border --info=inline'
 
-# Setting fd as the default source for fzf
-export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
+	# Use fd (https://github.com/sharkdp/fd) instead of the default find
+	# command for listing path candidates.
+	# - The first argument to the function ($1) is the base path to start traversal
+	# - See the source code (completion.{bash,zsh}) for the details.
+	_fzf_compgen_path() {
+		fd --hidden --follow --exclude ".git" . "$1"
+	}
 
-# To apply the command to CTRL-T as well
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+	# Use fd to generate the list for directory completion
+	_fzf_compgen_dir() {
+		fd --type d --hidden --follow --exclude ".git" . "$1"
+	}
 
-# Use bat as the previewer for fzf
-alias fzp="fzf --preview 'bat --style=numbers --color=always --line-range :500 {}'"
+	[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# Bat theme
-export BAT_THEME='Dracula'
+	# Setting up fzf default options
+	export FZF_DEFAULT_OPTS='--height=60% --layout=reverse --info=inline --border --margin=1 --padding=1'
+
+	# Setting fd as the default source for fzf
+	export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
+
+	# To apply the command to CTRL-T as well
+	export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+	if (( $+commands[bat] )); then
+		# Use bat as the previewer for fzf
+		alias fzp="fzf --preview 'bat --style=numbers --color=always --line-range :500 {}'"
+
+		# Bat theme
+		export BAT_THEME='Dracula'
+	fi
+fi
 
 # Setup zoxide
-z() {
-	unfunction "$0"
-	eval "$(zoxide init zsh)"
-	$0 "$@"
-}
+if (( $+commands[zoxide] )); then
+	z() {
+		unfunction "$0"
+		eval "$(zoxide init zsh)"
+		$0 "$@"
+	}
+fi
 
-# Cheat integration with FZF
-export CHEAT_USE_FZF=true
+if (( $+commands[cheat] )); then
+	# Cheat integration with FZF
+	export CHEAT_USE_FZF=true
 
-# Lazy load cheat autocompletion
-cheat() {
-	unfunction "$0"
-	# shellcheck source=/dev/null
-	source "$HOME/.config/cheat/cheat.zsh"
-	$0 "$@"
-}
+	# Lazy load cheat autocompletion
+	cheat() {
+		unfunction "$0"
+		# shellcheck source=/dev/null
+		source "$HOME/.config/cheat/cheat.zsh"
+		$0 "$@"
+	}
+fi
 
 # Use exa as ls if exa is installed
-if hash exa 2>/dev/null; then
+if (( $+commands[exa] )); then
 	alias ls='exa'
 	alias l='exa -l --all --group-directories-first --git'
 	alias ll='exa -l --all --all --group-directories-first --git'
@@ -64,7 +82,9 @@ if hash exa 2>/dev/null; then
 fi
 
 # Enable mcfly
-export MCFLY_KEY_SCHEME=vim
-export MCFLY_FUZZY=2
-export MCFLY_HISTORY_LIMIT=10000
-eval "$(mcfly init zsh)"
+if (( $+commands[mcfly] )); then
+	export MCFLY_KEY_SCHEME=vim
+	export MCFLY_FUZZY=2
+	export MCFLY_HISTORY_LIMIT=10000
+	eval "$(mcfly init zsh)"
+fi

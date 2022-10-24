@@ -1,22 +1,20 @@
-if (( $+commands[kubectl] )); then
-  kubectl() {
-    # Remove this function, subsequent calls will execute 'kubectl' directly
-    unfunction "$0"
+kubectl() {
+  # Remove this function, subsequent calls will execute 'kubectl' directly
+  unfunction "$0"
 
-    # If the completion file does not exist, generate it and then source it
-    # Otherwise, source it and regenerate in the background
-    if [[ ! -f "$ZSH_CACHE_DIR/completions/_kubectl" ]]; then
-      kubectl completion zsh | tee "$ZSH_CACHE_DIR/completions/_kubectl" >/dev/null
-      source "$ZSH_CACHE_DIR/completions/_kubectl"
-    else
-      source "$ZSH_CACHE_DIR/completions/_kubectl"
-      kubectl completion zsh | tee "$ZSH_CACHE_DIR/completions/_kubectl" >/dev/null &|
-    fi
+  # If the completion file does not exist, generate it and then source it
+  # Otherwise, source it and regenerate in the background
+  if [[ ! -f "$ZSH_CACHE_DIR/completions/_kubectl" ]]; then
+    kubectl completion zsh | tee "$ZSH_CACHE_DIR/completions/_kubectl" >/dev/null
+    source "$ZSH_CACHE_DIR/completions/_kubectl"
+  else
+    source "$ZSH_CACHE_DIR/completions/_kubectl"
+    kubectl completion zsh | tee "$ZSH_CACHE_DIR/completions/_kubectl" >/dev/null &|
+  fi
 
-    # Execute 'kubectl' binary
-    $0 "$@"
-  }
-fi
+  # Execute 'kubectl' binary
+  $0 "$@"
+}
 
 # This command is used a LOT both below and in daily life
 alias k=kubectl
