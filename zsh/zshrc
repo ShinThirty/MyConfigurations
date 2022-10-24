@@ -9,6 +9,7 @@ source "$MY_CONFIG_ROOT/lib/clipboard.zsh"
 source "$MY_CONFIG_ROOT/lib/completion.zsh"
 source "$MY_CONFIG_ROOT/lib/correction.zsh"
 source "$MY_CONFIG_ROOT/lib/directories.zsh"
+source "$MY_CONFIG_ROOT/lib/history.zsh"
 source "$MY_CONFIG_ROOT/lib/key-bindings.zsh"
 
 if (( $+commands[kubectl] )); then
