@@ -11,8 +11,9 @@ compinit
 promptinit
 zstyle ':completion:*' menu select
 
-# Common configurations
+# Import configurations
 source "$MY_CONFIG_ROOT/common/common.zsh"
+source "$MY_CONFIG_ROOT/lib/clipboard.zsh"
 
 # Machine specific configurations
 source "$HOME/.zshrc.local"
