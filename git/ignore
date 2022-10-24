@@ -17,4 +17,24 @@ Thumbs.db
 log/
 *.log
 
-# etc...
+# ce-kafka
+ce-authorizer/bin/
+ce-events-api/bin/
+ce-kafka-client-plugins/bin/
+ce-rbac/bin/
+ce-rest-authorizer/bin/
+ce-security-extensions/bin/
+ce-serializers/bin/
+
+# Scala
+.bloop
+.metals
+.scalafmt.conf
+
+# VSCode
+.vscode
+
+# Python
+.python-version
+__pycache__
+*.egg-info
