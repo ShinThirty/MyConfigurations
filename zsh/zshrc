@@ -4,16 +4,13 @@ alias rfv="$MY_CONFIG_ROOT/zsh/rfv"
 source "$MY_CONFIG_ROOT/fzf-git/fzf-git.sh"
 source "$MY_CONFIG_ROOT/kubectl/kubectl.zsh"
 
-# Zsh completions
+# fpath changes must come before compinit
 fpath=($MY_CONFIG_ROOT/zsh/zsh-completions/src $fpath)
-autoload -Uz compinit promptinit
-compinit
-promptinit
-zstyle ':completion:*' menu select
 
 # Import configurations
 source "$MY_CONFIG_ROOT/common/common.zsh"
 source "$MY_CONFIG_ROOT/lib/clipboard.zsh"
+source "$MY_CONFIG_ROOT/lib/completion.zsh"
 source "$MY_CONFIG_ROOT/lib/key-bindings.zsh"
 
 # Machine specific configurations
