@@ -7,6 +7,7 @@ echo "Setting up symlinks with PWD = $PWD"
 originals=(
 	"$PWD/cheat"
 	"$PWD/git/gitconfig"
+	"$PWD/git/ignore"
 	"$PWD/tmux/tmux.conf"
 	"$PWD/vim"
 	"$PWD/vim/ideavimrc"
@@ -17,6 +18,7 @@ originals=(
 links=(
 	"$HOME/.config/cheat"
 	"$HOME/.gitconfig"
+	"$HOME/.config/git/ignore"
 	"$HOME/.tmux.conf"
 	"$HOME/.vim"
 	"$HOME/.ideavimrc"

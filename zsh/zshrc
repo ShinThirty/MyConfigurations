@@ -3,8 +3,9 @@ MY_CONFIG_ROOT="$HOME/MyConfigurations"
 # fpath changes must come before compinit
 fpath=($MY_CONFIG_ROOT/zsh/zsh-completions/src $fpath)
 
-# Import configurations
 source "$MY_CONFIG_ROOT/common/common.zsh"
+
+# Import configurations
 source "$MY_CONFIG_ROOT/lib/clipboard.zsh"
 source "$MY_CONFIG_ROOT/lib/completion.zsh"
 source "$MY_CONFIG_ROOT/lib/correction.zsh"
@@ -12,8 +13,42 @@ source "$MY_CONFIG_ROOT/lib/directories.zsh"
 source "$MY_CONFIG_ROOT/lib/history.zsh"
 source "$MY_CONFIG_ROOT/lib/key-bindings.zsh"
 
+# Import plugins
+if (( $+commands[pacman] )); then
+  source "$MY_CONFIG_ROOT/plugins/archlinux/archlinux.plugin.zsh"
+fi
+if (( $+commands[aws] )); then
+  source "$MY_CONFIG_ROOT/plugins/aws/aws.plugin.zsh"
+fi
+if (( $+commands[brew] )); then
+  source "$MY_CONFIG_ROOT/plugins/brew/brew.plugin.zsh"
+fi
+if (( $+commands[cabal] )); then
+  source "$MY_CONFIG_ROOT/plugins/cabal/cabal.plugin.zsh"
+fi
+source "$MY_CONFIG_ROOT/plugins/command-not-found/command-not-found.plugin.zsh"
+source "$MY_CONFIG_ROOT/plugins/common-aliases/common-aliases.plugin.zsh"
+source "$MY_CONFIG_ROOT/plugins/copybuffer/copybuffer.plugin.zsh"
+source "$MY_CONFIG_ROOT/plugins/copyfile/copyfile.plugin.zsh"
+source "$MY_CONFIG_ROOT/plugins/copypath/copypath.plugin.zsh"
+source "$MY_CONFIG_ROOT/plugins/cp/cp.plugin.zsh"
+if (( $+commands[deno] )); then
+  source "$MY_CONFIG_ROOT/plugins/deno/deno.plugin.zsh"
+fi
+source "$MY_CONFIG_ROOT/plugins/dirhistory/dirhistory.plugin.zsh"
+if (( $+commands[docker] )); then
+  source "$MY_CONFIG_ROOT/plugins/docker/docker.plugin.zsh"
+fi
+source "$MY_CONFIG_ROOT/plugins/extract/extract.plugin.zsh"
+if (( $+commands[git] )); then
+  source "$MY_CONFIG_ROOT/plugins/git/git.plugin.zsh"
+fi
 if (( $+commands[kubectl] )); then
   source "$MY_CONFIG_ROOT/kubectl/kubectl.zsh"
+fi
+source "$MY_CONFIG_ROOT/plugins/rsync/rsync.plugin.zsh"
+if (( $+commands[tmux] )); then
+  source "$MY_CONFIG_ROOT/plugins/tmux/tmux.plugin.zsh"
 fi
 
 # Machine specific configurations
