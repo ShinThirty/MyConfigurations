@@ -50,6 +50,7 @@ source "$MY_CONFIG_ROOT/plugins/extract/extract.plugin.zsh"
 if (( $+commands[git] )); then
   source "$MY_CONFIG_ROOT/plugins/git/git.plugin.zsh"
 fi
+source "$MY_CONFIG_ROOT/plugins/globalias/globalias.plugin.zsh"
 if (( $+commands[kubectl] )); then
   source "$MY_CONFIG_ROOT/kubectl/kubectl.zsh"
 fi

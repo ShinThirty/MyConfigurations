@@ -44,7 +44,6 @@ key[Control-Delete]="^[[3;5~"
 
 bindkey '\ew' kill-region                             # [Esc-w] - Kill from the cursor to the mark
 bindkey -s '\el' 'ls\n'                               # [Esc-l] - run command: ls
-bindkey ' ' magic-space                               # [Space] - don't do history expansion
 
 # Edit the current command line in $EDITOR
 autoload -U edit-command-line
