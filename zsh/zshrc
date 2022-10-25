@@ -8,6 +8,7 @@ fi
 MY_CONFIG_ROOT="$HOME/MyConfigurations"
 
 plugins=(
+  bgnotify
   command-not-found
   common-aliases
   copybuffer
