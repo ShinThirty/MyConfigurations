@@ -14,16 +14,18 @@ bindkey '^D' exit_zsh
 
 # Clear the backbuffer with Ctrl+L
 function clear-screen-and-scrollback() {
-    echoti civis >"$TTY"
-    printf '%b' '\e[H\e[2J' >"$TTY"
-    zle .reset-prompt
-    zle -R
-    printf '%b' '\e[3J' >"$TTY"
-    echoti cnorm >"$TTY"
+	echoti civis >"$TTY"
+	printf '%b' '\e[H\e[2J' >"$TTY"
+	zle .reset-prompt
+	zle -R
+	printf '%b' '\e[3J' >"$TTY"
+	echoti cnorm >"$TTY"
 }
 
 zle -N clear-screen-and-scrollback
 bindkey '^L' clear-screen-and-scrollback
+
+zmodload zsh/net/tcp
 
 if (( $+commands[fzf] )); then
 	alias rfv="$MY_CONFIG_ROOT/zsh/rfv"
