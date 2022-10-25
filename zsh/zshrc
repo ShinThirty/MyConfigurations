@@ -8,7 +8,11 @@ fi
 MY_CONFIG_ROOT="$HOME/MyConfigurations"
 
 # fpath changes must come before compinit
-fpath=($MY_CONFIG_ROOT/zsh/zsh-completions/src $fpath)
+fpath=(
+    $MY_CONFIG_ROOT/zsh/zsh-completions/src
+    $MY_CONFIG_ROOT/plugins/**
+    "${fpath[@]}"
+)
 
 source "$MY_CONFIG_ROOT/common/common.zsh"
 
@@ -58,6 +62,7 @@ source "$MY_CONFIG_ROOT/plugins/rsync/rsync.plugin.zsh"
 if (( $+commands[tmux] )); then
   source "$MY_CONFIG_ROOT/plugins/tmux/tmux.plugin.zsh"
 fi
+source "$MY_CONFIG_ROOT/plugins/universalarchive/universalarchive.plugin.zsh"
 
 # Machine specific configurations
 source "$HOME/.zshrc.local"
