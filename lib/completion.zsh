@@ -1,7 +1,5 @@
 # fixme - the load process here seems a bit bizarre
 zmodload -i zsh/complist
-autoload -Uz compinit
-compinit
 
 WORDCHARS=''
 
