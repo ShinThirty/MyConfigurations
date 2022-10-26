@@ -91,7 +91,6 @@ fi
 if (( $+commands[exa] )); then
 	alias ls='exa'
 	alias l='exa -l --all --group-directories-first --git'
-	alias ll='exa -l --all --all --group-directories-first --git'
 	alias lt='exa -T --git-ignore --level=2 --group-directories-first'
 	alias llt='exa -lT --git-ignore --level=2 --group-directories-first'
 	alias lT='exa -T --git-ignore --level=4 --group-directories-first'
