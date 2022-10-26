@@ -31,11 +31,13 @@ plugins_lazy=(
   deno
   docker
   git
+  git-escape-magic
   kubectl
   tmux
 )
 typeset -A command_lazy
 command_lazy[archlinux]=pacman
+command_lazy[git-escape-magic]=git
 
 has_completion_script() {
   local base_dir=$1
@@ -63,6 +65,7 @@ for plugin ($plugins_lazy); do
 done
 
 # fpath changes must come before compinit
+fpath=($MY_CONFIG_ROOT/plugins/git-escape-magic $fpath)
 fpath=($MY_CONFIG_ROOT/zsh/zsh-completions/src $fpath)
 
 # Load all stock functions (from $fpath files) called below.

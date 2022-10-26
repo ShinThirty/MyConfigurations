@@ -1,3 +1,6 @@
+# Use extended globbing
+setopt extendedglob
+
 # less auto exits
 alias less="less -FRX"
 
