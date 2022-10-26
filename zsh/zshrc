@@ -16,6 +16,7 @@ plugins=(
   copypath
   cp
   dirhistory
+  encode64
   extract
   globalias
   rsync
