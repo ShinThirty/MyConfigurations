@@ -32,12 +32,14 @@ plugins_lazy=(
   docker
   git
   git-escape-magic
+  gitignore
   kubectl
   tmux
 )
 typeset -A command_lazy
 command_lazy[archlinux]=pacman
 command_lazy[git-escape-magic]=git
+command_lazy[gitignore]=git
 
 has_completion_script() {
   local base_dir=$1
