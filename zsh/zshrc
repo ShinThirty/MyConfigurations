@@ -33,6 +33,7 @@ plugins_lazy=(
   git
   git-escape-magic
   gitignore
+  golang
   kubectl
   tmux
 )
@@ -40,6 +41,7 @@ typeset -A command_lazy
 command_lazy[archlinux]=pacman
 command_lazy[git-escape-magic]=git
 command_lazy[gitignore]=git
+command_lazy[golang]=go
 
 has_completion_script() {
   local base_dir=$1
