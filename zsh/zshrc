@@ -19,6 +19,8 @@ plugins=(
   encode64
   extract
   globalias
+  gradle
+  mvn
   rsync
   universalarchive
 )
@@ -67,8 +69,6 @@ for plugin ($plugins_lazy); do
     fi
   fi
 done
-
-# fpath changes must come before compinit
 fpath=($MY_CONFIG_ROOT/plugins/git-escape-magic $fpath)
 fpath=($MY_CONFIG_ROOT/zsh/zsh-completions/src $fpath)
 
