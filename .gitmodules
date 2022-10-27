@@ -22,3 +22,6 @@
 [submodule "powerlevel10k"]
 	path = powerlevel10k
 	url = git@github.com:romkatv/powerlevel10k.git
+[submodule "improved-nano-syntax-highlighting-files"]
+	path = improved-nano-syntax-highlighting-files
+	url = git@github.com:scopatz/nanorc.git
