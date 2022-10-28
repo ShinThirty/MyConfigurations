@@ -79,7 +79,7 @@ if (( $+commands[fzf] )); then
 		alias fzp="fzf --preview 'bat --style=numbers --color=always --line-range :500 {}'"
 
 		# Bat theme
-		export BAT_THEME='Dracula'
+		export BAT_THEME='gruvbox-dark'
 	fi
 fi
 
