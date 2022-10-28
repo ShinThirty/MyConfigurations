@@ -13,9 +13,6 @@ originals=(
 	"$PWD/nvim/site"
 	"$PWD/p10k.zsh"
 	"$PWD/tmux/tmux.conf"
-	"$PWD/vim"
-	"$PWD/vim/ideavimrc"
-	"$PWD/vim/vimrc"
 	"$PWD/wezterm/wezterm.lua"
 	"$PWD/zsh/zshrc"
 )
@@ -28,9 +25,6 @@ links=(
 	"$HOME/.local/share/nvim/site"
 	"$HOME/.p10k.zsh"
 	"$HOME/.tmux.conf"
-	"$HOME/.vim"
-	"$HOME/.ideavimrc"
-	"$HOME/.vimrc"
 	"$HOME/.wezterm.lua"
 	"$HOME/.zshrc"
 )
