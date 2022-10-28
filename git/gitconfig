@@ -10,10 +10,10 @@
 	name = Lingnan Liu
 [merge]
 	conflictstyle = diff3
-	tool = vimdiff
+	tool = nvimdiff
 [diff]
 	colorMoved = default
-	tool = vimdiff
+	tool = nvimdiff
 [interactive]
 	diffFilter = delta --color-only
 [add.interactive]
