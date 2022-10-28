@@ -25,3 +25,6 @@
 [submodule "improved-nano-syntax-highlighting-files"]
 	path = improved-nano-syntax-highlighting-files
 	url = git@github.com:scopatz/nanorc.git
+[submodule "nvim"]
+	path = nvim
+	url = git@github.com:ShinThirty/nvim.git
