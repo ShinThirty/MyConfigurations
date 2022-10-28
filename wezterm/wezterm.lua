@@ -1,8 +1,5 @@
 local wezterm = require 'wezterm'
 
-local home_dir = wezterm.home_dir
-local configuration_dir = home_dir .. "/MyConfigurations"
-
 wezterm.on("update-right-status", function(window, pane)
     -- Each element holds the text for a cell in a "powerline" style << fade
     local cells = {};
@@ -62,9 +59,8 @@ wezterm.on("update-right-status", function(window, pane)
     window:set_right_status(wezterm.format(elements));
 end);
 
-local colors, _ = wezterm.color.load_scheme(configuration_dir .. "/wezterm/nightfox_wezterm.toml")
 return {
-    colors = colors,
+    color_scheme = "Gruvbox dark, hard (base16)",
     font = wezterm.font_with_fallback {
         { family = 'JetBrainsMono Nerd Font', weight = 'Bold' },
     },
