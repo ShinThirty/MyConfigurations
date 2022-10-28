@@ -32,6 +32,8 @@ zmodload zsh/net/tcp
 
 # Use NeoVim in place of vim
 if (( $+commands[nvim] )); then
+	export VISUAL=nvim
+	export EDITOR="$VISUAL"
 	alias vim="nvim"
 fi
 
