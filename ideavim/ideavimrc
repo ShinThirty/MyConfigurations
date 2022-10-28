@@ -1,0 +1,74 @@
+" -- Suggested options --
+set autoindent
+set autoread                                                 " reload files when changed on disk, i.e. via `git checkout`
+set backspace=2                                              " Fix broken backspace in some setups
+set backupcopy=yes                                           " see :help crontab
+set clipboard=unnamed                                        " yank and paste with the system clipboard
+set clipboard+=ideaput
+set directory-=.                                             " don't store swapfiles in the current directory
+set encoding=utf-8
+set expandtab                                                " expand tabs to spaces
+set ignorecase                                               " case-insensitive search
+set incsearch                                                " search as you type
+set laststatus=2                                             " always show statusline
+set list                                                     " show trailing whitespace
+set listchars=tab:▸\ ,trail:▫
+set number                                                   " show line numbers
+set ruler                                                    " show where you are
+set scrolloff=3                                              " show context above/below cursorline
+set shiftwidth=2                                             " normal mode indentation commands use 2 spaces
+set showcmd
+set showmode
+set smartcase                                                " case-sensitive search if any caps
+set softtabstop=2                                            " insert mode tab and backspace use 2 spaces
+set tabstop=8                                                " actual tabs occupy 8 characters
+set updatetime=100
+set wildignore=log/**,node_modules/**,target/**,tmp/**,*.rbc
+set wildmenu                                                 " show a navigable menu for tab completion
+set wildmode=longest,list,full
+
+" keyboard shortcuts
+let mapleader = " "
+noremap <C-h> <C-w>h
+noremap <C-j> <C-w>j
+noremap <C-k> <C-w>k
+noremap <C-l> <C-w>l
+
+" in case you forgot to sudo
+cnoremap w!! %!sudo tee > /dev/null %
+
+" Don't use Ex mode, use Q for formatting.
+map Q gq
+
+" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
+map <leader>d <Action>(Debug)
+map <leader>r <Action>(RenameElement)
+map <leader>c <Action>(Stop)
+map <leader>z <Action>(ToggleZenMode)
+map <leader>s <Action>(SelectInProjectView)
+map <leader>a <Action>(Annotate)
+map <leader>h <Action>(Vcs.ShowTabbedFileHistory)
+map <S-Space> <Action>(GotoNextError)
+map <leader>b <Action>(ToggleLineBreakpoint)
+map <leader>o <Action>(FileStructurePopup)
+
+" Emulated plugins
+Plug 'preservim/nerdtree'
+
+Plug 'tpope/vim-surround'
+
+Plug 'tpope/vim-commentary'
+
+Plug 'vim-scripts/ReplaceWithRegister'
+
+Plug 'vim-scripts/argtextobj.vim'
+let g:argtextobj_pairs="(:),{:},<:>"
+
+Plug 'tommcdo/vim-exchange'
+
+Plug 'kana/vim-textobj-entire'
+
+Plug 'machakann/vim-highlightedyank'
+let g:highlightedyank_highlight_duration = 1000
+
+Plug 'michaeljsmith/vim-indent-object'
