@@ -30,10 +30,12 @@ bindkey '^L' clear-screen-and-scrollback
 
 zmodload zsh/net/tcp
 
+# Use nano as the default editor
+export VISUAL=nano
+export EDITOR="$VISUAL"
+
 # Use NeoVim in place of vim
 if (( $+commands[nvim] )); then
-	export VISUAL=nvim
-	export EDITOR="$VISUAL"
 	alias vim="nvim"
 fi
 
