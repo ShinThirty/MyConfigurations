@@ -22,6 +22,7 @@ plugins=(
   gradle
   mvn
   rsync
+  sudo
   universalarchive
 )
 
