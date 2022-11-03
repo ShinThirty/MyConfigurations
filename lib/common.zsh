@@ -1,6 +1,9 @@
 # Change XDG_CONFIG_HOME
 export XDG_CONFIG_HOME="$HOME/.config"
 
+# Setup GPG_TTY
+export GPG_TTY=$(tty)
+
 # Use extended globbing
 setopt extendedglob
 

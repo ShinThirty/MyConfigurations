@@ -6,8 +6,8 @@
 [url "git@github.com:"]
 	insteadOf = https://github.com/
 [user]
-	email = liliu@confluent.io
 	name = Lingnan Liu
+	useConfigOnly = true
 [merge]
 	conflictstyle = diff3
 	tool = nvimdiff
@@ -22,3 +22,5 @@
 	navigate = true    # use n and N to move between diff sections
 	light = false      # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
 	side-by-side = true
+[commit]
+	gpgsign = true
