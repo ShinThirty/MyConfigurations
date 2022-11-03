@@ -47,10 +47,12 @@ map <leader>c <Action>(Stop)
 map <leader>z <Action>(ToggleZenMode)
 map <leader>s <Action>(SelectInProjectView)
 map <leader>a <Action>(Annotate)
-map <leader>h <Action>(Vcs.ShowTabbedFileHistory)
 map <S-Space> <Action>(GotoNextError)
 map <leader>b <Action>(ToggleLineBreakpoint)
 map <leader>o <Action>(FileStructurePopup)
+map <leader>hr <Action>(Vcs.RollbackChangedLines)
+map [c <Action>(VcsShowPrevChangeMarker)
+map ]c <Action>(VcsShowNextChangeMarker)
 
 " Emulated plugins
 Plug 'preservim/nerdtree'
