@@ -24,6 +24,8 @@ plugins=(
   rsync
   sudo
   universalarchive
+  urltools
+  web-search
 )
 
 plugins_lazy=(
