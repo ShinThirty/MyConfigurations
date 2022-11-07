@@ -130,4 +130,6 @@ if (( $+commands[mcfly] )); then
 fi
 
 # Alias docker to podman
-alias docker=podman
+if (( $+commands[podman] )); then
+	alias docker=podman
+fi
