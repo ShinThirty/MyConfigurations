@@ -34,7 +34,6 @@ plugins_lazy=(
   brew
   cabal
   deno
-  docker
   git
   git-escape-magic
   gitignore

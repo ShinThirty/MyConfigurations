@@ -128,3 +128,6 @@ if (( $+commands[mcfly] )); then
 	export MCFLY_HISTORY_LIMIT=10000
 	eval "$(mcfly init zsh)"
 fi
+
+# Alias docker to podman
+alias docker=podman
