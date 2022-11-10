@@ -1,3 +1,6 @@
+set encoding=utf-8
+scriptencoding utf-8
+
 " -- Suggested options --
 set autoindent
 set autoread                                                 " reload files when changed on disk, i.e. via `git checkout`
@@ -6,7 +9,6 @@ set backupcopy=yes                                           " see :help crontab
 set clipboard=unnamed                                        " yank and paste with the system clipboard
 set clipboard+=ideaput
 set directory-=.                                             " don't store swapfiles in the current directory
-set encoding=utf-8
 set expandtab                                                " expand tabs to spaces
 set ignorecase                                               " case-insensitive search
 set incsearch                                                " search as you type
@@ -28,7 +30,7 @@ set wildmenu                                                 " show a navigable 
 set wildmode=longest,list,full
 
 " keyboard shortcuts
-let mapleader = " "
+let mapleader = ' '
 nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
@@ -71,7 +73,7 @@ nmap <Leader>rr <Plug>ReplaceWithRegisterLine
 xmap <Leader>r  <Plug>ReplaceWithRegisterVisual
 
 Plug 'vim-scripts/argtextobj.vim'
-let g:argtextobj_pairs="(:),{:},<:>"
+let g:argtextobj_pairs='(:),{:},<:>'
 
 Plug 'tommcdo/vim-exchange'
 
