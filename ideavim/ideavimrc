@@ -48,7 +48,7 @@ map Q gq
 map <leader>d <Action>(Debug)
 map <leader>r <Action>(RenameElement)
 map <leader>c <Action>(Stop)
-map <leader>z <Action>(ToggleZenMode)
+map <leader>z <Action>(ToggleDistractionFreeMode)
 map <leader>s <Action>(SelectInProjectView)
 map <leader>a <Action>(Annotate)
 map <S-Space> <Action>(GotoNextError)
