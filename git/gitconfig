@@ -10,10 +10,10 @@
 	useConfigOnly = true
 [merge]
 	conflictstyle = diff3
-	tool = nvimdiff
+	tool = vimdiff
 [diff]
 	colorMoved = default
-	tool = nvimdiff
+	tool = vimdiff
 [interactive]
 	diffFilter = delta --color-only
 [add.interactive]

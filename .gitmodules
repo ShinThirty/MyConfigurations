@@ -25,3 +25,6 @@
 [submodule "nvim"]
 	path = nvim
 	url = git@github.com:ShinThirty/nvim.git
+[submodule "vim"]
+	path = vim
+	url = git@github.com:ShinThirty/.vim.git
