@@ -47,11 +47,6 @@ zmodload zsh/net/tcp
 export VISUAL=nano
 export EDITOR="$VISUAL"
 
-# Use NeoVim in place of vim
-if (( $+commands[nvim] )); then
-	alias vim="nvim"
-fi
-
 if (( $+commands[fzf] )); then
 	alias rfv="$MY_CONFIG_ROOT/zsh/rfv"
 	source "$MY_CONFIG_ROOT/fzf-git/fzf-git.sh"
