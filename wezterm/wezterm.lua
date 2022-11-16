@@ -186,4 +186,5 @@ return {
   tab_bar_at_bottom = true,
   use_fancy_tab_bar = false,
   window_decorations = "RESIZE",
+  term = "wezterm",
 }
