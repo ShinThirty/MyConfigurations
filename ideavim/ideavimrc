@@ -65,9 +65,9 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 
 Plug 'vim-scripts/ReplaceWithRegister'
-nmap <Leader>r  <Plug>ReplaceWithRegisterOperator
-nmap <Leader>rr <Plug>ReplaceWithRegisterLine
-xmap <Leader>r  <Plug>ReplaceWithRegisterVisual
+nmap s <Plug>ReplaceWithRegisterOperator
+xmap s <Plug>ReplaceWithRegisterVisual
+nmap ss <Plug>ReplaceWithRegisterLine
 
 Plug 'vim-scripts/argtextobj.vim'
 let g:argtextobj_pairs='(:),{:},<:>'
