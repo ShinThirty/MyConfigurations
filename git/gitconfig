@@ -12,7 +12,7 @@
 	conflictstyle = diff3
 	tool = vim_mergetool
 [mergetool "vim_mergetool"]
-	cmd = vim -f -c "MergetoolStart" "$MERGED" "$BASE" "$LOCAL" "$REMOTE"
+	cmd = vimdiff -f -c "MergetoolStart" "$MERGED" "$BASE" "$LOCAL" "$REMOTE"
 	trustExitCode = true
 [diff]
 	colorMoved = default
