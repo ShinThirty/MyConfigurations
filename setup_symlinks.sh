@@ -67,7 +67,12 @@ setup_symlink_darwin() {
 	done
 }
 
+setup_symlink_linux() {
+	echo "Setting up symlinks for Linux"
+}
+
 case "$OSTYPE" in
 darwin*) setup_symlink_darwin ;;
+linux*) setup_symlink_linux ;;
 *) echo "unknown: $OSTYPE" ;;
 esac
