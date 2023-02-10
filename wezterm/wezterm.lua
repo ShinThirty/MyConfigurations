@@ -178,8 +178,9 @@ return {
   },
   font = wezterm.font_with_fallback {
     { family = "JetBrainsMono Nerd Font" },
+    { family = "Noto Sans Symbols 2" },
   },
-  font_size = 13.0,
+  font_size = 12.0,
   hide_tab_bar_if_only_one_tab = true,
   hyperlink_rules = hyperlink_rules,
   line_height = 1.2,
