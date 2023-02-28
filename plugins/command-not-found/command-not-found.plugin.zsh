@@ -1,41 +1,69 @@
 ## Platforms with a built-in command-not-found handler init file
 
-# MacOS
-if (( $+commands[brew] )); then
-  HB_CNF_HANDLER="$(brew --repository)/Library/Taps/homebrew/homebrew-command-not-found/handler.sh"
-  if [ -f "$HB_CNF_HANDLER" ]; then
-    source "$HB_CNF_HANDLER"
-  else
-    echo "Follow instructions at https://github.com/Homebrew/homebrew-command-not-found to setup command_not_found_handler"
+for file (
+  # Arch Linux. Must have pkgfile installed: https://wiki.archlinux.org/index.php/Pkgfile#Command_not_found
+  /usr/share/doc/pkgfile/command-not-found.zsh
+  # macOS (M1 and classic Homebrew): https://github.com/Homebrew/homebrew-command-not-found
+  /opt/homebrew/Library/Taps/homebrew/homebrew-command-not-found/handler.sh
+  /usr/local/Homebrew/Library/Taps/homebrew/homebrew-command-not-found/handler.sh
+); do
+  if [[ -r "$file" ]]; then
+    source "$file"
+    unset file
+    return 0
   fi
+done
+unset file
+
+
+## Platforms with manual command_not_found_handler() setup
+
+# Debian and derivatives: https://launchpad.net/ubuntu/+source/command-not-found
+if [[ -x /usr/lib/command-not-found || -x /usr/share/command-not-found/command-not-found ]]; then
+  command_not_found_handler() {
+    if [[ -x /usr/lib/command-not-found ]]; then
+      /usr/lib/command-not-found -- "$1"
+      return $?
+    elif [[ -x /usr/share/command-not-found/command-not-found ]]; then
+      /usr/share/command-not-found/command-not-found -- "$1"
+      return $?
+    else
+      printf "zsh: command not found: %s\n" "$1" >&2
+      return 127
+    fi
+  }
 fi
 
-# Arch Linux
-if (( $+commands[pacman] )); then
-  function command_not_found_handler {
-    local purple='\e[1;35m' bright='\e[0;1m' green='\e[1;32m' reset='\e[0m'
-    printf 'zsh: command not found: %s\n' "$1"
-    local entries=(
-      ${(f)"$(/usr/bin/pacman -F --machinereadable -- "/usr/bin/$1")"}
-    )
-    if (( ${#entries[@]} ))
-    then
-      printf "${bright}$1${reset} may be found in the following packages:\n"
-      local pkg
-      for entry in "${entries[@]}"
-      do
-        # (repo package version file)
-        local fields=(
-          ${(0)entry}
-        )
-        if [[ "$pkg" != "${fields[2]}" ]]
-        then
-          printf "${purple}%s/${bright}%s ${green}%s${reset}\n" "${fields[1]}" "${fields[2]}" "${fields[3]}"
-        fi
-        printf '  /%s\n' "${fields[4]}"
-        pkg="${fields[2]}"
-      done
+# Fedora: https://fedoraproject.org/wiki/Features/PackageKitCommandNotFound
+if [[ -x /usr/libexec/pk-command-not-found ]]; then
+  command_not_found_handler() {
+    if [[ -S /var/run/dbus/system_bus_socket && -x /usr/libexec/packagekitd ]]; then
+      /usr/libexec/pk-command-not-found "$@"
+      return $?
     fi
+
+    printf "zsh: command not found: %s\n" "$1" >&2
     return 127
+  }
+fi
+
+# NixOS: https://github.com/NixOS/nixpkgs/tree/master/nixos/modules/programs/command-not-found
+if [[ -x /run/current-system/sw/bin/command-not-found ]]; then
+  command_not_found_handler() {
+    /run/current-system/sw/bin/command-not-found "$@"
+  }
+fi
+
+# Termux: https://github.com/termux/command-not-found
+if [[ -x /data/data/com.termux/files/usr/libexec/termux/command-not-found ]]; then
+  command_not_found_handler() {
+    /data/data/com.termux/files/usr/libexec/termux/command-not-found "$1"
+  }
+fi
+
+# SUSE and derivates: https://www.unix.com/man-page/suse/1/command-not-found/
+if [[ -x /usr/bin/command-not-found ]]; then
+  command_not_found_handler() {
+    /usr/bin/command-not-found "$1"
   }
 fi
