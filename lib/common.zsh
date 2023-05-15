@@ -98,7 +98,7 @@ if (( $+commands[zoxide] )); then
     z() {
         unfunction "$0"
         eval "$(zoxide init zsh)"
-        $0 "$@"
+        __zoxide_z "$@"
     }
 fi
 
