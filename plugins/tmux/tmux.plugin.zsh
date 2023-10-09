@@ -26,12 +26,17 @@ fi
 # systems without the proper terminfo
 : ${ZSH_TMUX_FIXTERM_WITH_256COLOR:=screen-256color}
 # Set the configuration path
-: ${ZSH_TMUX_CONFIG:=$HOME/.tmux.conf}
+if [[ -e $HOME/.tmux.conf ]]; then
+  : ${ZSH_TMUX_CONFIG:=$HOME/.tmux.conf}
+elif [[ -e ${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf ]]; then
+  : ${ZSH_TMUX_CONFIG:=${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf}
+else
+  : ${ZSH_TMUX_CONFIG:=$HOME/.tmux.conf}
+fi
 # Set -u option to support unicode
 : ${ZSH_TMUX_UNICODE:=false}
 
 # ALIASES
-
 alias ta='tmux attach -t'
 alias tad='tmux attach -d -t'
 alias ts='tmux new-session -s'
@@ -104,7 +109,7 @@ compdef _tmux _zsh_tmux_plugin_run
 alias tmux=_zsh_tmux_plugin_run
 
 # Autostart if not already in tmux and enabled.
-if [[ -z "$TMUX" && "$ZSH_TMUX_AUTOSTART" == "true" && -z "$INSIDE_EMACS" && -z "$EMACS" && -z "$VIM" ]]; then
+if [[ -z "$TMUX" && "$ZSH_TMUX_AUTOSTART" == "true" && -z "$INSIDE_EMACS" && -z "$EMACS" && -z "$VIM" && -z "$INTELLIJ_ENVIRONMENT_READER" ]]; then
   # Actually don't autostart if we already did and multiple autostarts are disabled.
   if [[ "$ZSH_TMUX_AUTOSTART_ONCE" == "false" || "$ZSH_TMUX_AUTOSTARTED" != "true" ]]; then
     export ZSH_TMUX_AUTOSTARTED=true

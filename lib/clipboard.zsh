@@ -100,21 +100,8 @@ function detect-clipboard() {
   fi
 }
 
-# Detect at startup. A non-zero exit here indicates that the dummy clipboards were set,
-# which is not really an error. If the user calls them, they will attempt to redetect
-# (for example, perhaps the user has now installed xclip) and then either print an error
-# or proceed successfully.
-setup() {
+function clipcopy clippaste {
   unfunction clipcopy clippaste
-  eval "detect-clipboard || true"
-}
-
-clipcopy() {
-  setup
-  $0 "$@"
-}
-
-clippaste() {
-  setup
-  $0 "$@"
+  detect-clipboard || true # let one retry
+  "$0" "$@"
 }
