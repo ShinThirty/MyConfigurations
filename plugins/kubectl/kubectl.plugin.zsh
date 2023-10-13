@@ -41,7 +41,7 @@ alias kccc='kubectl config current-context'
 # List all contexts
 alias kcgc='kubectl config get-contexts'
 
-# General aliases
+# General aliases
 alias kdel='kubectl delete'
 alias kdelf='kubectl delete -f'
 
@@ -170,6 +170,7 @@ alias kdelsa="kubectl delete sa"
 
 # DaemonSet management.
 alias kgds='kubectl get daemonset'
+alias kgdsa='kubectl get daemonset --all-namespaces'
 alias kgdsw='kgds --watch'
 alias keds='kubectl edit daemonset'
 alias kdds='kubectl describe daemonset'

@@ -107,13 +107,13 @@ if (( $+commands[cheat] )); then
     export CHEAT_USE_FZF=true
 fi
 
-# Use exa as ls if exa is installed
-if (( $+commands[exa] )); then
-    alias ls='exa'
-    alias l='exa -l --all --group-directories-first --git'
-    alias lt='exa -T --git-ignore --level=2 --group-directories-first'
-    alias llt='exa -lT --git-ignore --level=2 --group-directories-first'
-    alias lT='exa -T --git-ignore --level=4 --group-directories-first'
+# Use eza as ls if eza is installed
+if (( $+commands[eza] )); then
+    alias ls='eza'
+    alias l='eza -l --all --group-directories-first --git'
+    alias lt='eza -T --git-ignore --level=2 --group-directories-first'
+    alias llt='eza -lT --git-ignore --level=2 --group-directories-first'
+    alias lT='eza -T --git-ignore --level=4 --group-directories-first'
 fi
 
 # Enable mcfly
