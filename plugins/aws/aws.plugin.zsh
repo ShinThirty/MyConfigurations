@@ -29,7 +29,13 @@ function asp() {
   export AWS_PROFILE_REGION=$(aws configure get region)
 
   if [[ "$2" == "login" ]]; then
-    aws sso login
+    if [[ -n "$3" ]]; then
+      aws sso login --sso-session $3
+    else
+      aws sso login
+    fi
+  elif [[ "$2" == "logout" ]]; then
+    aws sso logout
   fi
 }
 
@@ -196,8 +202,17 @@ function aws_change_access_key() {
 }
 
 function aws_regions() {
+  local region
+  if [[ $AWS_DEFAULT_REGION ]];then
+      region="$AWS_DEFAULT_REGION"
+  elif [[ $AWS_REGION ]];then
+      region="$AWS_REGION"
+  else
+      region="us-west-1"
+  fi
+
   if [[ $AWS_DEFAULT_PROFILE || $AWS_PROFILE ]];then
-    aws ec2 describe-regions |grep RegionName | awk -F ':' '{gsub(/"/, "", $2);gsub(/,/, "", $2);gsub(/ /, "", $2);  print $2}'
+    aws ec2 describe-regions --region $region |grep RegionName | awk -F ':' '{gsub(/"/, "", $2);gsub(/,/, "", $2);gsub(/ /, "", $2);  print $2}'
   else
     echo "You must specify a AWS profile."
   fi
