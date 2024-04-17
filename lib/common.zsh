@@ -9,7 +9,7 @@ mkdir -p "$ZSH_CACHE_DIR/completions"
 export XDG_CONFIG_HOME="$HOME/.config"
 
 # Setup GPG_TTY
-export GPG_TTY=$(tty)
+export GPG_TTY=$TTY
 
 # Use extended globbing
 setopt extendedglob
@@ -48,6 +48,9 @@ export VISUAL=nano
 export EDITOR="$VISUAL"
 
 if (( $+commands[fzf] )); then
+    # Set up fzf key bindings and fuzzy completion
+    eval "$(fzf --zsh)"
+
     alias rfv="$MY_CONFIG_ROOT/zsh/rfv"
     source "$MY_CONFIG_ROOT/fzf-git/fzf-git.sh"
 
@@ -68,12 +71,6 @@ if (( $+commands[fzf] )); then
     _fzf_compgen_dir() {
         fd --type d --hidden --follow --exclude ".git" . "$1"
     }
-
-    if [ -f $HOME/.fzf.zsh ]; then
-        source $HOME/.fzf.zsh
-    else
-        echo "FZF fuzzy completion won't work until its shell completion script is installed"
-    fi
 
     # Setting up fzf default options
     export FZF_DEFAULT_OPTS='--height=60% --layout=reverse --info=inline --border --margin=1 --padding=1'
@@ -114,14 +111,6 @@ if (( $+commands[eza] )); then
     alias lt='eza -T --git-ignore --level=2 --group-directories-first'
     alias llt='eza -lT --git-ignore --level=2 --group-directories-first'
     alias lT='eza -T --git-ignore --level=4 --group-directories-first'
-fi
-
-# Enable mcfly
-if (( $+commands[mcfly] )); then
-    export MCFLY_KEY_SCHEME=vim
-    export MCFLY_FUZZY=2
-    export MCFLY_HISTORY_LIMIT=10000
-    eval "$(mcfly init zsh)"
 fi
 
 # Enable locate on MacOS
