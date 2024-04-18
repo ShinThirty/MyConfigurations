@@ -12,8 +12,8 @@ trap 'rm -rf kubectl.sha256' EXIT
 
 VERSION=$1
 
-curl -LO "https://dl.k8s.io/release/v$VERSION/bin/darwin/amd64/kubectl"
-curl -LO "https://dl.k8s.io/release/v$VERSION/bin/darwin/amd64/kubectl.sha256"
+curl -LO "https://dl.k8s.io/release/v$VERSION/bin/darwin/arm64/kubectl"
+curl -LO "https://dl.k8s.io/release/v$VERSION/bin/darwin/arm64/kubectl.sha256"
 echo "$(cat kubectl.sha256)  kubectl" | shasum -a 256 --check
 
 chmod +x ./kubectl
