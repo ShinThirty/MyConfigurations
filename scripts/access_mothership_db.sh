@@ -2,7 +2,7 @@
 
 access_mothership_db_ro() {
     export CC_DOTFILES_BETA=true
-    . /Users/lliu/Workspaces/cc-dotfiles/caas.sh
+    . $HOME/.cc-dotfiles/caas.sh
 
     ENVIRONMENT=devel
 
@@ -19,7 +19,7 @@ access_mothership_db_ro() {
 
 access_mothership_db_rw() {
     export CC_DOTFILES_BETA=true
-    . "$HOME"/Workspaces/cc-dotfiles/caas.sh
+    . $HOME/.cc-dotfiles/caas.sh
 
     ENVIRONMENT=devel
 

@@ -104,9 +104,6 @@ for plugin ($plugins_lazy); do
 done
 unset plugin
 
-# Machine specific configurations
-source "$HOME/.zshrc.local"
-
 # Powerlevel 10k
 source "$MY_CONFIG_ROOT/powerlevel10k/powerlevel10k.zsh-theme"
 
