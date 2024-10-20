@@ -113,3 +113,6 @@ source "$MY_CONFIG_ROOT/powerlevel10k/powerlevel10k.zsh-theme"
 # Auto suggestions and syntax highlighting, needs to be always the last lines
 source "$MY_CONFIG_ROOT/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
 source "$MY_CONFIG_ROOT/zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+
+# Import local configurations
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

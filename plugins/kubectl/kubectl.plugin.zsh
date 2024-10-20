@@ -47,6 +47,9 @@ alias kdelf='kubectl delete -f'
 
 # Pod management.
 alias kgp='kubectl get pods'
+alias kgpl='kgp -l'
+alias kgpn='kgp -n'
+alias kgpsl='kubectl get pods --show-labels'
 alias kgpa='kubectl get pods --all-namespaces'
 alias kgpw='kgp --watch'
 alias kgpwide='kgp -o wide'
@@ -54,12 +57,6 @@ alias kep='kubectl edit pods'
 alias kdp='kubectl describe pods'
 alias kdelp='kubectl delete pods'
 alias kgpall='kubectl get pods --all-namespaces -o wide'
-
-# get pod by label: kgpl "app=myapp" -n myns
-alias kgpl='kgp -l'
-
-# get pod by namespace: kgpn kube-system"
-alias kgpn='kgp -n'
 
 # Service management.
 alias kgs='kubectl get svc'
@@ -152,6 +149,7 @@ alias kcp='kubectl cp'
 
 # Node Management
 alias kgno='kubectl get nodes'
+alias kgnosl='kubectl get nodes --show-labels'
 alias keno='kubectl edit node'
 alias kdno='kubectl describe node'
 alias kdelno='kubectl delete node'
@@ -191,14 +189,23 @@ alias kdelj='kubectl delete job'
 # short alias to set/show context/namespace (only works for bash and bash-compatible shells, current context to be set before using kn to set namespace)
 alias kx='f() { [ "$1" ] && kubectl config use-context $1 || kubectl config current-context ; } ; f'
 alias kn='f() { [ "$1" ] && kubectl config set-context --current --namespace $1 || kubectl config view --minify | grep namespace | cut -d" " -f6 ; } ; f'
+# Utility print functions (json / yaml)
+function _build_kubectl_out_alias {
+  setopt localoptions norcexpandparam
 
-# Only run if the user actually has kubectl installed
-if (( ${+_comps[kubectl]} )); then
-  function kj() { kubectl "$@" -o json | jq; }
-  function kjx() { kubectl "$@" -o json | jless; }
-  function ky() { kubectl "$@" -o yaml | yh; }
+  # alias function
+  eval "function $1 { $2 }"
 
-  compdef kj=kubectl
-  compdef kjx=kubectl
-  compdef ky=kubectl
-fi
+  # completion function
+  eval "function _$1 {
+    words=(kubectl \"\${words[@]:1}\")
+    _kubectl
+  }"
+
+  compdef _$1 $1
+}
+
+_build_kubectl_out_alias "kj"  'kubectl "$@" -o json | jq'
+_build_kubectl_out_alias "kjx" 'kubectl "$@" -o json | jless'
+_build_kubectl_out_alias "ky"  'kubectl "$@" -o yaml | yh'
+unfunction _build_kubectl_out_alias
