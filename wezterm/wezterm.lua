@@ -76,7 +76,7 @@ wezterm.on("update-right-status", function(window, pane)
   -- Each element holds the text for a cell in a "powerline" style << fade
   local cells = {}
 
-  local cwd = pane:get_current_working_dir():sub(8) -- remove file:// uri prefix
+  local cwd = pane:get_current_working_dir().file_path
   local hostname = wezterm.hostname()
   table.insert(cells, cwd)
   table.insert(cells, hostname)
