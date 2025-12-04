@@ -1,0 +1,6 @@
+[Unit]
+Description=Aria2c Update BitTorrent Tracker List Script
+
+[Service]
+Type=oneshot
+ExecStart=%E/aria2/aria2_update_tracker.sh

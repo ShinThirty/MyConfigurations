@@ -1,0 +1,9 @@
+[Unit]
+Description=Update Aria2c BitTorrent Tracker List Automatically
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
+
+[Install]
+WantedBy=timers.target
