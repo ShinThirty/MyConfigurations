@@ -1,0 +1,44 @@
+# --- Fonts & Theme ---
+font-family = JetBrainsMono Nerd Font
+font-size = 12
+font-feature = calt, liga, dlig
+theme = Gruvbox Dark Hard
+
+# --- Window Appearance ---
+# Adds breathing room around the text
+adjust-cell-height = 20%
+window-padding-x = 7
+window-padding-y = 7
+# Blurs the background content (macOS only)
+window-vsync = true
+
+# --- Vim-like Split Management ---
+# Create splits (Alt + s for horizontal, Alt + v for vertical)
+keybind = alt+s=new_split:down
+keybind = alt+v=new_split:right
+
+# Navigate splits (Alt + h/j/k/l)
+keybind = alt+h=goto_split:left
+keybind = alt+j=goto_split:down
+keybind = alt+k=goto_split:up
+keybind = alt+l=goto_split:right
+
+# Resize splits (Ctrl + Alt + h/j/k/l)
+keybind = ctrl+alt+h=resize_split:left,10
+keybind = ctrl+alt+j=resize_split:down,10
+keybind = ctrl+alt+k=resize_split:up,10
+keybind = ctrl+alt+l=resize_split:right,10
+
+# Zoom a split (maximized)
+keybind = alt+z=toggle_split_zoom
+
+# Close the current split
+keybind = alt+q=close_surface
+
+# --- Vim-like Tab Management ---
+# New tab
+keybind = alt+t=new_tab
+
+# Navigate tabs (Alt + n/p or Alt + ,/.)
+keybind = alt+n=next_tab
+keybind = alt+p=previous_tab

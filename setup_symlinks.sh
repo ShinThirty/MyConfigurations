@@ -15,7 +15,7 @@ originals=(
     "$PWD/p10k.zsh"
     "$PWD/tmux/tmux.conf"
     "$PWD/vale.ini"
-    "$PWD/wezterm/wezterm.lua"
+    "$PWD/ghostty"
     "$PWD/zsh/zshrc"
 )
 links=(
@@ -29,7 +29,7 @@ links=(
     "$HOME/.p10k.zsh"
     "$HOME/.tmux.conf"
     "$HOME/.vale.ini"
-    "$HOME/.wezterm.lua"
+    "$HOME/.config/ghostty"
     "$HOME/.zshrc"
 )
 
