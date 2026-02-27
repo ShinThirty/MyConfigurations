@@ -53,10 +53,10 @@ done
 setup_symlink_darwin() {
 	echo "Setting up symlinks for MacOS"
 	originals_darwin=(
-		"$PWD/amethyst/amethyst.yml"
+		"$PWD/aerospace"
 	)
 	links_darwin=(
-		"$HOME/.amethyst.yml"
+		"$HOME/.config/aerospace"
 	)
 
 	for index in ${!originals_darwin[*]}; do
