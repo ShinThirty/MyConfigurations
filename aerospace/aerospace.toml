@@ -218,10 +218,6 @@ on-mode-changed = []
     alt-shift-k = ['join-with up', 'mode main']
     alt-shift-l = ['join-with right', 'mode main']
 
-[[on-window-detected]]
-if.app-id = 'com.mitchellh.ghostty'
-run = ['layout floating', 'fullscreen']
-
 [workspace-to-monitor-force-assignment]
 '1' = 'built-in'
 '2' = 'main'
