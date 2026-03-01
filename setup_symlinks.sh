@@ -5,11 +5,9 @@ set -euo pipefail
 echo "Setting up symlinks with PWD = $PWD"
 
 originals=(
-	"$PWD/cheat"
 	"$PWD/git/gitconfig"
 	"$PWD/git/ignore"
 	"$PWD/ideavim/ideavimrc"
-	"$PWD/nano"
 	"$PWD/nvim"
 	"$PWD/vim"
 	"$PWD/p10k.zsh"
@@ -21,11 +19,9 @@ originals=(
 	"$PWD/zsh/zshrc"
 )
 links=(
-	"$HOME/.config/cheat"
 	"$HOME/.gitconfig"
 	"$HOME/.config/git/ignore"
 	"$HOME/.ideavimrc"
-	"$HOME/.config/nano"
 	"$HOME/.config/nvim"
 	"$HOME/.vim"
 	"$HOME/.p10k.zsh"

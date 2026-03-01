@@ -1,12 +1,6 @@
 [submodule "fzf-git"]
 	path = fzf-git
 	url = git@github.com:junegunn/fzf-git.sh.git
-[submodule "cheat/cheatsheets/community"]
-	path = cheat/cheatsheets/community
-	url = git@github.com:cheat/cheatsheets.git
-[submodule "cheat/cheatsheets/personal"]
-	path = cheat/cheatsheets/personal
-	url = git@github.com:ShinThirty/personal-cheatsheets.git
 [submodule "zsh/zsh-completions"]
 	path = zsh/zsh-completions
 	url = https://github.com/zsh-users/zsh-completions.git
@@ -19,9 +13,6 @@
 [submodule "powerlevel10k"]
 	path = powerlevel10k
 	url = git@github.com:romkatv/powerlevel10k.git
-[submodule "improved-nano-syntax-highlighting-files"]
-	path = improved-nano-syntax-highlighting-files
-	url = git@github.com:scopatz/nanorc.git
 [submodule "nvim"]
 	path = nvim
 	url = git@github.com:ShinThirty/nvim.git

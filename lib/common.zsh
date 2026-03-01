@@ -43,8 +43,8 @@ bindkey '^L' clear-screen-and-scrollback
 
 zmodload zsh/net/tcp
 
-# Use nano as the default editor
-export VISUAL=nano
+# Use vim as the default editor
+export VISUAL=vim
 export EDITOR="$VISUAL"
 
 if (( $+commands[fzf] )); then
@@ -102,13 +102,6 @@ fi
 if (( $+commands[cheat] )); then
     # Cheat integration with FZF
     export CHEAT_USE_FZF=true
-fi
-
-# Setup nnn
-if (( $+commands[nnn] )); then
-    alias nnn_update_plugins='sh -c "$(curl -Ls https://raw.githubusercontent.com/jarun/nnn/master/plugins/getplugs)"'
-    export NNN_FIFO=/tmp/nnn.fifo
-    export NNN_PLUG='p:-preview-tui'
 fi
 
 # Use eza as ls if eza is installed
