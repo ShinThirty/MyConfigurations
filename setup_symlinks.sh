@@ -5,76 +5,74 @@ set -euo pipefail
 echo "Setting up symlinks with PWD = $PWD"
 
 originals=(
-	"$PWD/git/gitconfig"
-	"$PWD/git/ignore"
-	"$PWD/ideavim/ideavimrc"
-	"$PWD/nvim"
-	"$PWD/vim"
-	"$PWD/p10k.zsh"
-	"$PWD/tmux/tmux.conf"
-	"$PWD/vale.ini"
-	"$PWD/kitty"
-	"$PWD/yazi/yazi.toml"
-	"$PWD/yazi/theme.toml"
-	"$PWD/zsh/zshrc"
+  "$PWD/git/gitconfig"
+  "$PWD/git/ignore"
+  "$PWD/ideavim/ideavimrc"
+  "$PWD/nvim"
+  "$PWD/vim"
+  "$PWD/p10k.zsh"
+  "$PWD/tmux/tmux.conf"
+  "$PWD/kitty"
+  "$PWD/yazi/yazi.toml"
+  "$PWD/yazi/theme.toml"
+  "$PWD/zsh/zshrc"
 )
 links=(
-	"$HOME/.gitconfig"
-	"$HOME/.config/git/ignore"
-	"$HOME/.ideavimrc"
-	"$HOME/.config/nvim"
-	"$HOME/.vim"
-	"$HOME/.p10k.zsh"
-	"$HOME/.tmux.conf"
-	"$HOME/.vale.ini"
-	"$HOME/.config/kitty"
-	"$HOME/.config/yazi/yazi.toml"
-	"$HOME/.config/yazi/theme.toml"
-	"$HOME/.zshrc"
+  "$HOME/.gitconfig"
+  "$HOME/.config/git/ignore"
+  "$HOME/.ideavimrc"
+  "$HOME/.config/nvim"
+  "$HOME/.vim"
+  "$HOME/.p10k.zsh"
+  "$HOME/.tmux.conf"
+  "$HOME/.config/kitty"
+  "$HOME/.config/yazi/yazi.toml"
+  "$HOME/.config/yazi/theme.toml"
+  "$HOME/.zshrc"
 )
 
 for index in ${!originals[*]}; do
-	original=${originals[$index]}
-	link=${links[$index]}
-	echo "Setting up symlink: $original -> $link"
-	if [ -L "$link" ] && [ -e "$link" ]; then
-		echo "Found existing $link"
-	else
-		rm -rf "$link"
-		ln -sf "$original" "$link"
-		echo "Created symlink: $original -> $link"
-	fi
+  original=${originals[$index]}
+  link=${links[$index]}
+  echo "Setting up symlink: $original -> $link"
+  if [ -L "$link" ] && [ -e "$link" ]; then
+    echo "Found existing $link"
+  else
+    rm -rf "$link"
+    ln -sf "$original" "$link"
+    echo "Created symlink: $original -> $link"
+  fi
 done
 
 setup_symlink_darwin() {
-	echo "Setting up symlinks for MacOS"
-	originals_darwin=(
-		"$PWD/aerospace"
-	)
-	links_darwin=(
-		"$HOME/.config/aerospace"
-	)
+  echo "Setting up symlinks for MacOS"
+  originals_darwin=(
+    "$PWD/aerospace"
+  )
+  links_darwin=(
+    "$HOME/.config/aerospace"
+  )
 
-	for index in ${!originals_darwin[*]}; do
-		original=${originals_darwin[$index]}
-		link=${links_darwin[$index]}
-		echo "Setting up symlink: $original -> $link"
-		if [ -L "$link" ] && [ -e "$link" ]; then
-			echo "Found existing $link"
-		else
-			rm -rf "$link"
-			ln -sf "$original" "$link"
-			echo "Created symlink: $original -> $link"
-		fi
-	done
+  for index in ${!originals_darwin[*]}; do
+    original=${originals_darwin[$index]}
+    link=${links_darwin[$index]}
+    echo "Setting up symlink: $original -> $link"
+    if [ -L "$link" ] && [ -e "$link" ]; then
+      echo "Found existing $link"
+    else
+      rm -rf "$link"
+      ln -sf "$original" "$link"
+      echo "Created symlink: $original -> $link"
+    fi
+  done
 }
 
 setup_symlink_linux() {
-	echo "Setting up symlinks for Linux"
+  echo "Setting up symlinks for Linux"
 }
 
 case "$OSTYPE" in
-darwin*) setup_symlink_darwin ;;
-linux*) setup_symlink_linux ;;
-*) echo "unknown: $OSTYPE" ;;
+  darwin*) setup_symlink_darwin ;;
+  linux*) setup_symlink_linux ;;
+  *) echo "unknown: $OSTYPE" ;;
 esac
