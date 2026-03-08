@@ -13,22 +13,24 @@ Personal dotfiles repository for macOS and Arch Linux. Manages shell, editor, te
 - `zsh/rfv` - Ripgrep fuzzy viewer script
 - `git/` - Git config and global ignore
 - `tmux/` - Tmux config with gruvbox-dark hard theme
-- `kitty/` - Kitty terminal config
+- `kitty/` - Kitty terminal config with vim-like key bindings
 - `gitui/` - Gitui theme (gruvbox-dark hard) and vim-like key bindings
-- `yazi/` - Yazi file manager config
-- `aerospace/` - AeroSpace window manager config (macOS only)
+- `yazi/` - Yazi file manager config with gruvbox theme
+- `aerospace/` - AeroSpace tiling window manager config (macOS only)
 - `ideavim/` - IdeaVim config for JetBrains IDEs
 - `vim/` - Git submodule, plugins managed by vim-plug
 - `nvim/` - Git submodule, plugins managed by lazy.nvim
+- `cheatsheet.md` - Key bindings reference for all tools (view with `keys` command)
 - `symlinks` - Declarative symlink mappings (all platforms)
 - `symlinks.darwin` - macOS-specific symlink mappings
 - `setup_symlinks.sh` - Reads symlink map files and creates symlinks
 
 ## Key conventions
 
-- **Theme**: Gruvbox dark hard across all tools (tmux, gitui, bat, vim)
+- **Theme**: Gruvbox dark hard across all tools (tmux, gitui, bat, vim, kitty, yazi)
+- **Key bindings**: Vim-style navigation (h/j/k/l) across all tools where possible
 - **Plugin management**: Sheldon for zsh, vim-plug for vim, lazy.nvim for neovim
-- **Cross-platform**: Configs work on both macOS and Arch Linux
+- **Cross-platform**: macOS (AeroSpace, Homebrew) and Arch Linux (Hyprland, pacman)
 - **`$DOTFILES`**: Resolved dynamically from zshrc symlink via `${${(%):-%x}:A:h:h}`, exported as env var
 - **`$SHELDON_CONFIG_DIR`**: Points to `$DOTFILES/sheldon`
 - **Symlinks**: Managed via declarative map files (`symlinks`, `symlinks.darwin`, `symlinks.linux`), not hardcoded in scripts

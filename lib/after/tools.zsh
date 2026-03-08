@@ -28,6 +28,9 @@ if (( $+commands[glocate] )); then
     [[ -f "$HOME/locatedb" ]] && export LOCATE_PATH="$HOME/locatedb"
 fi
 
+# Keybinding cheatsheet
+keys() { bat --style=plain "$DOTFILES/cheatsheet.md"; }
+
 # yazi shell wrapper
 function y() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd

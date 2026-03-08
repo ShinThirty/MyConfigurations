@@ -1,6 +1,6 @@
 # Dotfiles
 
-Personal configurations for macOS and Arch Linux.
+Personal configurations for macOS and Arch Linux. Gruvbox dark hard theme and vim-style key bindings everywhere.
 
 ## Setup
 
@@ -36,21 +36,22 @@ Plugins are managed by [lazy.nvim](https://github.com/folke/lazy.nvim). Open neo
 
 ```
 lib/
-  core/       - Shell config loaded early (env vars, options, key bindings)
-  after/      - Shell config loaded last (fzf, tool integrations)
-sheldon/      - Sheldon plugin manager config
-zsh/          - Zshrc and utilities
-git/          - Git config and global ignore
-tmux/         - Tmux config
-kitty/        - Kitty terminal config
-gitui/        - Gitui theme and key bindings
-yazi/         - Yazi file manager config
-aerospace/    - AeroSpace window manager config (macOS)
-ideavim/      - IdeaVim config for JetBrains IDEs
-vim/          - Vim config (submodule, vim-plug)
-nvim/         - Neovim config (submodule)
-symlinks      - Symlink mappings (all platforms)
-symlinks.*    - Platform-specific symlink mappings
+  core/           - Shell config loaded early (env vars, options)
+  after/          - Shell config loaded last (fzf, eza, zoxide, bat, yazi)
+sheldon/          - Sheldon plugin manager config
+zsh/              - Zshrc and utilities
+git/              - Git config and global ignore
+tmux/             - Tmux config
+kitty/            - Kitty terminal config
+gitui/            - Gitui theme and key bindings
+yazi/             - Yazi file manager config
+aerospace/        - AeroSpace window manager (macOS)
+ideavim/          - IdeaVim config for JetBrains IDEs
+vim/              - Vim config (submodule, vim-plug)
+nvim/             - Neovim config (submodule, lazy.nvim)
+cheatsheet.md     - Key bindings reference (view with `keys`)
+symlinks          - Symlink mappings (all platforms)
+symlinks.darwin   - macOS-specific symlink mappings
 ```
 
 ## Dependencies
@@ -65,3 +66,7 @@ Core CLI tools used across configs:
 - [zoxide](https://github.com/ajeetdsouza/zoxide) - Smarter cd
 - [yazi](https://github.com/sxyazi/yazi) - Terminal file manager
 - [delta](https://github.com/dandavison/delta) - Git diff viewer
+
+## Quick Reference
+
+Run `keys` in your terminal to view the key bindings cheatsheet for all tools.
