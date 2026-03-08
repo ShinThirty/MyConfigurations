@@ -2,77 +2,46 @@
 
 set -euo pipefail
 
-echo "Setting up symlinks with PWD = $PWD"
+DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 
-originals=(
-  "$PWD/git/gitconfig"
-  "$PWD/git/ignore"
-  "$PWD/ideavim/ideavimrc"
-  "$PWD/nvim"
-  "$PWD/vim"
-  "$PWD/p10k.zsh"
-  "$PWD/tmux/tmux.conf"
-  "$PWD/kitty"
-  "$PWD/yazi/yazi.toml"
-  "$PWD/yazi/theme.toml"
-  "$PWD/zsh/zshrc"
-)
-links=(
-  "$HOME/.gitconfig"
-  "$HOME/.config/git/ignore"
-  "$HOME/.ideavimrc"
-  "$HOME/.config/nvim"
-  "$HOME/.vim"
-  "$HOME/.p10k.zsh"
-  "$HOME/.tmux.conf"
-  "$HOME/.config/kitty"
-  "$HOME/.config/yazi/yazi.toml"
-  "$HOME/.config/yazi/theme.toml"
-  "$HOME/.zshrc"
-)
-
-for index in ${!originals[*]}; do
-  original=${originals[$index]}
-  link=${links[$index]}
-  echo "Setting up symlink: $original -> $link"
+setup_symlink() {
+  local original="$1"
+  local link="$2"
+  mkdir -p "$(dirname "$link")"
+  local short_link="${link/#$HOME/~}"
   if [ -L "$link" ] && [ -e "$link" ]; then
-    echo "Found existing $link"
+    echo -e "  \033[33m[skip]\033[0m $short_link"
   else
     rm -rf "$link"
     ln -sf "$original" "$link"
-    echo "Created symlink: $original -> $link"
+    echo -e "  \033[32m[link]\033[0m $short_link"
   fi
-done
-
-setup_symlink_darwin() {
-  echo "Setting up symlinks for MacOS"
-  originals_darwin=(
-    "$PWD/aerospace"
-  )
-  links_darwin=(
-    "$HOME/.config/aerospace"
-  )
-
-  for index in ${!originals_darwin[*]}; do
-    original=${originals_darwin[$index]}
-    link=${links_darwin[$index]}
-    echo "Setting up symlink: $original -> $link"
-    if [ -L "$link" ] && [ -e "$link" ]; then
-      echo "Found existing $link"
-    else
-      rm -rf "$link"
-      ln -sf "$original" "$link"
-      echo "Created symlink: $original -> $link"
-    fi
-  done
 }
 
-setup_symlink_linux() {
-  echo "Setting up symlinks for Linux"
+setup_symlinks_from_map() {
+  local map_file="$1"
+  while IFS=: read -r source target; do
+    [[ -z "$source" || "$source" == \#* ]] && continue
+    source=$(eval echo "$source")
+    target=$(eval echo "$target")
+    setup_symlink "$source" "$target"
+  done < "$map_file"
 }
+
+setup_symlinks_from_map "$DOTFILES/symlinks"
 
 case "$OSTYPE" in
-  darwin*) setup_symlink_darwin ;;
-  linux*) setup_symlink_linux ;;
+  darwin*)
+    if [ -f "$DOTFILES/symlinks.darwin" ]; then
+      echo "Setting up symlinks for macOS"
+      setup_symlinks_from_map "$DOTFILES/symlinks.darwin"
+    fi
+    ;;
+  linux*)
+    if [ -f "$DOTFILES/symlinks.linux" ]; then
+      echo "Setting up symlinks for Linux"
+      setup_symlinks_from_map "$DOTFILES/symlinks.linux"
+    fi
+    ;;
   *) echo "unknown: $OSTYPE" ;;
 esac

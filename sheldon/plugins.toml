@@ -1,0 +1,52 @@
+shell = "zsh"
+
+[templates]
+fpath = 'fpath=("{{ dir }}" $fpath)'
+
+# Additional completions (fpath only, before compinit)
+[plugins.zsh-completions]
+github = "zsh-users/zsh-completions"
+dir = "src"
+apply = ["fpath"]
+
+# Initialize completion system
+[plugins.compinit]
+inline = 'autoload -Uz compinit && compinit'
+
+# Oh My Zsh library
+[plugins.ohmyzsh-lib]
+github = "ohmyzsh/ohmyzsh"
+dir = "lib"
+use = [
+  "completion.zsh",
+  "directories.zsh",
+  "history.zsh",
+  "key-bindings.zsh",
+]
+
+# Oh My Zsh plugins
+[plugins.ohmyzsh-plugins]
+github = "ohmyzsh/ohmyzsh"
+dir = "plugins"
+use = [
+  "{command-not-found,common-aliases,copypath,dirhistory,extract,mvn,rsync,sudo,brew,docker,git,kubectl,tmux}/*.plugin.zsh",
+]
+
+# fzf-git
+[plugins.fzf-git]
+github = "junegunn/fzf-git.sh"
+
+# Powerlevel10k
+[plugins.powerlevel10k]
+github = "romkatv/powerlevel10k"
+
+# Custom local config (after plugins so overrides take effect)
+[plugins.local-config]
+inline = 'for f in "$DOTFILES"/lib/*.zsh; do source "$f"; done'
+
+# Must be last
+[plugins.zsh-autosuggestions]
+github = "zsh-users/zsh-autosuggestions"
+
+[plugins.zsh-syntax-highlighting]
+github = "zsh-users/zsh-syntax-highlighting"

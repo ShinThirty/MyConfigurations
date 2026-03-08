@@ -1,0 +1,12 @@
+# format: source:target
+$DOTFILES/git/gitconfig:$HOME/.gitconfig
+$DOTFILES/git/ignore:$HOME/.config/git/ignore
+$DOTFILES/ideavim/ideavimrc:$HOME/.ideavimrc
+$DOTFILES/nvim:$HOME/.config/nvim
+$DOTFILES/vim:$HOME/.vim
+$DOTFILES/p10k.zsh:$HOME/.p10k.zsh
+$DOTFILES/tmux/tmux.conf:$HOME/.tmux.conf
+$DOTFILES/kitty:$HOME/.config/kitty
+$DOTFILES/yazi/yazi.toml:$HOME/.config/yazi/yazi.toml
+$DOTFILES/yazi/theme.toml:$HOME/.config/yazi/theme.toml
+$DOTFILES/zsh/zshrc:$HOME/.zshrc

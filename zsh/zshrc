@@ -1,3 +1,24 @@
+export DOTFILES="${${(%):-%x}:A:h:h}"
+export SHELDON_CONFIG_DIR="$DOTFILES/sheldon"
+
+# Periodically prompt to update sheldon plugins
+if (( $+commands[sheldon] )); then
+  local _sheldon_stamp="${XDG_CACHE_HOME:-$HOME/.cache}/sheldon_last_update"
+  local _sheldon_days=14
+  local _sheldon_now=$(date +%s)
+  local _sheldon_last=$(cat "$_sheldon_stamp" 2>/dev/null || echo 0)
+  if (( _sheldon_now - _sheldon_last > _sheldon_days * 86400 )); then
+    echo "sheldon plugins haven't been updated in $_sheldon_days days. Update? [y/N]"
+    if read -q; then
+      echo
+      sheldon lock --update && echo "$_sheldon_now" > "$_sheldon_stamp"
+    else
+      echo
+      echo "$_sheldon_now" > "$_sheldon_stamp"
+    fi
+  fi
+fi
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -5,113 +26,22 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-MY_CONFIG_ROOT="$HOME/MyConfigurations"
-
-plugins=(
-  command-not-found
-  common-aliases
-  copybuffer
-  copyfile
-  copypath
-  cp
-  dirhistory
-  encode64
-  extract
-  globalias
-  gradle
-  mvn
-  rsync
-  sudo
-  universalarchive
-  urltools
-  web-search
-)
-
-plugins_lazy=(
-  archlinux
-  aws
-  brew
-  cabal
-  deno
-  docker
-  git
-  git-escape-magic
-  gitignore
-  golang
-  kubectl
-  tmux
-)
-typeset -A command_lazy
-command_lazy[archlinux]=pacman
-command_lazy[git-escape-magic]=git
-command_lazy[gitignore]=git
-command_lazy[golang]=go
-
-has_completion_script() {
-  local base_dir=$1
-  local name=$2
-  builtin test -f $base_dir/plugins/$name/_$name
-}
-
-# Add all defined plugins to fpath. This must be done
-# before running compinit.
-for plugin ($plugins); do
-  if has_completion_script "$MY_CONFIG_ROOT" "$plugin"; then
-    fpath=("$MY_CONFIG_ROOT/plugins/$plugin" $fpath)
-  fi
-done
-for plugin ($plugins_lazy); do
-  if has_completion_script "$MY_CONFIG_ROOT" "$plugin"; then
-    command=$command_lazy[$plugin]
-    if [ -z $command ]; then
-      command=$plugin
-    fi
-    if (( $+commands[$command] )); then
-      fpath=("$MY_CONFIG_ROOT/plugins/$plugin" $fpath)
-    fi
-  fi
-done
-fpath=($MY_CONFIG_ROOT/plugins/git-escape-magic $fpath)
-fpath=($MY_CONFIG_ROOT/zsh/zsh-completions/src $fpath)
-
-# Load all stock functions (from $fpath files) called below.
-autoload -Uz compinit
-compinit
-
-# Import configurations
-for config_file ("$MY_CONFIG_ROOT"/lib/*.zsh); do
-  source "$config_file"
-done
-unset config_file
-
-# Import plugins
-for plugin ($plugins); do
-  if [[ -f "$MY_CONFIG_ROOT/plugins/$plugin/$plugin.plugin.zsh" ]]; then
-    source "$MY_CONFIG_ROOT/plugins/$plugin/$plugin.plugin.zsh"
-  fi
-done
-for plugin ($plugins_lazy); do
-  if [[ -f "$MY_CONFIG_ROOT/plugins/$plugin/$plugin.plugin.zsh" ]]; then
-    command=$command_lazy[$plugin]
-    if [ -z $command ]; then
-      command=$plugin
-    fi
-    if (( $+commands[$command] )); then
-      source "$MY_CONFIG_ROOT/plugins/$plugin/$plugin.plugin.zsh"
-    fi
-  fi
-done
-unset plugin
-
-# Powerlevel 10k
-source "$MY_CONFIG_ROOT/powerlevel10k/powerlevel10k.zsh-theme"
+# Sheldon plugin manager
+if (( $+commands[sheldon] )); then
+  eval "$(sheldon source)"
+else
+  echo 'sheldon is not installed. To set up:'
+  echo ''
+  case "$OSTYPE" in
+    darwin*) echo '  1. brew install sheldon' ;;
+    linux*)  echo '  1. pacman -S sheldon' ;;
+  esac
+  echo '  2. sheldon lock    # fetch plugins'
+  echo '  3. exec zsh        # restart shell'
+fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-# Auto suggestions and syntax highlighting, needs to be always the last lines
-source "$MY_CONFIG_ROOT/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh"
-source "$MY_CONFIG_ROOT/zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 # Import local configurations
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
