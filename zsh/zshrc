@@ -28,7 +28,7 @@ fi
 
 # Sheldon plugin manager
 if (( $+commands[sheldon] )); then
-  eval "$(sheldon source)"
+  eval "$(sheldon source 2>/dev/null)"
 else
   echo 'sheldon is not installed. To set up:'
   echo ''

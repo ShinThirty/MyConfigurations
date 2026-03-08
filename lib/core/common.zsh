@@ -1,7 +1,5 @@
-# Set ZSH_CACHE_DIR
+# Cache directory for plugins
 export ZSH_CACHE_DIR="$HOME/.cache"
-
-# Create cache and completions dir and add to $fpath
 mkdir -p "$ZSH_CACHE_DIR/completions"
 (( ${fpath[(Ie)"$ZSH_CACHE_DIR/completions"]} )) || fpath=("$ZSH_CACHE_DIR/completions" $fpath)
 

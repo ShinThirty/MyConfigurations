@@ -3,6 +3,10 @@ shell = "zsh"
 [templates]
 fpath = 'fpath=("{{ dir }}" $fpath)'
 
+# Core local config (env vars, options, key bindings)
+[plugins.local-core]
+inline = 'for f in "$DOTFILES"/lib/core/*.zsh; do source "$f"; done'
+
 # Additional completions (fpath only, before compinit)
 [plugins.zsh-completions]
 github = "zsh-users/zsh-completions"
@@ -41,8 +45,8 @@ github = "junegunn/fzf-git.sh"
 github = "romkatv/powerlevel10k"
 
 # Custom local config (after plugins so overrides take effect)
-[plugins.local-config]
-inline = 'for f in "$DOTFILES"/lib/*.zsh; do source "$f"; done'
+[plugins.local-after]
+inline = 'for f in "$DOTFILES"/lib/after/*.zsh; do source "$f"; done'
 
 # Must be last
 [plugins.zsh-autosuggestions]
