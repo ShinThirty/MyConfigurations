@@ -18,8 +18,8 @@ Personal dotfiles repository for macOS and Arch Linux. Manages shell, editor, te
 - `yazi/` - Yazi file manager config with gruvbox theme
 - `aerospace/` - AeroSpace tiling window manager config (macOS only)
 - `ideavim/` - IdeaVim config for JetBrains IDEs
-- `vim/` - Git submodule, plugins managed by vim-plug
-- `nvim/` - Git submodule, plugins managed by lazy.nvim
+- `vim/` - Git submodule, plugins managed by vim-plug (has own CLAUDE.md)
+- `nvim/` - Git submodule, plugins managed by lazy.nvim (has own CLAUDE.md)
 - `cheatsheet.md` - Key bindings reference for all tools (view with `keys` command)
 - `symlinks` - Declarative symlink mappings (all platforms)
 - `symlinks.darwin` - macOS-specific symlink mappings
@@ -39,8 +39,9 @@ Personal dotfiles repository for macOS and Arch Linux. Manages shell, editor, te
 
 ## Working with this repo
 
-- When modifying `vim/` or `nvim/`, they are git submodules — commit inside the submodule directory
-- This machine may not have git credentials configured for the submodules — use `git format-patch` to generate patches for pushing elsewhere
+- When modifying `vim/` or `nvim/`, they are git submodules — commit inside the submodule directory, then generate patches with `git format-patch`
+- Do not specify `-c user.name` or `-c user.email` when committing in submodules — the machine's git config already has the correct credentials
+- Use `git format-patch` to generate patches for pushing from another machine with `git am`
 - Adding a new zsh config: drop a `*.zsh` file into `lib/core/` (early) or `lib/after/` (late)
 - Adding a new symlink: append a line to `symlinks` (or `symlinks.darwin`/`symlinks.linux`)
 - Sheldon env var expansion: `local` paths in `plugins.toml` don't support `$VAR` — use `inline` plugins with shell code instead
