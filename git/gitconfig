@@ -4,8 +4,6 @@
 	ignorecase = false
 	pager = delta
 	hooksPath = /usr/local/gitconfig/hooks/
-[url "git@github.com:"]
-	insteadOf = https://github.com/
 [user]
 	name = Lingnan Liu
 	useConfigOnly = true
