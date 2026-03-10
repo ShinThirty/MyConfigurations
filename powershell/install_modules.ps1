@@ -16,6 +16,7 @@ if ((Test-Path $stubPath) -and (Get-Content $stubPath -Raw).Trim() -eq $stubCont
 
 # Install PSGallery modules
 $modules = @(
+    'CompletionPredictor'
     'posh-git'
     'Terminal-Icons'
     'PSFzf'

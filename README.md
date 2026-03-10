@@ -35,7 +35,9 @@ Plugins are managed by [vim-plug](https://github.com/junegunn/vim-plug). Open vi
 .\powershell\install_modules.ps1
 ```
 
-This creates a stub profile at the OneDrive `$PROFILE` path that dot-sources `powershell/profile.ps1` from this repo, and installs PSGallery modules (posh-git, Terminal-Icons, PSFzf).
+This creates a stub profile at the OneDrive `$PROFILE` path that dot-sources `powershell/profile.ps1` from this repo, and installs PSGallery modules (CompletionPredictor, posh-git, Terminal-Icons, PSFzf).
+
+The profile includes oh-my-posh (gruvbox theme), oh-my-zsh-style git aliases, fzf/fd integration, zoxide, bat, yazi, dirhistory (Alt+Arrow navigation), and CompletionPredictor for argument-aware predictions.
 
 ### Neovim
 
@@ -54,7 +56,7 @@ tmux/             - Tmux config
 kitty/            - Kitty terminal config
 gitui/            - Gitui theme and key bindings
 yazi/             - Yazi file manager config
-powershell/       - PowerShell profile and module installer (Windows)
+powershell/       - PowerShell config: profile, git aliases, dirhistory (Windows)
 aria2/            - aria2 download manager (shared config + per-platform setup)
 aerospace/        - AeroSpace window manager (macOS)
 wt/               - Windows Terminal settings

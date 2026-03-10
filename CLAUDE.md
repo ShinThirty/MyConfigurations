@@ -18,12 +18,13 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - `yazi/` - Yazi file manager config with gruvbox theme
 - `aerospace/` - AeroSpace tiling window manager config (macOS only)
 - `aria2/` - aria2 download manager config, per-platform install scripts (darwin/, linux/, windows/)
-- `powershell/` - PowerShell profile and module install script (Windows, loaded via stub from OneDrive `$PROFILE`)
+- `powershell/` - PowerShell config (Windows, loaded via stub from OneDrive `$PROFILE`): profile.ps1, git.ps1 (oh-my-zsh-style aliases), dirhistory.ps1, install_modules.ps1
 - `wt/` - Windows Terminal settings
 - `ideavim/` - IdeaVim config for JetBrains IDEs
 - `vim/` - Git submodule, plugins managed by vim-plug (has own CLAUDE.md)
 - `nvim/` - Git submodule, plugins managed by lazy.nvim, cross-platform macOS/Linux/Windows (has own CLAUDE.md)
-- `cheatsheet.md` - Key bindings reference for all tools (view with `keys` command)
+- `cheatsheet.md` - Key bindings reference for macOS/Linux tools (view with `keys` command)
+- `powershell/cheatsheet.md` - Key bindings reference for Windows (PowerShell aliases, git, gitui, ideavim)
 - `symlinks` - Declarative symlink mappings (all platforms)
 - `symlinks.darwin` - macOS-specific symlink mappings
 - `symlinks.windows` - Windows-specific symlink mappings
