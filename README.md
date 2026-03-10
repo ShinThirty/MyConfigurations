@@ -29,6 +29,14 @@ Restart your shell and sheldon will fetch all plugins on first run.
 
 Plugins are managed by [vim-plug](https://github.com/junegunn/vim-plug). Open vim and run `:PlugInstall`.
 
+### PowerShell (Windows)
+
+```powershell
+.\powershell\install_modules.ps1
+```
+
+This creates a stub profile at the OneDrive `$PROFILE` path that dot-sources `powershell/profile.ps1` from this repo, and installs PSGallery modules (posh-git, Terminal-Icons, PSFzf).
+
 ### Neovim
 
 Plugins are managed by [lazy.nvim](https://github.com/folke/lazy.nvim). Open neovim and plugins will be installed automatically.
@@ -46,6 +54,7 @@ tmux/             - Tmux config
 kitty/            - Kitty terminal config
 gitui/            - Gitui theme and key bindings
 yazi/             - Yazi file manager config
+powershell/       - PowerShell profile and module installer (Windows)
 aria2/            - aria2 download manager (shared config + per-platform setup)
 aerospace/        - AeroSpace window manager (macOS)
 wt/               - Windows Terminal settings

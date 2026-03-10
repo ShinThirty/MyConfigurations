@@ -18,6 +18,7 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - `yazi/` - Yazi file manager config with gruvbox theme
 - `aerospace/` - AeroSpace tiling window manager config (macOS only)
 - `aria2/` - aria2 download manager config, per-platform install scripts (darwin/, linux/, windows/)
+- `powershell/` - PowerShell profile and module install script (Windows, loaded via stub from OneDrive `$PROFILE`)
 - `wt/` - Windows Terminal settings
 - `ideavim/` - IdeaVim config for JetBrains IDEs
 - `vim/` - Git submodule, plugins managed by vim-plug (has own CLAUDE.md)
@@ -34,7 +35,7 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - **Theme**: Gruvbox dark hard across all tools (tmux, gitui, bat, vim, kitty, yazi)
 - **Key bindings**: Vim-style navigation (h/j/k/l) across all tools where possible
 - **Plugin management**: Sheldon for zsh, vim-plug for vim, lazy.nvim for neovim
-- **Cross-platform**: macOS (AeroSpace, Homebrew), Arch Linux (Hyprland, pacman), and Windows (git, gitui, nvim, Windows Terminal, ideavim, aria2)
+- **Cross-platform**: macOS (AeroSpace, Homebrew), Arch Linux (Hyprland, pacman), and Windows (PowerShell, git, gitui, nvim, Windows Terminal, ideavim, aria2)
 - **`$DOTFILES`**: Resolved dynamically from zshrc symlink via `${${(%):-%x}:A:h:h}`, exported as env var
 - **`$SHELDON_CONFIG_DIR`**: Points to `$DOTFILES/sheldon`
 - **Symlinks**: Managed via declarative map files (`symlinks`, `symlinks.darwin`, `symlinks.linux`, `symlinks.windows`), not hardcoded in scripts
