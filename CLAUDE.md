@@ -2,7 +2,7 @@
 
 ## Project overview
 
-Personal dotfiles repository for macOS and Arch Linux. Manages shell, editor, terminal, and tool configurations.
+Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, editor, terminal, and tool configurations.
 
 ## Repository structure
 
@@ -19,7 +19,7 @@ Personal dotfiles repository for macOS and Arch Linux. Manages shell, editor, te
 - `aerospace/` - AeroSpace tiling window manager config (macOS only)
 - `ideavim/` - IdeaVim config for JetBrains IDEs
 - `vim/` - Git submodule, plugins managed by vim-plug (has own CLAUDE.md)
-- `nvim/` - Git submodule, plugins managed by lazy.nvim (has own CLAUDE.md)
+- `nvim/` - Git submodule, plugins managed by lazy.nvim, cross-platform macOS/Linux/Windows (has own CLAUDE.md)
 - `cheatsheet.md` - Key bindings reference for all tools (view with `keys` command)
 - `symlinks` - Declarative symlink mappings (all platforms)
 - `symlinks.darwin` - macOS-specific symlink mappings
@@ -30,7 +30,7 @@ Personal dotfiles repository for macOS and Arch Linux. Manages shell, editor, te
 - **Theme**: Gruvbox dark hard across all tools (tmux, gitui, bat, vim, kitty, yazi)
 - **Key bindings**: Vim-style navigation (h/j/k/l) across all tools where possible
 - **Plugin management**: Sheldon for zsh, vim-plug for vim, lazy.nvim for neovim
-- **Cross-platform**: macOS (AeroSpace, Homebrew) and Arch Linux (Hyprland, pacman)
+- **Cross-platform**: macOS (AeroSpace, Homebrew), Arch Linux (Hyprland, pacman), and Windows (nvim config only)
 - **`$DOTFILES`**: Resolved dynamically from zshrc symlink via `${${(%):-%x}:A:h:h}`, exported as env var
 - **`$SHELDON_CONFIG_DIR`**: Points to `$DOTFILES/sheldon`
 - **Symlinks**: Managed via declarative map files (`symlinks`, `symlinks.darwin`, `symlinks.linux`), not hardcoded in scripts

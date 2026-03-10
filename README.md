@@ -1,6 +1,6 @@
 # Dotfiles
 
-Personal configurations for macOS and Arch Linux. Gruvbox dark hard theme and vim-style key bindings everywhere.
+Personal configurations for macOS, Arch Linux, and Windows. Gruvbox dark hard theme and vim-style key bindings everywhere.
 
 ## Setup
 
@@ -48,7 +48,7 @@ yazi/             - Yazi file manager config
 aerospace/        - AeroSpace window manager (macOS)
 ideavim/          - IdeaVim config for JetBrains IDEs
 vim/              - Vim config (submodule, vim-plug)
-nvim/             - Neovim config (submodule, lazy.nvim)
+nvim/             - Neovim config (submodule, lazy.nvim, cross-platform)
 cheatsheet.md     - Key bindings reference (view with `keys`)
 symlinks          - Symlink mappings (all platforms)
 symlinks.darwin   - macOS-specific symlink mappings
