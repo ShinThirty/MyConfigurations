@@ -45,3 +45,4 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - Adding a new zsh config: drop a `*.zsh` file into `lib/core/` (early) or `lib/after/` (late)
 - Adding a new symlink: append a line to `symlinks` (or `symlinks.darwin`/`symlinks.linux`)
 - Sheldon env var expansion: `local` paths in `plugins.toml` don't support `$VAR` — use `inline` plugins with shell code instead
+- `rm` is aliased to `rm -i` (from oh-my-zsh common-aliases) — use `command rm` in shell commands to bypass the interactive prompt
