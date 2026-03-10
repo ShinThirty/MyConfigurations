@@ -7,7 +7,8 @@ Personal configurations for macOS, Arch Linux, and Windows. Gruvbox dark hard th
 ```sh
 git clone --recursive <repo-url> ~/MyConfigurations
 cd ~/MyConfigurations
-./setup_symlinks.sh
+./setup_symlinks.sh          # macOS / Linux
+# .\setup_symlinks.ps1       # Windows (PowerShell, run as admin for symlinks)
 ```
 
 ### Zsh
@@ -40,18 +41,21 @@ lib/
   after/          - Shell config loaded last (fzf, eza, zoxide, bat, yazi)
 sheldon/          - Sheldon plugin manager config
 zsh/              - Zshrc and utilities
-git/              - Git config and global ignore
+git/              - Git config (per-platform gitconfig files) and global ignore
 tmux/             - Tmux config
 kitty/            - Kitty terminal config
 gitui/            - Gitui theme and key bindings
 yazi/             - Yazi file manager config
+aria2/            - aria2 download manager (shared config + per-platform setup)
 aerospace/        - AeroSpace window manager (macOS)
+wt/               - Windows Terminal settings
 ideavim/          - IdeaVim config for JetBrains IDEs
 vim/              - Vim config (submodule, vim-plug)
 nvim/             - Neovim config (submodule, lazy.nvim, cross-platform)
 cheatsheet.md     - Key bindings reference (view with `keys`)
 symlinks          - Symlink mappings (all platforms)
 symlinks.darwin   - macOS-specific symlink mappings
+symlinks.windows  - Windows-specific symlink mappings
 ```
 
 ## Dependencies

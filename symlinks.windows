@@ -1,0 +1,6 @@
+# format: source:target
+$DOTFILES/git/gitconfig.windows:$HOME/.gitconfig
+$DOTFILES/gitui:$APPDATA/gitui
+$DOTFILES/nvim:$LOCALAPPDATA/nvim
+$DOTFILES/wt/settings.json:$LOCALAPPDATA/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
+$DOTFILES/ideavim/ideavimrc:$HOME/.ideavimrc

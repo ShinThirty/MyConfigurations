@@ -1,6 +1,7 @@
 # bat
 if (( $+commands[bat] )); then
     export BAT_THEME='gruvbox-dark'
+    alias batp='bat --style=plain'
 fi
 
 # zoxide
