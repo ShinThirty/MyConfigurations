@@ -9,12 +9,13 @@ setup_symlink() {
   local link="$2"
   mkdir -p "$(dirname "$link")"
   local short_link="${link/#$HOME/~}"
-  if [ -L "$link" ] && [ -e "$link" ]; then
-    echo -e "  \033[33m[skip]\033[0m $short_link"
+  if [ -L "$link" ]; then
+    echo "  🔗 $short_link"
+  elif [ -e "$link" ]; then
+    echo "  ⚠️  $short_link"
   else
-    rm -rf "$link"
     ln -sf "$original" "$link"
-    echo -e "  \033[32m[link]\033[0m $short_link"
+    echo "  ✅ $short_link"
   fi
 }
 

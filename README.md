@@ -64,6 +64,8 @@ ideavim/          - IdeaVim config for JetBrains IDEs
 vim/              - Vim config (submodule, vim-plug)
 nvim/             - Neovim config (submodule, lazy.nvim, cross-platform)
 cheatsheet.md     - Key bindings reference (view with `keys`)
+setup_symlinks.sh - Creates symlinks, skips existing files/symlinks (macOS/Linux)
+setup_symlinks.ps1- Windows equivalent
 symlinks          - Symlink mappings (all platforms)
 symlinks.darwin   - macOS-specific symlink mappings
 symlinks.windows  - Windows-specific symlink mappings

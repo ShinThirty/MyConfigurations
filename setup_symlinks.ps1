@@ -17,20 +17,12 @@ function Setup-Symlink {
     $shortLink = $Link -replace [regex]::Escape($HOME), "~"
 
     if ((Test-Path $Link) -and ((Get-Item $Link).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
-        Write-Host "  [skip] $shortLink" -ForegroundColor Yellow
+        Write-Host "  🔗 $shortLink"
+    } elseif (Test-Path $Link) {
+        Write-Host "  ⚠️  $shortLink"
     } else {
-        if (Test-Path $Link) {
-            Remove-Item -Path $Link -Recurse -Force
-        }
-
-        $isDir = (Test-Path $Source) -and (Get-Item $Source).PSIsContainer
-        if ($isDir) {
-            New-Item -ItemType SymbolicLink -Path $Link -Target $Source | Out-Null
-        } else {
-            New-Item -ItemType SymbolicLink -Path $Link -Target $Source | Out-Null
-        }
-
-        Write-Host "  [link] $shortLink" -ForegroundColor Green
+        New-Item -ItemType SymbolicLink -Path $Link -Target $Source | Out-Null
+        Write-Host "  ✅ $shortLink"
     }
 }
 
