@@ -1,6 +1,8 @@
 export DOTFILES="${${(%):-%x}:A:h:h}"
 export SHELDON_CONFIG_DIR="$DOTFILES/sheldon"
 
+typeset -U path fpath manpath cdpath mailpath
+
 # Periodically prompt to update sheldon plugins
 if (( $+commands[sheldon] )); then
   local _sheldon_stamp="${XDG_CACHE_HOME:-$HOME/.cache}/sheldon_last_update"
