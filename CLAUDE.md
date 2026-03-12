@@ -20,11 +20,11 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - `aria2/` - aria2 download manager config, per-platform install scripts (darwin/, linux/, windows/)
 - `powershell/` - PowerShell config (Windows, loaded via stub from OneDrive `$PROFILE`): profile.ps1, git.ps1 (oh-my-zsh-style aliases), dirhistory.ps1, install_modules.ps1
 - `wt/` - Windows Terminal settings
-- `ideavim/` - IdeaVim config for JetBrains IDEs
+- `ideavim/` - IdeaVim config for JetBrains IDEs (keybindings aligned with nvim, requires [Which-Key](https://plugins.jetbrains.com/plugin/15976-which-key) plugin)
 - `vim/` - Git submodule, plugins managed by vim-plug (has own CLAUDE.md)
 - `nvim/` - Git submodule, plugins managed by lazy.nvim, cross-platform macOS/Linux/Windows (has own CLAUDE.md)
 - `cheatsheet.md` - Key bindings reference for macOS/Linux tools (view with `keys` command)
-- `powershell/cheatsheet.md` - Key bindings reference for Windows (PowerShell aliases, git, gitui, ideavim)
+- `powershell/cheatsheet.md` - Key bindings reference for Windows (PowerShell aliases, git, gitui)
 - `symlinks` - Declarative symlink mappings (all platforms)
 - `symlinks.darwin` - macOS-specific symlink mappings
 - `symlinks.windows` - Windows-specific symlink mappings
@@ -36,7 +36,7 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - **Theme**: Gruvbox dark hard across all tools (tmux, gitui, bat, vim, kitty, yazi)
 - **Key bindings**: Vim-style navigation (h/j/k/l) across all tools where possible
 - **Plugin management**: Sheldon for zsh, vim-plug for vim, lazy.nvim for neovim
-- **Cross-platform**: macOS (AeroSpace, Homebrew), Arch Linux (Hyprland, pacman), and Windows (PowerShell, git, gitui, nvim, Windows Terminal, ideavim, aria2)
+- **Cross-platform**: macOS (AeroSpace, Homebrew), Arch Linux (Hyprland, pacman), and Windows (PowerShell, git, gitui, nvim, Windows Terminal, aria2)
 - **`$DOTFILES`**: Resolved dynamically from zshrc symlink via `${${(%):-%x}:A:h:h}`, exported as env var
 - **`$SHELDON_CONFIG_DIR`**: Points to `$DOTFILES/sheldon`
 - **Symlinks**: Managed via declarative map files (`symlinks`, `symlinks.darwin`, `symlinks.linux`, `symlinks.windows`), not hardcoded in scripts

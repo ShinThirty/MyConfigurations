@@ -151,36 +151,3 @@
 | g / G | Top / bottom        |
 | ?     | Help                |
 | 1-5   | Switch tabs         |
-
-## IdeaVim (leader: space)
-
-### Navigation
-| Key         | Action              |
-|-------------|---------------------|
-| gd          | Go to declaration   |
-| gi          | Go to implementation|
-| gr          | Find usages         |
-| K           | Quick docs          |
-| [d / ]d     | Prev / next error   |
-
-### Search
-| Key         | Action              |
-|-------------|---------------------|
-| \<leader\>f | Go to file          |
-| \<leader\>g | Find in path        |
-| \<leader\>o | File structure      |
-| \<leader\>s | Select in tree      |
-
-### Debug
-| Key         | Action              |
-|-------------|---------------------|
-| \<leader\>d | Debug               |
-| \<leader\>b | Toggle breakpoint   |
-| \<leader\>c | Stop                |
-
-### Git
-| Key         | Action              |
-|-------------|---------------------|
-| \<leader\>a | Annotate            |
-| \<leader\>hr| Rollback lines      |
-| [c / ]c     | Prev / next change  |

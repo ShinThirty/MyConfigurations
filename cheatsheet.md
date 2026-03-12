@@ -115,33 +115,132 @@
 
 ## IdeaVim (leader: space)
 
-### Navigation
+### General
+| Key         | Action              |
+|-------------|---------------------|
+| Q           | Format (gq)         |
+| Y           | Yank to end of line |
+| M           | Split line at cursor|
+| s / ss      | Replace with register|
+| C-s         | Substitute (:%s/)   |
+| C-/         | Comment line        |
+| \           | Window prefix (C-w) |
+| H / L       | Prev / next tab     |
+| A-j / A-k   | Move line down / up |
+| < / > (vis) | Indent and reselect |
+| n / N       | Search + recenter   |
+| \<leader\>p (vis) | Paste (no yank)|
+| A-n         | Select next occurrence|
+| A-x         | Unselect occurrence |
+| A-S-n       | Select all occurrences|
+| A-Up / A-Down | Expand / shrink selection |
+
+### LSP / Navigation
 | Key         | Action              |
 |-------------|---------------------|
 | gd          | Go to declaration   |
-| gi          | Go to implementation|
-| gr          | Find usages         |
+| gY          | Go to type decl     |
 | K           | Quick docs          |
+| \<leader\>la | Code action        |
+| \<leader\>lr | Find usages        |
+| \<leader\>li | Implementation     |
+| \<leader\>lR | Rename             |
+| \<leader\>ls | Signature help     |
+| \<leader\>lh | Type hierarchy     |
+| \<leader\>lc | Call hierarchy     |
+| \<leader\>lu | Show usages (popup)|
+
+### Diagnostics
+| Key         | Action              |
+|-------------|---------------------|
 | [d / ]d     | Prev / next error   |
+| \<leader\>dd | Show diagnostic    |
+| \<leader\>da | All diagnostics    |
 
-### Search
+### Find / Search
 | Key         | Action              |
 |-------------|---------------------|
-| \<leader\>f | Go to file          |
-| \<leader\>g | Find in path        |
-| \<leader\>o | File structure      |
-| \<leader\>s | Select in tree      |
+| \<leader\>ff | Files              |
+| \<leader\>fg | Grep (find in path)|
+| \<leader\>fr | Recent files       |
+| \<leader\>fb | Buffers (switcher) |
+| \<leader\>fm | Bookmarks          |
+| \<leader\>fk | Actions (keymaps)  |
+| \<leader\>fo | Symbols            |
+| \<leader\>fc | Classes            |
+| \<leader\>th | Toggle highlight   |
 
-### Debug
+### Git (hunk)
 | Key         | Action              |
 |-------------|---------------------|
-| \<leader\>d | Debug               |
-| \<leader\>b | Toggle breakpoint   |
-| \<leader\>c | Stop                |
+| [c / ]c     | Prev / next change  |
+| \<leader\>gb | Blame (annotate)   |
+| \<leader\>gd | Diff vs index      |
+| \<leader\>gD | Diff vs parent     |
+| \<leader\>gp | Preview hunk       |
+| \<leader\>gr | Reset hunk         |
 
 ### Git
 | Key         | Action              |
 |-------------|---------------------|
-| \<leader\>a | Annotate            |
-| \<leader\>hr| Rollback lines      |
-| [c / ]c     | Prev / next change  |
+| \<leader\>Gs | Status (commit)   |
+| \<leader\>Gl | Log                |
+| \<leader\>Gh | File history       |
+| \<leader\>Go | Open in browser    |
+| \<leader\>Gu | Revert file        |
+
+### Debug
+| Key         | Action              |
+|-------------|---------------------|
+| F5          | Resume              |
+| F8          | Step over           |
+| F9          | Step into           |
+| F10         | Step out            |
+| \<leader\>b | Toggle breakpoint   |
+| \<leader\>B | Edit breakpoint     |
+
+### Run
+| Key         | Action              |
+|-------------|---------------------|
+| \<leader\>rr | Run                |
+| \<leader\>rd | Debug              |
+| \<leader\>rc | Run context        |
+| \<leader\>rs | Stop               |
+| \<leader\>rt | Rerun tests        |
+| \<leader\>rT | Go to test         |
+
+### Code / Refactor
+| Key         | Action              |
+|-------------|---------------------|
+| \<leader\>cr | Refactor menu      |
+| \<leader\>cR | Rename file        |
+| \<leader\>cg | Generate           |
+| \<leader\>cm | Extract method     |
+| \<leader\>cv | Extract variable   |
+| \<leader\>ci | Inline             |
+| \<leader\>cs | Change signature   |
+| \<leader\>co | Optimize imports   |
+| \<leader\>cf | Reformat code      |
+
+### Toggles
+| Key         | Action              |
+|-------------|---------------------|
+| \<leader\>tw | Wrap               |
+| \<leader\>tn | Relative numbers   |
+
+### View / UI
+| Key         | Action              |
+|-------------|---------------------|
+| \<leader\>]  | Outline (structure)|
+| \<leader\>x  | Terminal           |
+| \<leader\>z  | Focus fold         |
+| \<leader\>\<leader\>z | Zen mode |
+| \<leader\>w  | Close buffer       |
+| \<leader\>W  | Close other tabs   |
+| \<leader\>Q  | Quit all           |
+| \<leader\>e  | Reveal in project  |
+
+### Navigation
+| Key         | Action              |
+|-------------|---------------------|
+| [m / ]m     | Prev / next method  |

@@ -60,7 +60,7 @@ powershell/       - PowerShell config: profile, git aliases, dirhistory (Windows
 aria2/            - aria2 download manager (shared config + per-platform setup)
 aerospace/        - AeroSpace window manager (macOS)
 wt/               - Windows Terminal settings
-ideavim/          - IdeaVim config for JetBrains IDEs
+ideavim/          - IdeaVim config for JetBrains IDEs (requires Which-Key plugin)
 vim/              - Vim config (submodule, vim-plug)
 nvim/             - Neovim config (submodule, lazy.nvim, cross-platform)
 cheatsheet.md     - Key bindings reference (view with `keys`)
