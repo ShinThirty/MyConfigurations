@@ -48,7 +48,7 @@
 ### Windows (ctrl+shift)
 | Key           | Action          |
 |---------------|-----------------|
-| v             | Vertical split  |
+| \             | Vertical split  |
 | s             | Horizontal split|
 | h/j/k/l       | Navigate panes  |
 | alt+h/j/k/l   | Resize panes    |
