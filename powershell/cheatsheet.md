@@ -1,5 +1,34 @@
 # Key Bindings Cheatsheet (Windows)
 
+## Windows Terminal
+
+### Scrollback (ctrl+alt)
+| Key           | Action          |
+|---------------|-----------------|
+| j / k         | Scroll line     |
+| d / u         | Scroll page     |
+| g / shift+g   | Top / bottom    |
+
+### Panes (ctrl+shift)
+| Key           | Action          |
+|---------------|-----------------|
+| \             | Vertical split  |
+| s             | Horizontal split|
+| h/j/k/l       | Navigate panes  |
+| alt+h/j/k/l   | Resize panes    |
+
+### Tabs (ctrl+shift)
+| Key           | Action          |
+|---------------|-----------------|
+| t             | New tab         |
+| 1-5           | Go to tab       |
+
+### Clipboard
+| Key           | Action          |
+|---------------|-----------------|
+| ctrl+c        | Copy            |
+| ctrl+v        | Paste           |
+
 ## PowerShell
 
 ### PSReadLine

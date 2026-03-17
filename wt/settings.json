@@ -5,7 +5,7 @@
     "copyFormatting": "none",
     "copyOnSelect": false,
     "defaultProfile": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
-    "keybindings": 
+    "keybindings":
     [
         {
             "id": "Terminal.CopyToClipboard",
@@ -16,8 +16,92 @@
             "keys": "ctrl+v"
         },
         {
-            "id": "Terminal.DuplicatePaneAuto",
-            "keys": "alt+shift+d"
+            "id": "Terminal.ScrollDown",
+            "keys": "ctrl+alt+j"
+        },
+        {
+            "id": "Terminal.ScrollUp",
+            "keys": "ctrl+alt+k"
+        },
+        {
+            "id": "Terminal.ScrollDownPage",
+            "keys": "ctrl+alt+d"
+        },
+        {
+            "id": "Terminal.ScrollUpPage",
+            "keys": "ctrl+alt+u"
+        },
+        {
+            "id": "Terminal.ScrollToTop",
+            "keys": "ctrl+alt+g"
+        },
+        {
+            "id": "Terminal.ScrollToBottom",
+            "keys": "ctrl+alt+shift+g"
+        },
+        {
+            "id": "Terminal.DuplicatePaneRight",
+            "keys": "ctrl+shift+\\"
+        },
+        {
+            "id": "Terminal.DuplicatePaneDown",
+            "keys": "ctrl+shift+s"
+        },
+        {
+            "id": "Terminal.MoveFocusLeft",
+            "keys": "ctrl+shift+h"
+        },
+        {
+            "id": "Terminal.MoveFocusDown",
+            "keys": "ctrl+shift+j"
+        },
+        {
+            "id": "Terminal.MoveFocusUp",
+            "keys": "ctrl+shift+k"
+        },
+        {
+            "id": "Terminal.MoveFocusRight",
+            "keys": "ctrl+shift+l"
+        },
+        {
+            "id": "Terminal.ResizePaneLeft",
+            "keys": "ctrl+shift+alt+h"
+        },
+        {
+            "id": "Terminal.ResizePaneDown",
+            "keys": "ctrl+shift+alt+j"
+        },
+        {
+            "id": "Terminal.ResizePaneUp",
+            "keys": "ctrl+shift+alt+k"
+        },
+        {
+            "id": "Terminal.ResizePaneRight",
+            "keys": "ctrl+shift+alt+l"
+        },
+        {
+            "id": "Terminal.OpenNewTab",
+            "keys": "ctrl+shift+t"
+        },
+        {
+            "id": "Terminal.SwitchToTab0",
+            "keys": "ctrl+shift+1"
+        },
+        {
+            "id": "Terminal.SwitchToTab1",
+            "keys": "ctrl+shift+2"
+        },
+        {
+            "id": "Terminal.SwitchToTab2",
+            "keys": "ctrl+shift+3"
+        },
+        {
+            "id": "Terminal.SwitchToTab3",
+            "keys": "ctrl+shift+4"
+        },
+        {
+            "id": "Terminal.SwitchToTab4",
+            "keys": "ctrl+shift+5"
         }
     ],
     "newTabMenu": 
