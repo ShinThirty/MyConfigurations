@@ -294,7 +294,7 @@ let g:WhichKeyDesc_close_bracket = "<leader>] Outline"
 map <leader>x <Action>(ActivateTerminalToolWindow)
 let g:WhichKeyDesc_x = "<leader>x Terminal"
 
-nnoremap <leader>z zMzvzz
+nnoremap <leader>z mzzM`zzz
 let g:WhichKeyDesc_z = "<leader>z Focus fold"
 
 map <leader><leader>z <Action>(ToggleDistractionFreeMode)
