@@ -30,13 +30,22 @@ if (( $+commands[glocate] )); then
 fi
 
 # Keybinding cheatsheet
-keys() { bat --style=plain "$DOTFILES/cheatsheet.md"; }
+if (( $+commands[bat] )); then
+    keys() { bat --style=plain "$DOTFILES/cheatsheet.md"; }
+else
+    keys() {
+        cat "$DOTFILES/cheatsheet.md"
+        printf '\n\033[33mTip: install bat for syntax-highlighted output\033[0m\n'
+    }
+fi
 
 # yazi shell wrapper
-function y() {
-    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-    yazi "$@" --cwd-file="$tmp"
-    IFS= read -r -d '' cwd < "$tmp"
-    [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
-    rm -f -- "$tmp"
-}
+if (( $+commands[yazi] )); then
+    function y() {
+        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+        yazi "$@" --cwd-file="$tmp"
+        IFS= read -r -d '' cwd < "$tmp"
+        [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+        command rm -f -- "$tmp"
+    }
+fi
