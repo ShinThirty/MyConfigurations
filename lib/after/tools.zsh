@@ -29,6 +29,11 @@ if (( $+commands[glocate] )); then
     [[ -f "$HOME/locatedb" ]] && export LOCATE_PATH="$HOME/locatedb"
 fi
 
+# git bare repo dotfiles
+if [[ -d "$HOME/.dotfiles.git" ]]; then
+    alias cfg='git --git-dir=$HOME/.dotfiles.git --work-tree=$HOME'
+fi
+
 # Keybinding cheatsheet
 if (( $+commands[bat] )); then
     keys() { bat --style=plain "$DOTFILES/cheatsheet.md"; }

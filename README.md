@@ -39,6 +39,19 @@ This creates a stub profile at the OneDrive `$PROFILE` path that dot-sources `po
 
 The profile includes oh-my-posh (gruvbox theme), oh-my-zsh-style git aliases, fzf/fd integration, zoxide, bat, yazi, dirhistory (Alt+Arrow navigation), and CompletionPredictor for argument-aware predictions.
 
+### Bare repo dotfiles
+
+Configs not managed by this repo (Hyprland, waybar, wofi, etc.) can be tracked via a git bare repo:
+
+```sh
+git init --bare ~/.dotfiles.git
+cfg config status.showUntrackedFiles no
+cfg add ~/.config/hypr/ ~/.config/waybar/
+cfg commit -m "initial commit"
+```
+
+The `cfg` alias is defined in `lib/after/tools.zsh` and activates when `~/.dotfiles.git` exists.
+
 ### Neovim
 
 Plugins are managed by [lazy.nvim](https://github.com/folke/lazy.nvim). Open neovim and plugins will be installed automatically.

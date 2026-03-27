@@ -43,6 +43,23 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - **Sheldon load order**: `lib/core/` -> completions -> compinit -> ohmyzsh-lib -> ohmyzsh-plugins -> fzf-git -> powerlevel10k -> `lib/after/` -> zsh-autosuggestions -> zsh-syntax-highlighting
 - **Submodules**: Only `vim/` and `nvim/` remain as git submodules
 
+## Bare repo dotfiles
+
+Configs not managed by this symlink-based repo (Hyprland, waybar, wofi, etc.) are managed via a git bare repo at `~/.dotfiles.git`. Setup:
+
+```sh
+git init --bare ~/.dotfiles.git
+cfg config status.showUntrackedFiles no
+```
+
+The `cfg` alias (defined in `lib/after/tools.zsh`) works like `git` but targets `~/.dotfiles.git`:
+
+```sh
+cfg add ~/.config/hypr/ ~/.config/waybar/
+cfg commit -m "initial commit"
+cfg push
+```
+
 ## Working with this repo
 
 - When modifying `vim/` or `nvim/`, they are git submodules — commit inside the submodule directory, then generate patches with `git format-patch`
