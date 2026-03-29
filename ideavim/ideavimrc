@@ -228,7 +228,7 @@ map <leader>fc <Action>(GotoClass)
 let g:WhichKeyDesc_fc = "<leader>fc Classes"
 
 " =============================================================================
-" Git (<leader>g gitsigns + <leader>G fugitive)
+" Git (<leader>g gitsigns + <leader>G git)
 " =============================================================================
 let g:WhichKeyDesc_g = "<leader>g Git (hunk)"
 map <leader>gb <Action>(Annotate)
