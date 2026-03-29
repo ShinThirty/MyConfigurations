@@ -45,6 +45,9 @@ function keys { bat --style=plain "$PSScriptRoot_Profile\cheatsheet.md" }
 # Directory history
 . "$PSScriptRoot_Profile\dirhistory.ps1"
 
+# Music player
+. "$PSScriptRoot_Profile\music.ps1"
+
 # Utilities
 function which ($command)
 {

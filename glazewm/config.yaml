@@ -1,0 +1,229 @@
+# GlazeWM v3 config — Hyprland-like keybindings with gruvbox dark hard theme
+# Path: ~/.glzr/glazewm/config.yaml
+
+general:
+  startup_commands: ['shell-exec zebar']
+  shutdown_commands: ['shell-exec taskkill /IM zebar.exe /F']
+  config_reload_commands: []
+  focus_follows_cursor: false
+  toggle_workspace_on_refocus: false
+  cursor_jump:
+    enabled: true
+    trigger: 'monitor_focus'
+  hide_method: 'cloak'
+  show_all_in_taskbar: false
+
+gaps:
+  scale_with_dpi: true
+  inner_gap: '8px'
+  outer_gap:
+    top: '48px'    # room for Zebar bar
+    right: '8px'
+    bottom: '8px'
+    left: '8px'
+
+window_effects:
+  focused_window:
+    border:
+      enabled: true
+      color: '#689d6a'         # gruvbox aqua
+    hide_title_bar:
+      enabled: false
+    corner_style:
+      enabled: true
+      style: 'square'
+    transparency:
+      enabled: false
+  other_windows:
+    border:
+      enabled: true
+      color: '#504945'         # gruvbox bg2
+    hide_title_bar:
+      enabled: false
+    corner_style:
+      enabled: true
+      style: 'square'
+    transparency:
+      enabled: true
+      opacity: '90%'
+
+window_behavior:
+  initial_state: 'tiling'
+  state_defaults:
+    floating:
+      centered: true
+      shown_on_top: false
+    fullscreen:
+      maximized: false
+      shown_on_top: false
+
+workspaces:
+  - name: '1'
+  - name: '2'
+  - name: '3'
+  - name: '4'
+  - name: '5'
+  - name: '6'
+  - name: '7'
+  - name: '8'
+  - name: '9'
+
+window_rules:
+  # ignore Zebar
+  - commands: ['ignore']
+    match:
+      - window_process: { equals: 'zebar' }
+
+  # float common dialogs and utilities
+  - commands: ['set-floating']
+    match:
+      - window_title: { regex: '[Pp]icture.in.[Pp]icture' }
+      - window_process: { equals: 'SystemSettings' }
+      - window_process: { equals: 'ScreenClippingHost' }
+      - window_process: { equals: 'Flow.Launcher' }
+      - window_process: { equals: 'Taskmgr' }
+      - window_process: { equals: 'calculator' }
+      - window_process: { equals: 'msiexec' }
+      - window_process: { equals: 'Installer' }
+
+binding_modes:
+  # resize mode (alt+r to enter, escape/enter to exit)
+  - name: 'resize'
+    keybindings:
+      - commands: ['resize --width -2%']
+        bindings: ['h', 'left']
+      - commands: ['resize --width +2%']
+        bindings: ['l', 'right']
+      - commands: ['resize --height +2%']
+        bindings: ['k', 'up']
+      - commands: ['resize --height -2%']
+        bindings: ['j', 'down']
+      - commands: ['wm-disable-binding-mode --name resize']
+        bindings: ['escape', 'enter']
+
+  # move mode (alt+shift+m to enter, escape/enter to exit)
+  - name: 'move'
+    keybindings:
+      - commands: ['move --direction left']
+        bindings: ['h', 'left']
+      - commands: ['move --direction right']
+        bindings: ['l', 'right']
+      - commands: ['move --direction up']
+        bindings: ['k', 'up']
+      - commands: ['move --direction down']
+        bindings: ['j', 'down']
+      - commands: ['wm-disable-binding-mode --name move']
+        bindings: ['escape', 'enter']
+
+keybindings:
+  # focus windows (alt + h/j/k/l)
+  - commands: ['focus --direction left']
+    bindings: ['alt+h']
+  - commands: ['focus --direction down']
+    bindings: ['alt+j']
+  - commands: ['focus --direction up']
+    bindings: ['alt+k']
+  - commands: ['focus --direction right']
+    bindings: ['alt+l']
+
+  # move windows (alt+shift + h/j/k/l)
+  - commands: ['move --direction left']
+    bindings: ['alt+shift+h']
+  - commands: ['move --direction down']
+    bindings: ['alt+shift+j']
+  - commands: ['move --direction up']
+    bindings: ['alt+shift+k']
+  - commands: ['move --direction right']
+    bindings: ['alt+shift+l']
+
+  # resize (alt+ctrl + h/j/k/l)
+  - commands: ['resize --width -2%']
+    bindings: ['alt+control+h']
+  - commands: ['resize --height +2%']
+    bindings: ['alt+control+j']
+  - commands: ['resize --height -2%']
+    bindings: ['alt+control+k']
+  - commands: ['resize --width +2%']
+    bindings: ['alt+control+l']
+
+  # enter resize / move binding modes
+  - commands: ['wm-enable-binding-mode --name resize']
+    bindings: ['alt+r']
+  - commands: ['wm-enable-binding-mode --name move']
+    bindings: ['alt+shift+m']
+
+  # window state
+  - commands: ['toggle-fullscreen']
+    bindings: ['alt+f']
+  - commands: ['toggle-floating --centered']
+    bindings: ['alt+v']
+  - commands: ['toggle-tiling-direction']
+    bindings: ['alt+d']
+  - commands: ['toggle-minimized']
+    bindings: ['alt+m']
+  - commands: ['close']
+    bindings: ['alt+q']
+
+  # cycle focus between tiling / floating / fullscreen
+  - commands: ['wm-cycle-focus']
+    bindings: ['alt+space']
+
+  # switch workspaces (alt + 1-9)
+  - commands: ['focus --workspace 1']
+    bindings: ['alt+1']
+  - commands: ['focus --workspace 2']
+    bindings: ['alt+2']
+  - commands: ['focus --workspace 3']
+    bindings: ['alt+3']
+  - commands: ['focus --workspace 4']
+    bindings: ['alt+4']
+  - commands: ['focus --workspace 5']
+    bindings: ['alt+5']
+  - commands: ['focus --workspace 6']
+    bindings: ['alt+6']
+  - commands: ['focus --workspace 7']
+    bindings: ['alt+7']
+  - commands: ['focus --workspace 8']
+    bindings: ['alt+8']
+  - commands: ['focus --workspace 9']
+    bindings: ['alt+9']
+
+  # move window to workspace (alt+shift + 1-9)
+  - commands: ['move --workspace 1']
+    bindings: ['alt+shift+1']
+  - commands: ['move --workspace 2']
+    bindings: ['alt+shift+2']
+  - commands: ['move --workspace 3']
+    bindings: ['alt+shift+3']
+  - commands: ['move --workspace 4']
+    bindings: ['alt+shift+4']
+  - commands: ['move --workspace 5']
+    bindings: ['alt+shift+5']
+  - commands: ['move --workspace 6']
+    bindings: ['alt+shift+6']
+  - commands: ['move --workspace 7']
+    bindings: ['alt+shift+7']
+  - commands: ['move --workspace 8']
+    bindings: ['alt+shift+8']
+  - commands: ['move --workspace 9']
+    bindings: ['alt+shift+9']
+
+  # move workspace to adjacent monitor
+  - commands: ['move-workspace --direction left']
+    bindings: ['alt+shift+left']
+  - commands: ['move-workspace --direction right']
+    bindings: ['alt+shift+right']
+
+  # launch apps
+  - commands: ['shell-exec wt']
+    bindings: ['alt+enter']
+
+  # WM management
+  - commands: ['wm-reload-config']
+    bindings: ['alt+shift+r']
+  - commands: ['wm-exit']
+    bindings: ['alt+shift+e']
+  - commands: ['wm-redraw']
+    bindings: ['alt+shift+w']
+  - commands: ['wm-toggle-pause']
+    bindings: ['alt+shift+p']

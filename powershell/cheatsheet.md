@@ -171,6 +171,21 @@
 | grt   | cd to repo root           |
 | gta   | git tag --annotate        |
 
+## Music (music)
+
+| Command         | Action                      |
+|-----------------|-----------------------------|
+| music           | fzf-select playlist & play  |
+| music \<name\>  | Play playlist by name       |
+| music add \<p\> \<url\> | Add track to playlist |
+| music import \<p\> \<url\> | Import playlist from URL |
+| music rm \<p\>  | Remove tracks from playlist |
+| music list      | Show playlists              |
+| music pause     | Toggle pause/resume         |
+| music next/prev | Skip track                  |
+| music stop      | Stop playback               |
+| music status    | Show current track          |
+
 ## Gitui
 
 | Key   | Action              |

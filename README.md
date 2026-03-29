@@ -69,9 +69,11 @@ tmux/             - Tmux config
 kitty/            - Kitty terminal config
 gitui/            - Gitui theme and key bindings
 yazi/             - Yazi file manager config
-powershell/       - PowerShell config: profile, git aliases, dirhistory (Windows)
+powershell/       - PowerShell config: profile, git aliases, dirhistory, music (Windows)
 aria2/            - aria2 download manager (shared config + per-platform setup)
 aerospace/        - AeroSpace window manager (macOS)
+glazewm/          - GlazeWM tiling window manager (Windows, Hyprland-like)
+flow-launcher/    - Flow Launcher plugins (Windows): Music playlist player (mpv + yt-dlp)
 wt/               - Windows Terminal settings
 ideavim/          - IdeaVim config for JetBrains IDEs (requires Which-Key plugin)
 vim/              - Vim config (submodule, vim-plug)
@@ -96,6 +98,8 @@ Core CLI tools used across configs:
 - [zoxide](https://github.com/ajeetdsouza/zoxide) - Smarter cd
 - [yazi](https://github.com/sxyazi/yazi) - Terminal file manager
 - [delta](https://github.com/dandavison/delta) - Git diff viewer
+- [mpv](https://mpv.io/) - Media player (music function)
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - Media downloader (music function)
 
 ## Quick Reference
 

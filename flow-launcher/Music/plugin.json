@@ -1,0 +1,12 @@
+{
+    "ID": "a1b2c3d4-music-flow-plugin-0001",
+    "ActionKeyword": "m",
+    "Name": "Music",
+    "Description": "Play music from playlists using mpv and yt-dlp",
+    "Author": "ShinThirty",
+    "Version": "1.0.0",
+    "Language": "python",
+    "Website": "",
+    "IcoPath": "Images/icon.png",
+    "ExecuteFileName": "main.py"
+}

@@ -4,3 +4,5 @@ $DOTFILES/gitui:$APPDATA/gitui
 $DOTFILES/nvim:$LOCALAPPDATA/nvim
 $DOTFILES/wt/settings.json:$LOCALAPPDATA/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
 $DOTFILES/ideavim/ideavimrc:$HOME/.ideavimrc
+$DOTFILES/glazewm/config.yaml:$HOME/.glzr/glazewm/config.yaml
+$DOTFILES/flow-launcher/Music:$HOME/scoop/persist/flow-launcher/UserData/Plugins/Music

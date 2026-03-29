@@ -7,7 +7,7 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 ## Repository structure
 
 - `lib/core/` - Zsh config loaded early (env vars, shell options, key bindings)
-- `lib/after/` - Zsh config loaded last (fzf, tool integrations like eza, zoxide, bat, yazi)
+- `lib/after/` - Zsh config loaded last (fzf, tool integrations like eza, zoxide, bat, yazi, music)
 - `sheldon/plugins.toml` - Sheldon plugin manager config (manages oh-my-zsh plugins, powerlevel10k, zsh-autosuggestions, zsh-syntax-highlighting, fzf-git)
 - `zsh/zshrc` - Main zshrc, kept minimal — delegates to sheldon and lib/
 - `zsh/rfv` - Ripgrep fuzzy viewer script
@@ -18,7 +18,9 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - `yazi/` - Yazi file manager config with gruvbox theme
 - `aerospace/` - AeroSpace tiling window manager config (macOS only)
 - `aria2/` - aria2 download manager config, per-platform install scripts (darwin/, linux/, windows/)
-- `powershell/` - PowerShell config (Windows, loaded via stub from OneDrive `$PROFILE`): profile.ps1, git.ps1 (oh-my-zsh-style aliases), dirhistory.ps1, install_modules.ps1
+- `powershell/` - PowerShell config (Windows, loaded via stub from OneDrive `$PROFILE`): profile.ps1, git.ps1 (oh-my-zsh-style aliases), dirhistory.ps1, music.ps1, install_modules.ps1
+- `glazewm/` - GlazeWM tiling window manager config (Windows only, Hyprland-like keybindings)
+- `flow-launcher/` - Flow Launcher plugins (Windows only): Music (fzf-less playlist player via mpv). Python dependencies must be manually installed into the plugin's `lib/` folder with `pip install -r requirements.txt -t lib`
 - `wt/` - Windows Terminal settings
 - `ideavim/` - IdeaVim config for JetBrains IDEs (keybindings aligned with nvim, requires [Which-Key](https://plugins.jetbrains.com/plugin/15976-which-key) plugin)
 - `vim/` - Git submodule, plugins managed by vim-plug (has own CLAUDE.md)
@@ -36,7 +38,7 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - **Theme**: Gruvbox dark hard across all tools (tmux, gitui, bat, vim, kitty, yazi)
 - **Key bindings**: Vim-style navigation (h/j/k/l) across all tools where possible
 - **Plugin management**: Sheldon for zsh, vim-plug for vim, lazy.nvim for neovim
-- **Cross-platform**: macOS (AeroSpace, Homebrew), Arch Linux (Hyprland, pacman), and Windows (PowerShell, git, gitui, nvim, Windows Terminal, aria2)
+- **Cross-platform**: macOS (AeroSpace, Homebrew), Arch Linux (Hyprland, pacman), and Windows (GlazeWM, PowerShell, git, gitui, nvim, Windows Terminal, aria2)
 - **`$DOTFILES`**: Resolved dynamically from zshrc symlink via `${${(%):-%x}:A:h:h}`, exported as env var
 - **`$SHELDON_CONFIG_DIR`**: Points to `$DOTFILES/sheldon`
 - **Symlinks**: Managed via declarative map files (`symlinks`, `symlinks.darwin`, `symlinks.linux`, `symlinks.windows`), not hardcoded in scripts
