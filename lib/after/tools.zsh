@@ -32,6 +32,9 @@ fi
 # git bare repo dotfiles
 if [[ -d "$HOME/.dotfiles.git" ]]; then
     alias cfg='git --git-dir=$HOME/.dotfiles.git --work-tree=$HOME'
+    if (( $+commands[gitui] )); then
+        alias cfgui='GIT_DIR=$HOME/.dotfiles.git GIT_WORK_TREE=$HOME gitui'
+    fi
 fi
 
 # Keybinding cheatsheet
