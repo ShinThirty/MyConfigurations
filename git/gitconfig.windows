@@ -7,6 +7,7 @@
 [user]
 	name = Lingnan Liu
 	useConfigOnly = true
+	signingkey = ~/.ssh/signing_key.pub
 [merge]
 	conflictstyle = diff3
 [diff]
@@ -24,6 +25,8 @@
 [rerere]
 	enabled = true
 [gpg]
-	program = C:\\Users\\ShinThirty\\scoop\\apps\\gnupg\\current\\bin\\gpg.exe
+	format = ssh
+[gpg "ssh"]
+	allowedSignersFile = ~/.ssh/allowed_signers
 [credential "helperselector"]
 	selected = manager
