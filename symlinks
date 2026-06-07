@@ -9,5 +9,6 @@ $DOTFILES/tmux/tmux.conf:$HOME/.tmux.conf
 $DOTFILES/kitty:$HOME/.config/kitty
 $DOTFILES/yazi/yazi.toml:$HOME/.config/yazi/yazi.toml
 $DOTFILES/yazi/theme.toml:$HOME/.config/yazi/theme.toml
+$DOTFILES/yazi/package.toml:$HOME/.config/yazi/package.toml
 $DOTFILES/gitui:$HOME/.config/gitui
 $DOTFILES/zsh/zshrc:$HOME/.zshrc
