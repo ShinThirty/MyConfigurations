@@ -30,6 +30,9 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - `symlinks` - Declarative symlink mappings (all platforms)
 - `symlinks.darwin` - macOS-specific symlink mappings
 - `symlinks.windows` - Windows-specific symlink mappings
+- `Brewfile` - macOS package manifest (formulae, casks, fonts, Go tools); regenerate with `brew bundle dump --file=Brewfile -f`
+- `bootstrap.sh` - macOS new-machine setup: Xcode CLT, Homebrew, `brew bundle`, submodules, `setup_symlinks.sh`, machine-local shell stubs. Idempotent, never overwrites existing files. Flags: `--no-brew`, `--rust`
+- `MIGRATION.md` - New-Mac runbook for everything outside the repo: SSH keys, App Store/direct-download apps, personal data paths, known gotchas
 - `setup_symlinks.sh` - Reads symlink map files and creates symlinks, skips existing files/symlinks (macOS/Linux)
 - `setup_symlinks.ps1` - Windows equivalent of setup_symlinks.sh
 

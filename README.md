@@ -7,9 +7,14 @@ Personal configurations for macOS, Arch Linux, and Windows. Gruvbox dark hard th
 ```sh
 git clone --recursive <repo-url> ~/MyConfigurations
 cd ~/MyConfigurations
-./setup_symlinks.sh          # macOS / Linux
+./bootstrap.sh               # macOS: Homebrew + Brewfile + symlinks + shell stubs
+# ./setup_symlinks.sh        # Linux (symlinks only)
 # .\setup_symlinks.ps1       # Windows (PowerShell, run as admin for symlinks)
 ```
+
+On a brand-new Mac, follow [MIGRATION.md](MIGRATION.md) — it covers what
+`bootstrap.sh` can't: SSH keys, App Store and direct-download apps, and personal
+data outside this repo.
 
 ### Zsh
 
@@ -79,6 +84,9 @@ ideavim/          - IdeaVim config for JetBrains IDEs (requires Which-Key plugin
 vim/              - Vim config (submodule, vim-plug)
 nvim/             - Neovim config (submodule, lazy.nvim, cross-platform)
 cheatsheet.md     - Key bindings reference (view with `keys`)
+MIGRATION.md      - New-Mac runbook: SSH keys, apps, personal data
+Brewfile          - macOS package manifest (formulae, casks, fonts, Go tools)
+bootstrap.sh      - New-Mac setup: Homebrew, Brewfile, submodules, symlinks, stubs
 setup_symlinks.sh - Creates symlinks, skips existing files/symlinks (macOS/Linux)
 setup_symlinks.ps1- Windows equivalent
 symlinks          - Symlink mappings (all platforms)
