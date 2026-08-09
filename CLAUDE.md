@@ -30,9 +30,12 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - `symlinks` - Declarative symlink mappings (all platforms)
 - `symlinks.darwin` - macOS-specific symlink mappings
 - `symlinks.windows` - Windows-specific symlink mappings
-- `Brewfile` - macOS package manifest (formulae, casks, fonts, Go tools); regenerate with `brew bundle dump --file=Brewfile -f`
+- `Brewfile` - macOS package manifest (formulae, casks, fonts, Go tools). Scoped to what *this repo's* configs need — personal apps and general-purpose CLI live in MIGRATION.md instead, and must not be added back here. `brew bundle dump --file=Brewfile -f` regenerates from the machine and pulls all of that back in, so re-trim after dumping. Never run `brew bundle` with `--cleanup` against it
 - `bootstrap.sh` - macOS new-machine setup: Xcode CLT, Homebrew, `brew bundle`, submodules, `setup_symlinks.sh`, machine-local shell stubs. Idempotent, never overwrites existing files. Flags: `--no-brew`, `--rust`
 - `MIGRATION.md` - New-Mac runbook for everything outside the repo: SSH keys, App Store/direct-download apps, personal data paths, known gotchas
+- `pkglist.arch` - Arch package manifest. Scoped to what *this repo's* configs need — the desktop (Hyprland, waybar, greetd, fcitx5, theming, GUI apps, drivers) is installed separately and must not be added here. One package per line, `#` comments, `aur/` prefix marks AUR packages
+- `bootstrap.arch.sh` - Arch new-machine setup: `pkglist.arch` via pacman (paru only if an `aur/` entry exists), submodules, `setup_symlinks.sh`, machine-local shell stubs, `chsh` to zsh, yazi plugins. Idempotent, never overwrites existing files. Flags: `--no-pkg`, `--rust`, `--aria2`, `--print-packages`
+- `MIGRATION.arch.md` - New-Arch-box runbook: SSH keys, the `~/.dotfiles.git` bare repo (no remote — must be copied), personal data paths, known gotchas
 - `setup_symlinks.sh` - Reads symlink map files and creates symlinks, skips existing files/symlinks (macOS/Linux)
 - `setup_symlinks.ps1` - Windows equivalent of setup_symlinks.sh
 

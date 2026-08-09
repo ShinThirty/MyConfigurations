@@ -19,7 +19,7 @@ for arg in "$@"; do
   case "$arg" in
     --no-brew) INSTALL_BREW=0 ;;
     --rust)    INSTALL_RUST=1 ;;
-    -h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown option: $arg" >&2; exit 1 ;;
   esac
 done
@@ -201,5 +201,6 @@ cat <<'EOF'
   4. vim +PlugInstall +qa
   5. Grant AeroSpace + kitty Accessibility permission in System Settings
   6. Set the kitty font to a Nerd Font if it did not pick one up
-  7. gh auth login     # if you use the GitHub CLI
+  7. brew install gh && gh auth login   # not in the Brewfile; see MIGRATION.md
+                                        # section 3 for the rest of the CLI
 EOF

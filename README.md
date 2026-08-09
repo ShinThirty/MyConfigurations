@@ -8,13 +8,20 @@ Personal configurations for macOS, Arch Linux, and Windows. Gruvbox dark hard th
 git clone --recursive <repo-url> ~/MyConfigurations
 cd ~/MyConfigurations
 ./bootstrap.sh               # macOS: Homebrew + Brewfile + symlinks + shell stubs
-# ./setup_symlinks.sh        # Linux (symlinks only)
+# ./bootstrap.arch.sh        # Arch Linux: pacman + pkglist.arch + symlinks + shell stubs
 # .\setup_symlinks.ps1       # Windows (PowerShell, run as admin for symlinks)
+# ./setup_symlinks.sh        # any Unix, symlinks only
 ```
 
-On a brand-new Mac, follow [MIGRATION.md](MIGRATION.md) — it covers what
-`bootstrap.sh` can't: SSH keys, App Store and direct-download apps, and personal
-data outside this repo.
+On a brand-new machine, follow the matching runbook — it covers what the
+bootstrap script can't: SSH keys, apps, and personal data outside this repo.
+
+- macOS → [MIGRATION.md](MIGRATION.md)
+- Arch Linux → [MIGRATION.arch.md](MIGRATION.arch.md)
+
+`pkglist.arch` covers only what this repo's configs need. The desktop
+(Hyprland, waybar, greetd, fcitx5, GUI apps) is installed separately and its
+configs live in the `~/.dotfiles.git` bare repo below.
 
 ### Zsh
 
@@ -85,8 +92,11 @@ vim/              - Vim config (submodule, vim-plug)
 nvim/             - Neovim config (submodule, lazy.nvim, cross-platform)
 cheatsheet.md     - Key bindings reference (view with `keys`)
 MIGRATION.md      - New-Mac runbook: SSH keys, apps, personal data
-Brewfile          - macOS package manifest (formulae, casks, fonts, Go tools)
+MIGRATION.arch.md - New-Arch-box runbook: SSH keys, bare repo, personal data
+Brewfile          - macOS package manifest (only what this repo's configs need)
+pkglist.arch      - Arch package manifest (same scope, pacman)
 bootstrap.sh      - New-Mac setup: Homebrew, Brewfile, submodules, symlinks, stubs
+bootstrap.arch.sh - New-Arch setup: pacman, pkglist.arch, submodules, symlinks, stubs
 setup_symlinks.sh - Creates symlinks, skips existing files/symlinks (macOS/Linux)
 setup_symlinks.ps1- Windows equivalent
 symlinks          - Symlink mappings (all platforms)

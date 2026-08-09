@@ -1,0 +1,91 @@
+# pkglist.arch — Arch Linux package manifest (the Brewfile of this repo)
+#
+#   ./bootstrap.arch.sh                    # install everything below
+#   ./bootstrap.arch.sh --print-packages   # just print the parsed list
+#   sudo pacman -S --needed $(./bootstrap.arch.sh --print-packages)
+#
+# Scope: only what the configs in *this* repo need. The desktop itself
+# (Hyprland, waybar, greetd, fcitx5, theming, GUI apps, drivers) is installed
+# separately and its configs live in the ~/.dotfiles.git bare repo — nothing
+# here should duplicate that.
+#
+# Format: one package per line, `#` starts a comment. A line prefixed with
+# `aur/` comes from the AUR; bootstrap.arch.sh only reaches for paru when it
+# finds one. Everything below is currently in the official repos.
+
+# --- Core CLI referenced by the configs in this repo -------------------------
+# Fuzzy finder (lib/after/fzf.zsh, zsh/rfv)
+fzf
+# Simple, fast and user-friendly alternative to find (fzf + yazi backends)
+fd
+# Search tool like grep and The Silver Searcher (zsh/rfv)
+ripgrep
+# Modern, maintained replacement for ls (lib/after/tools.zsh)
+eza
+# Clone of cat(1) with syntax highlighting — also renders `keys`
+bat
+# Shell extension to navigate your filesystem faster (lib/after/tools.zsh)
+zoxide
+# Blazing fast terminal file manager (yazi/, plus the `y` wrapper)
+yazi
+# Syntax-highlighting pager for git and diff output (git/gitconfig pager)
+git-delta
+# Blazing fast terminal-ui for git (gitui/, plus the `cfgui` alias)
+gitui
+# Fast, configurable, shell plugin manager — bootstraps all zsh plugins
+sheldon
+# The shell this repo configures
+zsh
+# Terminal multiplexer (tmux/)
+tmux
+# Distributed revision control system (git/)
+git
+# GPU-based terminal emulator (kitty/)
+kitty
+# Ambitious Vim-fork focused on extensibility and agility (nvim/ submodule)
+neovim
+# Vi 'workalike' with many additional features (vim/ submodule, $EDITOR)
+vim
+# Download with resuming and segmented downloading (aria2/)
+aria2
+
+# --- music function (lib/after/music.zsh) ------------------------------------
+mpv
+yt-dlp
+ffmpeg
+# The mpv IPC helper in music.zsh shells out to python3
+python
+
+# --- keepassxc/sync.sh -------------------------------------------------------
+# Provides keepassxc-cli. Note that sync.sh currently hardcodes the macOS SMB
+# mount path (/Volumes/...), so it needs an edit before it works here.
+keepassxc
+
+# --- yazi preview helpers ----------------------------------------------------
+# Optional yazi dependencies — previews silently degrade without them.
+ffmpegthumbnailer
+poppler
+imagemagick
+resvg
+7zip
+
+# --- Editor toolchain --------------------------------------------------------
+# mason.nvim downloads LSP servers and formatters at runtime, and treesitter
+# compiles parsers locally, so nvim needs a compiler and these runtimes.
+base-devel
+curl
+unzip
+tree-sitter-cli
+npm
+go
+uv
+# Some nvim plugins build Lua rocks
+luarocks
+
+# --- Fonts -------------------------------------------------------------------
+# kitty asks for "FantasqueSansM Nerd Font Mono"; p10k and tmux need the
+# Nerd Font symbol ranges.
+ttf-fantasque-nerd
+ttf-jetbrains-mono-nerd
+ttf-nerd-fonts-symbols-mono
+noto-fonts-emoji

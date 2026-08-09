@@ -23,7 +23,10 @@ cd ~/MyConfigurations
 `bootstrap.sh` is idempotent and never overwrites an existing file. It:
 
 1. Installs Xcode Command Line Tools (re-run the script after the GUI installer finishes)
-2. Installs Homebrew and everything in `Brewfile` (formulae, casks, fonts, Go tools)
+2. Installs Homebrew and everything in `Brewfile` (formulae, casks, fonts, Go
+   tools) — scoped to this repo's own dependencies, so expect a much shorter
+   list than the old machine had; [section 3](#3-apps-and-tools-not-covered-by-the-brewfile)
+   covers the rest
 3. Checks out the `vim/` and `nvim/` submodules
 4. Runs `setup_symlinks.sh` (`symlinks` + `symlinks.darwin`)
 5. Creates `~/.zprofile`, `~/.zshenv`, `~/.zshrc.local` if missing
@@ -72,7 +75,33 @@ verifying).
 
 ---
 
-## 3. Apps not covered by the Brewfile
+## 3. Apps and tools not covered by the Brewfile
+
+The `Brewfile` is scoped to what this repo's configs need. Everything below used
+to live in it and was removed to keep that scope honest — install what you still
+want, skip what you don't.
+
+**Personal apps** — `brew install --cask <name>`:
+
+| Cask | What to redo after install |
+|---|---|
+| `obsidian` | Vault is in iCloud, see below |
+| `microsoft-edge` | Sign in |
+| `discord` | Log in |
+| `webull` | Log in |
+| `shadowsocksx-ng` | Re-enter server config; copy the local rule files (see below) |
+| `claude-code@latest` | `claude` CLI; re-auth on first run |
+
+**General CLI** — none of it is referenced by the configs in this repo, so pick
+what you actually miss:
+
+```sh
+brew install age awscli bottom dive duf fastfetch gh jless jq nano ncdu nmap sd wget
+brew install hashicorp/tap/terraform   # needs: brew tap hashicorp/tap
+```
+
+`age` is the one with a hard dependency elsewhere — the encryption identity in
+[section 4](#4-personal-data-to-bring-over) is useless without it.
 
 **Mac App Store** — sign in with your Apple ID, then Account → Purchased:
 
@@ -87,14 +116,11 @@ verifying).
   `.tax20XX` data files live in `~/Documents` and must be copied separately
 - 央视频HD
 
-**In the Brewfile but needs manual sign-in / config after install:**
+**In the Brewfile but needs setup after install:**
 
 | App | What to redo |
 |---|---|
-| ShadowsocksX-NG | Re-enter server config; copy the local rule files (see below) |
 | KeePassXC | Point it at the database (see below) |
-| Obsidian | Vault is in iCloud, see below |
-| Webull / Discord | Log in |
 | AeroSpace, kitty | Grant **Accessibility** permission in System Settings → Privacy & Security |
 
 ---
@@ -192,8 +218,9 @@ pins. Nothing to do — just don't copy the old file over.
 **GitHub key is RSA.** `~/.ssh/github` is a 4096-bit RSA key with no comment.
 Still accepted by GitHub, but a good moment to rotate to ed25519 if you feel like it.
 
-**`gh` is not authenticated** on the old Mac, so there's nothing to migrate —
-run `gh auth login` on the new one if you want it.
+**`gh` is not authenticated** on the old Mac, so there's nothing to migrate. It
+is no longer in the Brewfile either — `brew install gh && gh auth login` on the
+new one if you want it.
 
 ---
 

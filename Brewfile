@@ -5,124 +5,100 @@
 #   brew bundle dump    --file=Brewfile -f   # regenerate from this machine
 #
 # Run via ./bootstrap.sh, which handles Homebrew installation first.
+#
+# Scope: only what the configs in *this* repo need — the macOS counterpart of
+# pkglist.arch. Personal apps, general-purpose CLI and anything installed for a
+# specific project are deliberately absent; see MIGRATION.md for the list of
+# what to reinstall by hand.
+#
+# Because of that, never run `brew bundle` with `--cleanup` against this file:
+# it would uninstall everything not listed here.
+#
+# `brew bundle dump -f` regenerates from the machine and will pull all of that
+# back in — re-trim after dumping, or the scope note above stops being true.
 
-tap "hashicorp/tap", trusted: true
 tap "nikitabobko/tap", trusted: true
 
 # --- Core CLI referenced by the configs in this repo ---
 # Fuzzy finder (lib/after/fzf.zsh, zsh/rfv)
 brew "fzf"
-# Simple, fast and user-friendly alternative to find
+# Simple, fast and user-friendly alternative to find (fzf + yazi backends)
 brew "fd"
-# Search tool like grep and The Silver Searcher
+# Search tool like grep and The Silver Searcher (zsh/rfv)
 brew "ripgrep"
 # Modern, maintained replacement for ls (lib/after/tools.zsh)
 brew "eza"
-# Clone of cat(1) with syntax highlighting and Git integration
+# Clone of cat(1) with syntax highlighting — also renders `keys`
 brew "bat"
-# Shell extension to navigate your filesystem faster
+# Shell extension to navigate your filesystem faster (lib/after/tools.zsh)
 brew "zoxide"
-# Blazing fast terminal file manager written in Rust, based on async I/O
+# Blazing fast terminal file manager (yazi/, plus the `y` wrapper)
 brew "yazi"
 # Syntax-highlighting pager for git and diff output (git/gitconfig pager)
 brew "git-delta"
-# Blazing fast terminal-ui for git written in rust
+# Blazing fast terminal-ui for git (gitui/, plus the `cfgui` alias)
 brew "gitui"
 # Fast, configurable, shell plugin manager — bootstraps all zsh plugins
 brew "sheldon"
-# Terminal multiplexer
+# Terminal multiplexer (tmux/)
 brew "tmux"
-# Distributed revision control system
+# Distributed revision control system (git/)
 brew "git"
-# Ambitious Vim-fork focused on extensibility and agility
+# Ambitious Vim-fork focused on extensibility and agility (nvim/ submodule)
 brew "neovim"
-# Vi 'workalike' with many additional features
+# Vi 'workalike' with many additional features (vim/ submodule, $EDITOR)
 brew "vim"
-# Play, record, convert, and stream select audio and video codecs (music function)
-brew "ffmpeg"
-# Download with resuming and segmented downloading
+# Download with resuming and segmented downloading (aria2/)
 brew "aria2"
-
-# --- General CLI ---
-# Simple, modern, secure file encryption
-brew "age"
-# Official Amazon AWS command-line interface
-brew "awscli"
-# Yet another cross-platform graphical process/system monitor
-brew "bottom"
-# Tool for exploring each layer in a docker image
-brew "dive"
-# Disk Usage/Free Utility - a better 'df' alternative
-brew "duf"
-# Like neofetch, but much faster because written mostly in C
-brew "fastfetch"
-# Collection of GNU find, xargs, and locate
+# GNU find/xargs/locate — the `locate` and `loaddb` aliases in tools.zsh call
+# glocate and gupdatedb
 brew "findutils"
-# GitHub command-line tool
-brew "gh"
-# Tools and libraries to manipulate images in select formats
-brew "imagemagick"
-# Command-line pager for JSON data
-brew "jless"
-# Lightweight and flexible command-line JSON processor
-brew "jq"
-# Free (GNU) replacement for the Pico text editor
-brew "nano"
-# NCurses Disk Usage
-brew "ncdu"
-# Port scanning utility for large networks
-brew "nmap"
-# 7-Zip (high compression file archiver) implementation
-brew "p7zip"
-# 7-Zip is a file archiver with a high compression ratio
-brew "sevenzip"
-# SVG rendering tool and library
-brew "resvg"
-# Intuitive find & replace CLI
-brew "sd"
-# Internet file retriever
-brew "wget"
 
-# --- Languages / toolchains ---
-# Open source programming language to build simple/reliable/efficient software
+# --- music function (lib/after/music.zsh) ---
+brew "mpv"
+brew "yt-dlp"
+# Play, record, convert, and stream select audio and video codecs
+brew "ffmpeg"
+
+# --- keepassxc/sync.sh ---
+# Provides keepassxc-cli, which sync.sh uses to merge the local and SMB copies
+cask "keepassxc"
+
+# --- yazi preview helpers ---
+# Optional yazi dependencies — previews silently degrade without them.
+brew "poppler"
+brew "imagemagick"
+brew "resvg"
+brew "sevenzip"
+
+# --- Editor toolchain ---
+# mason.nvim downloads LSP servers and formatters at runtime, and treesitter
+# compiles parsers locally. The compiler, curl, unzip and python3 come from the
+# Xcode Command Line Tools, which bootstrap.sh installs first; zsh is the macOS
+# system shell, so neither needs a formula here.
 brew "go"
-# Powerful, lightweight programming language
+# Node runtime for the npm-based LSP servers mason installs
+brew "node"
 brew "lua"
-# Package manager for the Lua programming language
 brew "luarocks"
 # Parser generator tool (nvim treesitter)
 brew "tree-sitter-cli"
 # Extremely fast Python package installer and resolver, written in Rust
 brew "uv"
-# Terraform
-brew "hashicorp/tap/terraform"
 
 # --- Casks ---
-# AeroSpace is an i3-like tiling window manager for macOS
+# AeroSpace is an i3-like tiling window manager for macOS (aerospace/)
 cask "nikitabobko/tap/aerospace"
-# GPU-based terminal emulator
+# GPU-based terminal emulator (kitty/)
 cask "kitty"
-# Password manager app
-cask "keepassxc"
-# Terminal-based AI coding assistant
-cask "claude-code@latest"
-# Knowledge base that works on top of a local folder of plain text Markdown files
-cask "obsidian"
-# Multi-platform web browser
-cask "microsoft-edge"
-# Voice and text chat software
-cask "discord"
-# Tunneling proxy
-cask "shadowsocksx-ng"
-# Desktop client for Webull Financial LLC
-cask "webull"
 
 # --- Fonts (kitty / tmux / p10k all assume a Nerd Font) ---
-cask "font-jetbrains-mono-nerd-font"
 cask "font-fantasque-sans-mono-nerd-font"
+cask "font-jetbrains-mono-nerd-font"
 cask "font-symbols-only-nerd-font"
 
 # --- Go tools (installed to $GOPATH/bin, not Homebrew) ---
+# nvim's go.nvim setup shells out to these.
 go "golang.org/x/tools/gopls"
 go "golang.org/x/tools/cmd/goimports"
 go "golang.org/x/tools/cmd/callgraph"
@@ -146,8 +122,6 @@ go "github.com/kyoh86/richgo"
 go "github.com/onsi/ginkgo/v2/ginkgo"
 go "go.uber.org/mock/mockgen"
 
-# --- Not installable here; see MIGRATION.md ---
-# Mac App Store (sign in with your Apple ID, then redownload from Purchased):
-#   WeChat, Transocks, Pages Creator Studio, and the Apple iWork/iLife apps
-# Direct download:
-#   TurboTax, 央视频HD
+# --- Everything else lives in MIGRATION.md ---
+# Personal apps, general-purpose CLI, App Store and direct-download software
+# are listed there under "Apps and tools not covered by the Brewfile".
