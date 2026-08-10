@@ -124,7 +124,7 @@ export XMODIFIERS=@im=fcitx
 # pinentry program for GPG prompts
 export PINENTRY=/usr/bin/pinentry-qt
 
-[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+if [ -f "$HOME/.cargo/env" ]; then . "$HOME/.cargo/env"; fi
 EOF
 
 write_if_missing "$HOME/.zshrc.local" <<'EOF'
@@ -135,7 +135,7 @@ write_if_missing "$HOME/.zshrc.local" <<'EOF'
 export PATH="$PATH:$(go env GOPATH)/bin"
 
 # Haskell (only if ghcup is installed)
-[ -f "$HOME/.ghcup/env" ] && . "$HOME/.ghcup/env"
+if [ -f "$HOME/.ghcup/env" ]; then . "$HOME/.ghcup/env"; fi
 EOF
 
 # --- Login shell --------------------------------------------------------------

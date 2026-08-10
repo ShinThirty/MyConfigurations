@@ -132,7 +132,7 @@ info "Machine-local shell files"
 ensure_brew_shellenv
 
 write_if_missing "$HOME/.zshenv" <<'EOF'
-[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+if [ -f "$HOME/.cargo/env" ]; then . "$HOME/.cargo/env"; fi
 EOF
 
 write_if_missing "$HOME/.zshrc.local" <<'EOF'
@@ -144,7 +144,7 @@ export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 
 # Haskell (only if ghcup is installed)
-[ -f "$HOME/.ghcup/env" ] && . "$HOME/.ghcup/env"
+if [ -f "$HOME/.ghcup/env" ]; then . "$HOME/.ghcup/env"; fi
 EOF
 
 # --- Rust (optional) ----------------------------------------------------------
