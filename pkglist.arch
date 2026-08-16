@@ -61,6 +61,19 @@ python
 # mount path (/Volumes/...), so it needs an edit before it works here.
 keepassxc
 
+# --- git send-email + credential helper (git/gitconfig) ----------------------
+# All four are optdepends of git, so pacman never pulls them in on its own.
+# git send-email needs these two to speak authenticated SMTP — without them it
+# dies at send time with "Cannot find Authen::SASL".
+perl-authen-sasl
+perl-io-socket-ssl
+# Lets the SMTP password prompt read without echoing.
+perl-term-readkey
+# Backs `credential.helper = libsecret`. The Secret Service it talks to comes
+# from keepassxc above — enable Settings -> Secret Service Integration, which
+# is off by default, or the helper has no daemon to store into.
+libsecret
+
 # --- yazi preview helpers ----------------------------------------------------
 # Optional yazi dependencies — previews silently degrade without them.
 ffmpegthumbnailer

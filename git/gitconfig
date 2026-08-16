@@ -28,3 +28,13 @@
 	format = ssh
 [gpg "ssh"]
 	allowedSignersFile = ~/.ssh/allowed_signers
+[sendemail]
+	smtpServer = smtp.gmail.com
+	smtpServerPort = 587
+	smtpEncryption = tls
+	smtpUser = xmxu00@gmail.com
+	confirm = always
+	annotate = yes
+	assume8bitEncoding = UTF-8
+[credential]
+	helper = libsecret
