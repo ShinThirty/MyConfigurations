@@ -25,6 +25,13 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - `ideavim/` - IdeaVim config for JetBrains IDEs (keybindings aligned with nvim, requires [Which-Key](https://plugins.jetbrains.com/plugin/15976-which-key) plugin)
 - `vim/` - Git submodule, plugins managed by vim-plug (has own CLAUDE.md)
 - `nvim/` - Git submodule, plugins managed by lazy.nvim, cross-platform macOS/Linux/Windows (has own CLAUDE.md)
+- `voice/` - `voice-dictate`, hold-to-talk speech input for Wayland (Arch only): records the
+  default PipeWire source, transcribes locally with whisper.cpp on the GPU (ggml-vulkan, no
+  CUDA toolkit), and types the text into the focused window via `wtype`. Bound to SUPER+Z in
+  the Hyprland config, which lives in the `~/.dotfiles.git` bare repo, not here. The model
+  (`ggml-large-v3-turbo-q5_0.bin`, 574 MB) plus a Silero VAD model live in
+  `~/.local/share/whisper.cpp/`, downloaded by `bootstrap.arch.sh --voice` rather than tracked.
+  VAD is not optional: without it Whisper turns room tone into confident filler text
 - `cheatsheet.md` - Key bindings reference for macOS/Linux tools (view with `keys` command)
 - `powershell/cheatsheet.md` - Key bindings reference for Windows (PowerShell aliases, git, gitui)
 - `symlinks` - Declarative symlink mappings (all platforms)
@@ -34,7 +41,7 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - `bootstrap.sh` - macOS new-machine setup: Xcode CLT, Homebrew, `brew bundle`, submodules, `setup_symlinks.sh`, machine-local shell stubs. Idempotent, never overwrites existing files. Flags: `--no-brew`, `--rust`
 - `MIGRATION.md` - New-Mac runbook for everything outside the repo: SSH keys, App Store/direct-download apps, personal data paths, known gotchas
 - `pkglist.arch` - Arch package manifest. Scoped to what *this repo's* configs need — the desktop (Hyprland, waybar, greetd, fcitx5, theming, GUI apps, drivers) is installed separately and must not be added here. One package per line, `#` comments, `aur/` prefix marks AUR packages
-- `bootstrap.arch.sh` - Arch new-machine setup: `pkglist.arch` via pacman (paru only if an `aur/` entry exists), submodules, `setup_symlinks.sh`, machine-local shell stubs, `chsh` to zsh, yazi plugins. Idempotent, never overwrites existing files. Flags: `--no-pkg`, `--rust`, `--aria2`, `--print-packages`
+- `bootstrap.arch.sh` - Arch new-machine setup: `pkglist.arch` via pacman (paru only if an `aur/` entry exists), submodules, `setup_symlinks.sh`, machine-local shell stubs, `chsh` to zsh, yazi plugins. Idempotent, never overwrites existing files. Flags: `--no-pkg`, `--rust`, `--aria2`, `--voice`, `--print-packages`
 - `MIGRATION.arch.md` - New-Arch-box runbook: SSH keys, the `~/.dotfiles.git` bare repo (no remote — must be copied), personal data paths, known gotchas
 - `setup_symlinks.sh` - Reads symlink map files and creates symlinks, skips existing files/symlinks (macOS/Linux)
 - `setup_symlinks.ps1` - Windows equivalent of setup_symlinks.sh

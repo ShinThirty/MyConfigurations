@@ -94,6 +94,16 @@
 | music stop      | Stop playback               |
 | music status    | Show current track          |
 
+## Voice dictation (Arch/Hyprland)
+
+| Key             | Action                                            |
+|-----------------|---------------------------------------------------|
+| SUPER+Z (hold)  | Record while held; types the transcript on release |
+| SUPER+SHIFT+Z   | Discard the take in progress                       |
+
+Runs `voice-dictate`, which transcribes locally with whisper.cpp on the GPU and
+types into whatever window has focus. `voice-dictate doctor` checks the setup.
+
 ## AeroSpace (macOS)
 
 ### Focus & Move

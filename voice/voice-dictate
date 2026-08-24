@@ -1,0 +1,187 @@
+#!/usr/bin/env bash
+#
+# voice-dictate — hold-to-talk speech input for any Wayland window.
+#
+#   voice-dictate start     # begin recording   (bound to key press)
+#   voice-dictate stop      # transcribe + type (bound to key release)
+#   voice-dictate toggle    # start if idle, stop if recording
+#   voice-dictate cancel    # throw the current take away without typing
+#   voice-dictate doctor    # check deps, model, mic and GPU backend
+#
+# Records the default PipeWire source, transcribes locally with whisper.cpp on
+# the GPU, then types the text into whatever window has focus using the Wayland
+# virtual-keyboard protocol. Nothing leaves the machine.
+#
+# Bound in ~/.config/hypr/UserConfigs/UserKeybinds.conf — see that file.
+#
+# Newlines are collapsed to spaces on purpose: a stray Return would submit the
+# prompt early in TUIs like Claude Code.
+
+set -uo pipefail
+
+MODEL="${VOICE_DICTATE_MODEL:-$HOME/.local/share/whisper.cpp/ggml-large-v3-turbo-q5_0.bin}"
+LANGUAGE="${VOICE_DICTATE_LANG:-en}"
+# Silero VAD. Whisper hallucinates confident filler ("Thank you.", "Bye.") out of
+# room tone, and this mic has a loud enough noise floor that a plain loudness gate
+# can't tell speech from silence. VAD drops non-speech before transcription, which
+# both fixes that and speeds up the run.
+VAD_MODEL="${VOICE_DICTATE_VAD_MODEL:-$HOME/.local/share/whisper.cpp/ggml-silero-v5.1.2.bin}"
+KEY_DELAY="${VOICE_DICTATE_KEY_DELAY:-0}"   # ms between synthetic keystrokes
+MAX_SECONDS="${VOICE_DICTATE_MAX_SECONDS:-180}"
+MIN_BYTES=8000                              # ~0.25 s of 16 kHz mono s16
+
+# Only the NVIDIA ICD is installed, so Vulkan sees exactly one device (the
+# dGPU) and ggml selects it on its own. If a second Vulkan driver ever lands —
+# vulkan-radeon for the 9800X3D's iGPU, say — and inference starts going to the
+# wrong device, pin it here with GGML_VK_VISIBLE_DEVICES=<index>.
+
+STATE_DIR="${XDG_RUNTIME_DIR:-/tmp}/voice-dictate"
+WAV="$STATE_DIR/take.wav"
+PIDFILE="$STATE_DIR/recorder.pid"
+LOG="$STATE_DIR/whisper.log"
+NOTIFY_ID=9137                              # stable id: notifications replace each other
+
+note() {
+  command -v notify-send >/dev/null 2>&1 || return 0
+  notify-send -a voice-dictate -r "$NOTIFY_ID" -t "${NOTE_TIMEOUT:-3000}" "$1" "${2:-}"
+}
+
+recorder_pid() {
+  [[ -r $PIDFILE ]] || return 1
+  local pid
+  pid=$(<"$PIDFILE")
+  [[ -n $pid ]] && kill -0 "$pid" 2>/dev/null && printf '%s' "$pid"
+}
+
+start() {
+  mkdir -p "$STATE_DIR"
+  recorder_pid >/dev/null && return 0      # already recording; ignore key repeat
+  rm -f "$WAV"
+  # timeout is a watchdog for a release event that never arrives; it forwards
+  # our SIGINT to pw-record, which needs it to finalise the WAV header.
+  timeout -s INT "$MAX_SECONDS" \
+    pw-record --rate 16000 --channels 1 --format s16 "$WAV" >"$STATE_DIR/record.log" 2>&1 &
+  echo $! >"$PIDFILE"
+  NOTE_TIMEOUT=0 note "🔴 Recording" "Release the key to transcribe"
+}
+
+stop() {
+  local pid
+  pid=$(recorder_pid) || { note "Not recording"; return 0; }
+  kill -INT "$pid" 2>/dev/null
+  # start/stop are separate processes, so the recorder is not our child: poll.
+  local i
+  for ((i = 0; i < 100; i++)); do
+    kill -0 "$pid" 2>/dev/null || break
+    sleep 0.02
+  done
+  rm -f "$PIDFILE"
+
+  if [[ ! -s $WAV ]] || (( $(stat -c%s "$WAV") < MIN_BYTES )); then
+    note "Nothing heard" "That take was too short"
+    return 0
+  fi
+
+  NOTE_TIMEOUT=0 note "⏳ Transcribing…"
+  local raw text
+  raw=$(transcribe) || return 1        # transcribe already notified why
+  text=$(printf '%s' "$raw" | clean_text)
+  if [[ -z $text ]]; then
+    note "Nothing heard" "No speech in that take"
+    return 0
+  fi
+
+  # Trailing space so consecutive takes don't run together.
+  # wtype rejects "-d 0" ("Invalid sleep time") even though its man page calls 0
+  # the default, so only pass the flag when a delay was actually asked for.
+  local delay=()
+  (( KEY_DELAY > 0 )) && delay=(-d "$KEY_DELAY")
+  if printf '%s ' "$text" | wtype "${delay[@]}" - 2>"$STATE_DIR/wtype.log"; then
+    note "✓ Typed" "${text:0:80}"
+  else
+    # Don't claim success we didn't have: the transcript is real, the typing failed.
+    # --sensitive sets the x-kde-passwordManagerHint mime type, which makes
+    # cliphist skip the entry. Without it every failed take would be written
+    # permanently to ~/.cache/cliphist/db; the clipboard itself still works
+    # normally, and you can paste as many times as you like.
+    local fallback=""
+    printf '%s' "$text" | wl-copy --sensitive 2>/dev/null &&
+      fallback=" — copied to clipboard instead"
+    note "⚠ Could not type${fallback:-}" "$(tail -n1 "$STATE_DIR/wtype.log"): ${text:0:60}"
+    return 1
+  fi
+}
+
+transcribe() {
+  rm -f "$STATE_DIR/take.txt"   # never re-type a previous take if this run fails
+  local vad=()
+  [[ -r $VAD_MODEL ]] && vad=(--vad --vad-model "$VAD_MODEL")
+  whisper-cli \
+    --model "$MODEL" \
+    --file "$WAV" \
+    --language "$LANGUAGE" \
+    --no-timestamps \
+    --no-prints \
+    "${vad[@]}" \
+    --output-txt --output-file "$STATE_DIR/take" >/dev/null 2>"$LOG" || {
+      note "Transcription failed" "$(tail -n 2 "$LOG")"
+      return 1
+    }
+  cat "$STATE_DIR/take.txt" 2>/dev/null
+}
+
+# Whisper marks non-speech as [BLANK_AUDIO], (silence), [Music] and friends.
+NOISE='blank_audio|silence|music|laughs?|laughter|applause|inaudible|sighs?|coughs?|clears throat|no speech|beep'
+
+clean_text() {
+  tr '\n' ' ' |
+    sed -E 's/\[[^]]*\]//g' |
+    sed -E "s/\(($NOISE)[^)]*\)//Ig" |
+    sed -E 's/[[:space:]]+/ /g; s/^ //; s/ $//'
+}
+
+cancel() {
+  local pid
+  pid=$(recorder_pid) && kill -INT "$pid" 2>/dev/null
+  rm -f "$PIDFILE" "$WAV" "$STATE_DIR/take.txt"
+  note "Discarded"
+}
+
+doctor() {
+  local ok=0
+  for dep in pw-record whisper-cli wtype notify-send; do
+    if command -v "$dep" >/dev/null 2>&1; then
+      printf '  ok    %s\n' "$dep"
+    else
+      printf '  MISS  %s\n' "$dep"; ok=1
+    fi
+  done
+  if [[ -r $MODEL ]]; then
+    printf '  ok    model (%s)\n' "$(du -h "$MODEL" | cut -f1)"
+  else
+    printf '  MISS  model: %s\n' "$MODEL"; ok=1
+  fi
+  if [[ -r $VAD_MODEL ]]; then
+    printf '  ok    vad model\n'
+  else
+    printf '  WARN  vad model missing — silence may transcribe as hallucinated text\n'
+  fi
+  printf '  mic   %s\n' "$(wpctl inspect @DEFAULT_AUDIO_SOURCE@ 2>/dev/null |
+    sed -n 's/.*node.description = "\(.*\)"/\1/p')"
+  if [[ -e /usr/lib/ggml/libggml-vulkan.so ]]; then
+    printf '  ok    ggml-vulkan (%s Vulkan device(s) visible)\n' \
+      "$(ls -1 /usr/share/vulkan/icd.d/ 2>/dev/null | wc -l)"
+  else
+    printf '  WARN  ggml-vulkan missing — inference will fall back to CPU\n'
+  fi
+  return $ok
+}
+
+case "${1:-}" in
+  start)  start ;;
+  stop)   stop ;;
+  toggle) if recorder_pid >/dev/null; then stop; else start; fi ;;
+  cancel) cancel ;;
+  doctor) doctor ;;
+  *) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+esac

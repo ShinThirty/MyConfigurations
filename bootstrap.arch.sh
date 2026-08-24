@@ -6,6 +6,7 @@
 #   ./bootstrap.arch.sh --no-pkg           # skip pkglist.arch
 #   ./bootstrap.arch.sh --rust             # also install rustup
 #   ./bootstrap.arch.sh --aria2            # also install the aria2 systemd user units
+#   ./bootstrap.arch.sh --voice            # also download the whisper models for voice-dictate
 #   ./bootstrap.arch.sh --print-packages   # print the parsed package list, then exit
 #
 # Scope matches pkglist.arch: the tools this repo's configs need, nothing else.
@@ -24,14 +25,16 @@ PKGLIST="$DOTFILES/pkglist.arch"
 INSTALL_PKG=1
 INSTALL_RUST=0
 INSTALL_ARIA2=0
+INSTALL_VOICE=0
 PRINT_PACKAGES=0
 for arg in "$@"; do
   case "$arg" in
     --no-pkg)          INSTALL_PKG=0 ;;
     --rust)            INSTALL_RUST=1 ;;
     --aria2)           INSTALL_ARIA2=1 ;;
+    --voice)           INSTALL_VOICE=1 ;;
     --print-packages)  PRINT_PACKAGES=1 ;;
-    -h|--help) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown option: $arg" >&2; exit 1 ;;
   esac
 done
@@ -171,6 +174,29 @@ if (( INSTALL_ARIA2 )); then
   # into $XDG_CONFIG_HOME, which is not exported outside an interactive zsh.
   (cd "$DOTFILES/aria2/linux" && XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}" bash install.sh)
   ok "config and systemd user units installed — enable them as printed above"
+fi
+
+# --- Voice dictation models (optional) ----------------------------------------
+# voice/voice-dictate needs these at runtime; they are ~575 MB of weights, so
+# they are downloaded rather than tracked in the repo.
+if (( INSTALL_VOICE )); then
+  info "Voice dictation models"
+  WHISPER_DIR="$HOME/.local/share/whisper.cpp"
+  mkdir -p "$WHISPER_DIR"
+  for m in ggml-large-v3-turbo-q5_0.bin:ggerganov/whisper.cpp \
+           ggml-silero-v5.1.2.bin:ggml-org/whisper-vad; do
+    name="${m%%:*}"; repo="${m#*:}"
+    if [[ -s "$WHISPER_DIR/$name" ]]; then
+      skip "$name already downloaded"
+    elif curl -fL --progress-bar -o "$WHISPER_DIR/$name.part" \
+           "https://huggingface.co/$repo/resolve/main/$name"; then
+      mv "$WHISPER_DIR/$name.part" "$WHISPER_DIR/$name"
+      ok "$name"
+    else
+      rm -f "$WHISPER_DIR/$name.part"
+      warn "failed to download $name — voice-dictate will not work until it is present"
+    fi
+  done
 fi
 
 # --- Yazi plugins -------------------------------------------------------------

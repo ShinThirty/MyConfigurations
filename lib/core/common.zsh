@@ -3,6 +3,10 @@ export ZSH_CACHE_DIR="$HOME/.cache"
 mkdir -p "$ZSH_CACHE_DIR/completions"
 (( ${fpath[(Ie)"$ZSH_CACHE_DIR/completions"]} )) || fpath=("$ZSH_CACHE_DIR/completions" $fpath)
 
+# Scripts symlinked out of this repo land here (see the `symlinks` map)
+typeset -U path
+path=("$HOME/.local/bin" $path)
+
 # Change XDG_CONFIG_HOME
 export XDG_CONFIG_HOME="$HOME/.config"
 

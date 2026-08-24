@@ -95,6 +95,18 @@ uv
 # Some nvim plugins build Lua rocks
 luarocks
 
+# --- Voice dictation ---------------------------------------------------------
+# voice/voice-dictate transcribes the mic locally with whisper.cpp and types the
+# result into the focused window. ggml-vulkan puts inference on the dGPU without
+# dragging in the CUDA toolkit; ggml-cpu is the fallback backend. pw-record and
+# notify-send come from the desktop install (pipewire, libnotify), not from here.
+whisper-cpp
+ggml-vulkan
+ggml-cpu
+wtype
+# clipboard fallback for when wtype cannot reach the focused window
+wl-clipboard
+
 # --- Fonts -------------------------------------------------------------------
 # kitty asks for "FantasqueSansM Nerd Font Mono"; p10k and tmux need the
 # Nerd Font symbol ranges.

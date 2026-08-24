@@ -12,3 +12,4 @@ $DOTFILES/yazi/theme.toml:$HOME/.config/yazi/theme.toml
 $DOTFILES/yazi/package.toml:$HOME/.config/yazi/package.toml
 $DOTFILES/gitui:$HOME/.config/gitui
 $DOTFILES/zsh/zshrc:$HOME/.zshrc
+$DOTFILES/voice/voice-dictate:$HOME/.local/bin/voice-dictate
