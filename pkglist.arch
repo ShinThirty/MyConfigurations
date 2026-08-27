@@ -98,11 +98,11 @@ luarocks
 # --- Voice dictation ---------------------------------------------------------
 # voice/voice-dictate transcribes the mic locally with whisper.cpp and types the
 # result into the focused window. ggml-vulkan puts inference on the dGPU without
-# dragging in the CUDA toolkit; ggml-cpu is the fallback backend. pw-record and
+# dragging in the CUDA toolkit; the CPU fallback backend ships inside ggml itself
+# (it absorbed the separate ggml-cpu package in 0.22.0). pw-record and
 # notify-send come from the desktop install (pipewire, libnotify), not from here.
 whisper-cpp
 ggml-vulkan
-ggml-cpu
 wtype
 # clipboard fallback for when wtype cannot reach the focused window
 wl-clipboard
