@@ -1,7 +1,7 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:mime-ext"
-rev = "598cdb6"
-hash = "c3ce6ad59d5e476c7fc018043a7767ca"
+rev = "4dc7f1b"
+hash = "3bcc00df11efc3ae5d15f2dba860be7"
 
 [[flavor.deps]]
 use = "bennyyip/gruvbox-dark"
