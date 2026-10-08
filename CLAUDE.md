@@ -43,6 +43,7 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - `pkglist.arch` - Arch package manifest. Scoped to what *this repo's* configs need — the desktop (Hyprland, waybar, greetd, fcitx5, theming, GUI apps, drivers) is installed separately and must not be added here. One package per line, `#` comments, `aur/` prefix marks AUR packages
 - `bootstrap.arch.sh` - Arch new-machine setup: `pkglist.arch` via pacman (paru only if an `aur/` entry exists), submodules, `setup_symlinks.sh`, machine-local shell stubs, `chsh` to zsh, yazi plugins. Idempotent, never overwrites existing files. Flags: `--no-pkg`, `--rust`, `--aria2`, `--voice`, `--print-packages`
 - `MIGRATION.arch.md` - New-Arch-box runbook: SSH keys, the `~/.dotfiles.git` bare repo (no remote — must be copied), personal data paths, known gotchas
+- `MIGRATION.windows.md` - Windows 11 LTSC (re)install runbook for the dual-boot box: shared ESP on the Windows disk holds Arch's kernel, restoring systemd-boot afterwards, scoop packages, profile stub, SSH keys
 - `setup_symlinks.sh` - Reads symlink map files and creates symlinks, skips existing files/symlinks (macOS/Linux)
 - `setup_symlinks.ps1` - Windows equivalent of setup_symlinks.sh
 
