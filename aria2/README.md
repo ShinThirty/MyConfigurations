@@ -71,20 +71,12 @@ cd windows
 .\install.ps1
 ```
 
-This copies the config, session file, VBS launchers, and PowerShell scripts to `$HOME\.config\aria2\`.
+This copies the config, session file, VBS launchers, and PowerShell scripts to `$HOME\.config\aria2\`, and registers two Task Scheduler tasks (re-running replaces them):
 
-To run aria2 at login, create a Task Scheduler task:
+- **Aria2** — runs `Start-Aria2.vbs` at your logon, with no execution time limit (the default 3-day limit would kill aria2)
+- **Aria2 Update Trackers** — runs `Update-Trackers.vbs` weekly (Monday 00:00), catching up on the next boot if the machine was off
 
-1. **General**: Name it "Aria2", select "Run only when user is logged on"
-2. **Triggers**: New -> "At log on"
-3. **Actions**: New -> Start a program -> `wscript.exe`
-   - Add arguments: `%USERPROFILE%\.config\aria2\Start-Aria2.vbs`
-
-To schedule automatic tracker updates, create another task:
-
-1. **Triggers**: Weekly (or preferred interval)
-2. **Actions**: Start a program -> `wscript.exe`
-   - Add arguments: `%USERPROFILE%\.config\aria2\Update-Trackers.vbs`
+If registration fails with "Access is denied", run `install.ps1` once from an elevated prompt.
 
 #### Firewall Rules
 
