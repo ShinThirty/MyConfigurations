@@ -10,7 +10,7 @@ scoop bucket add extras
 scoop install extras/glazewm
 scoop install extras/zebar
 scoop install extras/flow-launcher
-
+scoop install extras/sharex
 
 # Music
 scoop install mpv
@@ -32,6 +32,10 @@ Then link the config:
 - Right-click GlazeWM tray icon -> **Run on system startup**
 - Change Flow Launcher hotkey to `ctrl+space` (default `alt+space` conflicts with GlazeWM)
 - Enable clipboard history: press `Win+V` and follow the prompt
+- ShareX: Application settings → Integration → **Run ShareX when Windows starts**, and
+  Task settings → After capture: **Copy image to clipboard** + **Save image to file** only
+  (a fresh install also uploads every capture to Imgur). Its config lives in
+  `~\scoop\persist\sharex\ShareX\`, so restoring that folder covers both
 
 ## Components
 
@@ -40,7 +44,7 @@ Then link the config:
 | Hyprland | **GlazeWM** | Tiling window manager |
 | waybar | **Zebar** | Status bar |
 | rofi | **Flow Launcher** | App launcher |
-| grim + slurp | Snipping Tool (built-in) | Screenshots |
+| grim + slurp | **ShareX** | Screenshots and screen recording |
 | cliphist | `Win+V` (built-in) | Clipboard history |
 | swww | **Lively Wallpaper** (optional) | Animated wallpapers |
 | rofi-beats | **Flow Launcher Music plugin** + mpv | Music player |
@@ -122,6 +126,27 @@ music status                 # show current track
 ```
 
 Playback control uses mpv's IPC socket (`/tmp/mpv-music` on macOS/Linux, `\\.\pipe\mpv-music` on Windows).
+
+## Screenshots (ShareX)
+
+ShareX replaces Snipping Tool (LTSC only ships the old one). Default hotkeys:
+
+| Action | Binding |
+|---|---|
+| Capture region | `ctrl + printscreen` |
+| Capture entire screen | `printscreen` |
+| Capture active window | `alt + printscreen` — see below |
+| Start/stop screen recording | `shift + printscreen` |
+| Start/stop GIF recording | `ctrl+shift + printscreen` |
+
+Captures go to the clipboard and to `~\scoop\persist\sharex\ShareX\Screenshots\`.
+`alt + printscreen` failed to register on the old install (another program already
+held it); rebind it in ShareX's hotkey settings if you need it. If `printscreen` opens
+Windows' own capture overlay instead of ShareX, turn off Settings → Accessibility →
+Keyboard → *Use the Print screen key to open screen capture*.
+
+GlazeWM ignores every ShareX window (`window_process: ShareX` in the ignore rule) so the
+full-screen region overlay isn't tiled.
 
 ## Limitations
 

@@ -69,17 +69,17 @@ workspaces:
   - name: '9'
 
 window_rules:
-  # ignore Zebar
+  # ignore Zebar, and ShareX so its full-screen capture overlay never gets tiled
   - commands: ['ignore']
     match:
       - window_process: { equals: 'zebar' }
+      - window_process: { equals: 'ShareX' }
 
   # float common dialogs and utilities
   - commands: ['set-floating']
     match:
       - window_title: { regex: '[Pp]icture.in.[Pp]icture' }
       - window_process: { equals: 'SystemSettings' }
-      - window_process: { equals: 'ScreenClippingHost' }
       - window_process: { equals: 'Flow.Launcher' }
       - window_process: { equals: 'Taskmgr' }
       - window_process: { equals: 'calculator' }
