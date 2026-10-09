@@ -18,7 +18,7 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - `yazi/` - Yazi file manager config with gruvbox theme
 - `aerospace/` - AeroSpace tiling window manager config (macOS only)
 - `aria2/` - aria2 download manager config, per-platform install scripts (darwin/, linux/, windows/)
-- `powershell/` - PowerShell config (Windows, loaded via stub from OneDrive `$PROFILE`): profile.ps1, git.ps1 (oh-my-zsh-style aliases), dirhistory.ps1, music.ps1, install_modules.ps1
+- `powershell/` - PowerShell config (Windows, loaded via a stub at `$PROFILE` that `install_modules.ps1` writes into `Documents\PowerShell\`, OneDrive-redirected or not): profile.ps1, git.ps1 (oh-my-zsh-style aliases), dirhistory.ps1, music.ps1, install_modules.ps1 (pwsh only — refuses to run under Windows PowerShell 5.1)
 - `glazewm/` - GlazeWM tiling window manager config (Windows only, Hyprland-like keybindings)
 - `flow-launcher/` - Flow Launcher plugins (Windows only): Music (fzf-less playlist player via mpv). Python dependencies must be manually installed into the plugin's `lib/` folder with `pip install -r requirements.txt -t lib`
 - `wt/` - Windows Terminal settings
@@ -43,9 +43,9 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - `pkglist.arch` - Arch package manifest. Scoped to what *this repo's* configs need — the desktop (Hyprland, waybar, greetd, fcitx5, theming, GUI apps, drivers) is installed separately and must not be added here. One package per line, `#` comments, `aur/` prefix marks AUR packages
 - `bootstrap.arch.sh` - Arch new-machine setup: `pkglist.arch` via pacman (paru only if an `aur/` entry exists), submodules, `setup_symlinks.sh`, machine-local shell stubs, `chsh` to zsh, yazi plugins. Idempotent, never overwrites existing files. Flags: `--no-pkg`, `--rust`, `--aria2`, `--voice`, `--print-packages`
 - `MIGRATION.arch.md` - New-Arch-box runbook: SSH keys, the `~/.dotfiles.git` bare repo (no remote — must be copied), personal data paths, known gotchas
-- `MIGRATION.windows.md` - Windows 11 LTSC (re)install runbook for the dual-boot box: shared ESP on the Windows disk holds Arch's kernel, restoring systemd-boot afterwards, scoop packages, profile stub, SSH keys
+- `MIGRATION.windows.md` - Windows 11 LTSC (re)install runbook for the dual-boot box: backing up C: to `D:\Migration`, shared ESP on the Windows disk holds Arch's kernel, restoring systemd-boot afterwards, Windows settings (key remap, locale, dark mode), scoop packages, profile stub, SSH keys, network share, personal apps and data
 - `setup_symlinks.sh` - Reads symlink map files and creates symlinks, skips existing files/symlinks (macOS/Linux)
-- `setup_symlinks.ps1` - Windows equivalent of setup_symlinks.sh
+- `setup_symlinks.ps1` - Windows equivalent of setup_symlinks.sh. Saved as UTF-8 **with BOM** — without it Windows PowerShell 5.1 misreads the emoji and fails to parse; keep the BOM when editing
 
 ## Key conventions
 

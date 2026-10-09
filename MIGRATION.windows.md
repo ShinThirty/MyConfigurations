@@ -5,13 +5,14 @@ standing this setup back up on it. Unlike macOS and Arch there is no bootstrap
 script — the Windows side is a handful of scoop installs plus
 `setup_symlinks.ps1` and `powershell/install_modules.ps1`, listed here in order.
 
-Rough order: **back up from Arch → ISO + drivers → install USB → install
-Windows → fix the boot order → Windows settings → scoop → repo → SSH keys →
-desktop → verify.**
+Rough order: **back up → ISO + drivers → install USB → install Windows → fix
+the boot order → Windows settings → scoop → repo → SSH keys → desktop → network
+share → personal apps → verify.**
 
 > Scope note: the Windows side of this repo covers PowerShell, git, gitui, nvim,
 > yazi, Windows Terminal, GlazeWM, Flow Launcher, aria2 and IdeaVim. Personal
-> apps are out of scope.
+> apps and data aren't managed by the repo; [section 12](#12-personal-apps-and-data)
+> lists them so nothing gets lost.
 
 ---
 
@@ -22,11 +23,15 @@ nvme1n1 (Windows disk)
 ├─p1  512M  EFI System    ← mounted at /boot on Arch: systemd-boot, vmlinuz-linux-zen,
 │                            initramfs-linux-zen.img, amd-ucode.img all live HERE
 ├─p2   16M  MSR
-├─p3  249G  NTFS "Corona" ← C:
+├─p3  249G  NTFS "Corona" ← C:  — the ONLY partition that gets formatted
 ├─p4  735M  WinRE
-└─p5  1.6T  NTFS "Nebula" ← data, survives the reinstall
+└─p5  1.6T  NTFS "Nebula" ← D:  — data, survives the reinstall
 nvme0n1  → Arch LVM (ArchVG-root, ArchVG-home) — Windows setup never touches it
 ```
+
+Drive letters the setup depends on: **C:** Corona, **D:** Nebula, **E:** the
+external USB SSD (osu! data), **Z:** the router's network share (password
+database, [section 10](#10-network-share-and-password-database)).
 
 **The ESP is shared.** Arch's kernel lives on the Windows disk, so deleting p1
 in Windows setup leaves Arch unbootable even though its root is on the other
@@ -35,7 +40,9 @@ into p3 only.
 
 ---
 
-## 2. Before you start (from Arch)
+## 2. Before you start
+
+### 2.1 From Arch
 
 ```sh
 sudo tar -C /boot -czf ~/boot-backup.tgz .   # ~70 MB, lands on nvme0n1, safe
@@ -45,11 +52,70 @@ blkid /dev/nvme1n1p1                         # note the UUID — currently 132D-
 `/etc/fstab` mounts `/boot` by that UUID. If the ESP is ever reformatted the
 UUID changes and Arch drops to an emergency shell (see [section 4](#4-restoring-arch-boot)).
 
-From the old Windows, if it still boots:
+### 2.2 From the old Windows
 
-- Save the **BitLocker recovery key** for any encrypted volume (`manage-bde -status`), or decrypt Nebula first
-- Copy anything off C: you want to keep — `~\.ssh`, `~\Music\playlists`, `~\.config\aria2\aria2.session`, browser profiles
-- Note Nebula's drive letter; apps and shortcuts that point into it depend on it
+Only C: is formatted. Nebula (D:), the Arch disk and the external SSD are never
+touched, so D: is where the backup goes. Everything on C: that isn't copied off
+is gone.
+
+1. Save the **BitLocker recovery key** for any encrypted volume
+   (`manage-bde -status`), or decrypt Nebula first
+2. Check the OneDrive tray icon says **Up to date**. Desktop, Documents and
+   Pictures are redirected into OneDrive, so the cloud copy is the only one that
+   survives — and they're deliberately *not* in the backup below
+3. Edge is signed in with sync on, so bookmarks, passwords and extensions come
+   back on sign-in. Nothing to copy
+4. Run the backup, from any PowerShell on the old install:
+
+```powershell
+$B = 'D:\Migration'
+$items = @(
+    # keys and secrets (sections 8, 12)
+    '.ssh', '.config\age', '.aws', '.trading', '.tradingrc'
+    # Claude Code (section 12)
+    '.claude', '.claude.json'
+    # local folders that are NOT in OneDrive ('Documents' here is the local leftover,
+    # not the redirected one)
+    'Documents', 'Downloads', 'Music', 'Utilities'
+    # app state (sections 9-12)
+    '.config\aria2\aria2.session'
+    'scoop\persist\flow-launcher\UserData\Settings'
+    'scoop\persist\keepassxc\config'
+    'scoop\persist\sharex'
+    'AppData\Roaming\osu\storage.ini', 'AppData\Roaming\osu\framework.ini'
+    'AppData\Roaming\OpenRGB\OpenRGB.json'
+    # optional history
+    'AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt'
+    'AppData\Local\zoxide\db.zo'
+)
+foreach ($i in $items) {
+    $src = Join-Path $HOME $i; $dst = Join-Path "$B\home" $i
+    if (Test-Path $src -PathType Container) { robocopy $src $dst /E /NFL /NDL /NJH /NJS | Out-Null }
+    elseif (Test-Path $src) { New-Item -ItemType Directory -Force (Split-Path $dst) | Out-Null; Copy-Item -Force $src $dst }
+    else { Write-Host "missing: $i" -ForegroundColor Yellow }
+}
+# Vortex profiles, load order and settings, minus its caches
+robocopy "$env:APPDATA\Vortex" "$B\home\AppData\Roaming\Vortex" /E /XD Cache "Code Cache" GPUCache DawnCache temp /NFL /NDL /NJH /NJS | Out-Null
+# Steam's local per-game configs (the games themselves are on D:\SteamLibrary)
+robocopy "${env:ProgramFiles(x86)}\Steam\userdata" "$B\steam-userdata" /E /NFL /NDL /NJH /NJS | Out-Null
+# Manually installed fonts (Noto Sans/Serif SC)
+New-Item -ItemType Directory -Force "$B\fonts" | Out-Null
+Copy-Item "$env:windir\Fonts\NotoS*SC*" "$B\fonts"
+# Inventories. The scoopfile leaves out apps you don't want back; add names to drop more
+$export = scoop export | Out-String | ConvertFrom-Json
+$export.apps = @($export.apps | Where-Object Name -notin 'ghostscript', 'zoom')
+$export | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 "$B\scoopfile.json"
+net use > "$B\net-use.txt"
+```
+
+`D:\Migration\home` mirrors `$HOME`; the section that uses each piece says
+where it goes back. `.claude` includes the Claude Code login token, so delete
+`D:\Migration` once everything is restored.
+
+Not worth copying: the Steam games, Vortex's mods and downloads, and Mental
+Omega are already on D:; osu!'s data is on the external SSD; Discord, Webull
+and Wabbajack are cloud accounts — just log in again. `C:\Users\LINGNA~1`
+is an orphaned installer temp folder.
 
 ---
 
@@ -66,14 +132,18 @@ The 90-day evaluation ISOs can't be activated or converted to a permanent
 license.
 
 Activation is out of scope for this runbook. Everything after this section
-works the same activated or not.
+works the same activated or not, with one exception: an unactivated install
+greys out Settings → Personalization, so [section 5.2](#52-keyboard-mouse-language-and-theme)
+sets dark mode through the registry instead.
 
 Both are 24H2-based. Secure Boot is currently disabled (firmware in setup
 mode), which Windows 11 tolerates — it only requires a Secure Boot *capable*
 system.
 
-Everything below runs from Arch, so it works even if the old Windows no longer
-boots.
+Sections 3.1–3.3 work from either OS. The old Windows is the easier place while
+it still boots — Ventoy is already in its scoop list. The Arch commands are the
+fallback if it doesn't. ([Section 2.1](#21-from-arch)'s `/boot` backup still
+has to happen from Arch.)
 
 ### 3.1 Get the ISO
 
@@ -81,8 +151,12 @@ Wherever it comes from (Volume Licensing Service Center, Microsoft 365 admin
 center, or the Evaluation Center), check it against the SHA-256 Microsoft
 publishes for that exact ISO:
 
+```powershell
+Get-FileHash "$HOME\Downloads\<ltsc>.iso"    # Windows; SHA-256 is the default
+```
+
 ```sh
-sha256sum ~/Downloads/<ltsc>.iso
+sha256sum ~/Downloads/<ltsc>.iso             # Arch
 ```
 
 ### 3.2 Download drivers
@@ -97,6 +171,7 @@ NVIDIA's site) before you start:
 | WLAN + Bluetooth | MediaTek MT7925 Wi-Fi 7 |
 | AMD chipset | X870 / Granite Ridge, including the Radeon iGPU |
 | NVIDIA | GeForce RTX 5070 Ti (Blackwell — needs a current driver) |
+| Fingerprint reader | U.are.U 4500 (USB). Windows Update usually finds it; otherwise the Crossmatch "U.are.U Fingerprint Driver (WBF)". Needed for Windows Hello fingerprint |
 
 They go onto the install USB in the next step and get installed after the first
 login.
@@ -115,16 +190,30 @@ the published SHA-256 too.
 
 **New stick? Check its real capacity first.** Fake-capacity sticks report a
 size they don't have and silently corrupt data past the real limit — which
-shows up as a Windows install failing halfway. This test is destructive, so
-run it before Ventoy:
+shows up as a Windows install failing halfway. Test before installing Ventoy:
 
-```sh
-paru -S f3
-sudo f3probe --destructive --time-ops /dev/sdX
-```
+- **Windows:** H2testw (portable, from heise.de). It fills the free space with
+  test files and reads them back, so run it on the empty stick
+- **Arch:** `f3probe` is destructive:
 
-**Install Ventoy** — this takes the **whole device** (`/dev/sdX`, not
-`/dev/sdX1`) and erases everything on it:
+  ```sh
+  paru -S f3
+  sudo f3probe --destructive --time-ops /dev/sdX
+  ```
+
+**Install Ventoy** — this takes the **whole stick** and erases everything on it.
+
+From Windows (Ventoy2Disk asks for elevation):
+
+1. Run `~\scoop\apps\ventoy\current\Ventoy2Disk.exe` — scoop adds no shortcut
+   for it
+2. **Option → Partition Style → GPT**
+3. **Device:** pick the stick. Ventoy2Disk lists only USB drives unless
+   *Option → Show All Devices* is ticked — leave it unticked, so the NVMe disks
+   can't be chosen
+4. **Install**, and confirm both prompts
+
+From Arch — the **whole device** (`/dev/sdX`, not `/dev/sdX1`):
 
 ```sh
 paru -S ventoy-bin
@@ -136,7 +225,17 @@ udisksctl unmount -b "${USB}1"         # if the desktop auto-mounted it
 sudo ventoy -i -g "$USB"               # -g = GPT; asks for confirmation twice
 ```
 
-**Copy the ISOs and drivers** onto the `Ventoy` partition:
+**Copy the ISOs and drivers** onto the `Ventoy` partition. On Windows it shows
+up as a drive labelled `Ventoy`; eject it from the tray when done:
+
+```powershell
+$V = "$((Get-Volume -FileSystemLabel Ventoy).DriveLetter):"
+Copy-Item "$HOME\Downloads\<ltsc>.iso", "$HOME\Downloads\archlinux-*.iso" "$V\"
+New-Item -ItemType Directory "$V\Drivers" | Out-Null
+Copy-Item -Recurse "$HOME\Downloads\<drivers>\*" "$V\Drivers\"
+```
+
+On Arch:
 
 ```sh
 udisksctl mount -b "${USB}1"           # mounts at /run/media/$USER/Ventoy
@@ -158,9 +257,13 @@ natively, so the drivers are reachable after the first login.
 are picky about specific sticks, and it's better to find out early.
 
 Updating later: copy a newer ISO on and delete the old one — no re-flashing.
-`sudo ventoy -u "$USB"` updates Ventoy itself without touching the ISOs.
+To update Ventoy itself without touching the ISOs, use **Update** in
+Ventoy2Disk, or `sudo ventoy -u "$USB"` on Arch.
 
 ### 3.4 Boot the installer
+
+**Unplug the external SSD first**, so setup can't list it and it doesn't grab a
+drive letter before you're ready (plug it back in at [section 3.7](#37-first-login)).
 
 Plug in the stick, reboot, and press **F11** at the ASRock logo for the
 one-time boot menu. Pick the **`UEFI:`** entry for the stick, not the plain
@@ -188,7 +291,7 @@ partitions, not by "Disk 0/1". Windows shows binary units:
 | Partition 2 (MSR) | 16 MB | Microsoft reserved | **Leave** |
 | Partition 3: Corona | 249.3 GB | Old C: | **Format**, then select it → **Next** |
 | Partition 4 (Recovery) | 735 MB | WinRE | **Leave** |
-| Partition 5: Nebula | 1657.2 GB | Data | **Leave** |
+| Partition 5: Nebula | 1657.2 GB | Data (D:) — your backup is on it | **Leave** |
 | Other disk, single partition | 1863.0 GB | Arch LVM (nvme0n1) | **Leave** |
 
 The Windows disk totals 1907.7 GB, the Arch disk 1863.0 GB. **Never click
@@ -210,7 +313,10 @@ it), but don't pick it from the boot menu again.
 2. **Network** — if the LAN and Wi-Fi chips aren't recognized, choose **I don't
    have internet** and install the drivers after login
 3. **Account** — Enterprise editions offer **Sign-in options → Domain join
-   instead**, which creates a local account. No Microsoft account needed
+   instead**, which creates a local account. No Microsoft account needed. Name
+   it **ShinThirty** again: Claude Code keys its per-project memory by path
+   (`~\.claude\projects\C--Users-ShinThirty-…`), and the backup assumes the same
+   profile path
 4. **Privacy** — turn every toggle off. Diagnostic data can be fully disabled
    later with Group Policy (*Allow diagnostic data* = *Diagnostic data off*),
    which only Enterprise editions honour
@@ -219,10 +325,17 @@ it), but don't pick it from the boot menu again.
 
 1. Run the installers from `Drivers\` on the stick: **chipset first**, then
    LAN and WLAN, then NVIDIA. Reboot when they ask
+   - If the LAN package offers **Killer Intelligence Center**, skip it — it's an
+     optional Store app, and the driver works without it
+   - Check **NVIDIA Control Panel** is in the Start menu. It's a Store-style app
+     that NVIDIA's package normally installs offline; if it's missing, the NVIDIA
+     App covers most of its settings
 2. Settings → Windows Update → install everything, reboot, repeat until it's
    clean
-3. Check Disk Management: Nebula has the drive letter you noted in
-   [section 2](#2-before-you-start-from-arch), and nothing else changed
+3. Remove the Ventoy stick, then plug the external SSD back in
+4. Check Disk Management: Nebula is **D:**, the external SSD is **E:**, and
+   nothing else changed. Fix letters here before installing anything that
+   stores paths into them
 
 Then restore the Arch boot order ([section 4](#4-restoring-arch-boot)) before
 going further — it's one reboot into the firmware menu.
@@ -267,11 +380,15 @@ with the new UUID from `blkid /dev/nvme1n1p1`.
 
 ---
 
-## 5. Windows settings for dual boot
+## 5. Windows settings
+
+Run these from an elevated Windows PowerShell — pwsh isn't installed until
+[section 6](#6-packages-scoop).
+
+### 5.1 Dual boot
 
 **Hardware clock in UTC.** Arch keeps the RTC in UTC (`RTC in local TZ: no`);
-Windows assumes local time, so the clock jumps every time you switch OS. From
-an elevated prompt:
+Windows assumes local time, so the clock jumps every time you switch OS:
 
 ```powershell
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" /v RealTimeIsUniversal /t REG_DWORD /d 1 /f
@@ -284,6 +401,12 @@ volumes dirty; Linux then mounts Nebula read-only or refuses it.
 powercfg /h off   # also removes hiberfil.sys
 ```
 
+This also removes Hibernate. The old install kept Hibernate and turned off
+only Fast Startup (Control Panel → Power Options → *Choose what the power
+buttons do*). If you want that instead, `powercfg /h on` and untick Fast
+Startup there — but a hibernated Windows leaves Nebula just as dirty, so shut
+down fully before booting Arch.
+
 **Automatic device encryption.** 24H2 can turn on BitLocker device encryption
 during OOBE. Check `manage-bde -status`; turn it off unless you want it, and if
 you keep it, save the recovery key off the machine — changing the boot order
@@ -291,7 +414,49 @@ can trigger a recovery prompt.
 
 **Developer Mode** (Settings → System → For developers). `setup_symlinks.ps1`
 uses `New-Item -ItemType SymbolicLink`, which needs either Developer Mode or an
-elevated shell.
+elevated shell. Only pwsh honours Developer Mode; Windows PowerShell 5.1 still
+needs elevation (see [section 7](#7-clone-and-link)).
+
+### 5.2 Keyboard, mouse, language and theme
+
+**Caps Lock ⇄ Esc.** The old install swapped them with SharpKeys, which just
+writes this value — no need to install it. Reboot to apply:
+
+```powershell
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layout" /v "Scancode Map" /t REG_BINARY /d 00000000000000000300000001003A003A00010000000000 /f
+```
+
+**Dark mode**, for apps and the system. Works unactivated:
+
+```powershell
+$k = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize'
+Set-ItemProperty $k -Name AppsUseLightTheme -Value 0
+Set-ItemProperty $k -Name SystemUsesLightTheme -Value 0
+```
+
+**Mouse and keyboard.** Enhance pointer precision off, shortest key-repeat
+delay, NumLock on at boot, and the Sticky Keys shortcut (Shift ×5) off. Sign
+out to apply:
+
+```powershell
+$m = 'HKCU:\Control Panel\Mouse'
+'MouseSpeed', 'MouseThreshold1', 'MouseThreshold2' | ForEach-Object { Set-ItemProperty $m -Name $_ -Value '0' }
+Set-ItemProperty 'HKCU:\Control Panel\Keyboard' -Name KeyboardDelay -Value '0'
+Set-ItemProperty 'HKCU:\Control Panel\Keyboard' -Name InitialKeyboardIndicators -Value '2'
+Set-ItemProperty 'HKCU:\Control Panel\Accessibility\StickyKeys' -Name Flags -Value '506'
+```
+
+**Chinese.** The old install ran non-Unicode programs in Chinese (system
+locale zh-CN, code page 936) and had Microsoft Pinyin next to the US keyboard:
+
+```powershell
+Set-WinSystemLocale zh-CN   # reboot to apply
+```
+
+Then Settings → Time & language → Language & region → **Add a language** →
+中文(中华人民共和国), leaving *Set as my Windows display language* unticked so
+the UI stays English. That pulls Microsoft Pinyin from Windows Update, so do it
+after the network drivers are in. `Win+Space` switches input methods.
 
 ---
 
@@ -309,39 +474,71 @@ scoop bucket add extras
 scoop bucket add nerd-fonts
 
 # Shell
-scoop install pwsh oh-my-posh fzf fd ripgrep bat zoxide duf delta
-# Terminal + font (Windows Terminal may not ship inbox on LTSC)
-scoop install extras/windows-terminal nerd-fonts/FantasqueSansMono-NF-Mono
+scoop install pwsh oh-my-posh fzf fd ripgrep bat zoxide duf delta less
+# Terminal + font. LTSC ships without Windows Terminal; until this, consoles open in conhost
+scoop install extras/vcredist2022 extras/windows-terminal nerd-fonts/FantasqueSansMono-NF-Mono
 # Editors + tools
-scoop install neovim gitui yazi
+scoop install neovim extras/neovim-qt gitui yazi
+# yazi previews
+scoop install 7zip ffmpeg jq poppler resvg imagemagick
+# nvim: parsers are compiled; mason installs npm, pypi and cargo packages
+scoop install tree-sitter mingw nodejs rustup-gnu
 # Desktop
-scoop install extras/glazewm extras/zebar extras/flow-launcher
+scoop install extras/glazewm extras/zebar extras/flow-launcher extras/sharex
 # Music
 scoop install mpv yt-dlp python
 # Downloads
 scoop install aria2
+
+# yazi detects file types with Git for Windows' file(1)
+[Environment]::SetEnvironmentVariable('YAZI_FILE_ONE', "$HOME\scoop\apps\git\current\usr\bin\file.exe", 'User')
 ```
+
+**Shortcut:** `scoop import D:\Migration\scoopfile.json` (from
+[section 2.2](#22-from-the-old-windows)) reinstalls the old install's app and
+bucket list, personal apps included, minus what the backup filtered out
+(ghostscript, zoom). It doesn't cover pwsh, oh-my-posh,
+Windows Terminal or Rust, which came from winget and the Store there — so run
+the block above too; scoop skips anything already installed.
 
 What needs what:
 
 | Package | Required by |
 |---|---|
-| `pwsh` | `wt/settings.json` defaults to the PowerShell 7 profile; `install_modules.ps1` writes the pwsh profile path |
+| `pwsh` | `wt/settings.json` defaults to the PowerShell 7 profile; `install_modules.ps1` refuses to run without it. Update it with `scoop update pwsh` from Windows PowerShell — scoop runs inside pwsh and can't replace it from there |
 | `oh-my-posh`, `zoxide`, `fzf`, `fd`, `bat`, `duf` | `powershell/profile.ps1` — the profile errors on startup without them |
 | `delta` | `core.pager` in `git/gitconfig.windows` |
-| FantasqueSansM Nerd Font Mono | Windows Terminal font face; Terminal-Icons and oh-my-posh glyphs |
-| `python` | `pip install` for the Flow Launcher Music plugin |
+| `less` | The pager delta and bat hand off to. scoop's git doesn't put Git for Windows' own `less` on PATH |
+| `vcredist2022` | The VC++ runtime; scoop's Windows Terminal manifest suggests it, and a clean install may not have it. Its installer asks for elevation |
+| FantasqueSansM Nerd Font Mono | Windows Terminal font face, `nvim/ginit.vim`; Terminal-Icons and oh-my-posh glyphs |
+| `neovim-qt` | The GUI that reads `nvim/ginit.vim` |
+| `7zip`, `ffmpeg`, `jq`, `poppler`, `resvg`, `imagemagick` | yazi previews: archives, video thumbnails, JSON, PDF, SVG, fonts/HEIC (yazi's Windows install docs) |
+| `tree-sitter`, `mingw` | nvim's tree-sitter-manager builds parsers with the `tree-sitter` CLI and `cc` |
+| `nodejs` | mason: 8 of the 18 nvim tools are npm packages (css/html/json/eslint LSPs, emmet-ls, vim-language-server, prettierd, markdownlint) |
+| `rustup-gnu` | mason builds `shellharden` with cargo. The GNU toolchain needs no Visual Studio; the old install used rustup's MSVC toolchain plus VS 2022 and the Windows SDK |
+| `python` | `pip install` for the Flow Launcher Music plugin; mason's `ty` (pypi) |
 | `mpv`, `yt-dlp` | `music` function and the Flow Launcher plugin |
+| `sharex` | Screenshots and screen recording in place of Snipping Tool, which LTSC only ships in its old form (`glazewm/README.md`) |
 
 ---
 
 ## 7. Clone and link
+
+Run this whole section from **pwsh** — type `pwsh` at the Windows PowerShell
+prompt. Windows PowerShell 5.1 trips over all three steps:
+
+- it ignores Developer Mode, so `setup_symlinks.ps1` fails unless elevated
+- `Install-Module` there installs into `WindowsPowerShell\Modules`, which pwsh
+  never loads — `install_modules.ps1` refuses to run under 5.1 for that reason
+- it reads BOM-less scripts in the ANSI code page (`setup_symlinks.ps1` is saved
+  with a BOM so this one at least parses)
 
 ```powershell
 git clone --recurse-submodules git@github.com:ShinThirty/MyConfigurations.git $HOME\MyConfigurations
 cd $HOME\MyConfigurations
 .\setup_symlinks.ps1
 .\powershell\install_modules.ps1
+ya pkg install                        # yazi's gruvbox-dark flavor and mime-ext plugin, from yazi/package.toml
 ```
 
 > The clone uses SSH, so either do [SSH keys](#8-ssh-keys) first, or clone over
@@ -352,18 +549,21 @@ The repo **must** be at `$HOME\MyConfigurations` — the profile stub and
 
 `setup_symlinks.ps1` reads `symlinks.windows` and skips any target that already
 exists (⚠️ in its output). Like the Unix version it never overwrites, so delete
-stale real files and re-run.
+stale real files and re-run. The likely one: Windows Terminal writes a default
+`~\scoop\persist\windows-terminal\settings\settings.json` the first time it
+runs.
 
-`install_modules.ps1` writes the profile stub to
-`$HOME\OneDrive\Documents\PowerShell\` and installs CompletionPredictor,
-posh-git, Terminal-Icons and PSFzf from PSGallery.
+`install_modules.ps1` writes the profile stub to `Documents\PowerShell\` —
+wherever Documents currently is, which is `OneDrive\Documents` once OneDrive
+folder backup is on — and installs CompletionPredictor, posh-git,
+Terminal-Icons and PSFzf from PSGallery.
 
 ---
 
 ## 8. SSH keys
 
-Same six files as the other platforms, into `$HOME\.ssh\` (USB, not email or
-chat):
+Same six files as the other platforms, from `D:\Migration\home\.ssh\` into
+`$HOME\.ssh\`:
 
 | File | What it's for |
 |---|---|
@@ -373,6 +573,8 @@ chat):
 | `signing_key.pub` | `user.signingkey` in `git/gitconfig.windows` |
 | `config` | Host→key mapping |
 | `allowed_signers` | `gpg.ssh.allowedSignersFile` |
+
+`known_hosts` is optional — without it, SSH asks once per host.
 
 Windows OpenSSH also refuses keys other users can read. Strip inherited ACLs:
 
@@ -395,7 +597,23 @@ git -C $HOME\MyConfigurations log --show-signature -1
 Full details in `glazewm/README.md`. The post-install steps that aren't automated:
 
 - GlazeWM tray icon → **Run on system startup**
-- Flow Launcher hotkey → `ctrl+space` (the default `alt+space` collides with GlazeWM)
+- **Flow Launcher** — quit it, copy `D:\Migration\home\scoop\persist\flow-launcher\UserData\Settings\`
+  over `~\scoop\persist\flow-launcher\UserData\Settings\`, start it again. That
+  restores everything below; set them by hand if you skip the restore:
+  - hotkey `ctrl+space` (the default `alt+space` collides with GlazeWM)
+  - **Start Flow Launcher on system startup** — check it actually starts after
+    a reboot, and toggle it off/on if not
+  - **Search with Pinyin**
+- **Zebar** — the old install ran the starter pack's **`with-glazewm`** widget
+  (`~\.glzr\zebar\settings.json`: pack `glzr-io.starter`, widget
+  `with-glazewm`, preset `default`). Pick it from the Zebar tray icon if a fresh
+  install comes up with another one
+- **ShareX** (screenshots, in place of Snipping Tool) — before its first launch,
+  copy `D:\Migration\home\scoop\persist\sharex\` over `~\scoop\persist\sharex\`.
+  That restores the old settings: captures are copied to the clipboard and saved
+  to a file, never uploaded (a fresh install uploads to Imgur by default), plus
+  the default hotkeys listed in `glazewm/README.md`. Then Application settings →
+  Integration → **Run ShareX when Windows starts**
 - `Win+V` once to enable clipboard history
 - Flow Launcher Music plugin dependencies (the plugin dir is symlinked in by
   `setup_symlinks.ps1`, but `lib/` is not tracked):
@@ -405,11 +623,35 @@ Full details in `glazewm/README.md`. The post-install steps that aren't automate
   pip install -r requirements.txt -t lib
   ```
 
-- Copy `~\Music\playlists\` back — the `music` function and the plugin both read it
+- Copy `D:\Migration\home\Music\` back to `~\Music\` — the `music` function and
+  the plugin both read `playlists\`
 
 ---
 
-## 10. aria2
+## 10. Network share and password database
+
+The password database isn't on C: — KeePassXC opens it straight from the
+router's USB share, mapped as **Z:**. Map it again with the share path and user
+name recorded in `D:\Migration\net-use.txt`:
+
+```powershell
+cmdkey /add:<share-host> /user:<user> /pass      # prompts for the password
+net use Z: \\<share-host>\<share> /persistent:yes
+```
+
+Then KeePassXC:
+
+1. Copy `D:\Migration\home\scoop\persist\keepassxc\config\` into
+   `~\scoop\persist\keepassxc\config\` before the first launch. That restores
+   its settings and recent-databases list
+2. The database needs only its password — there's no key file
+3. Settings → Browser Integration → tick **Edge** again. The native-messaging
+   registration lives in the registry, not the config dir, so the restore
+   doesn't bring it back
+
+---
+
+## 11. aria2
 
 ```powershell
 cd $HOME\MyConfigurations\aria2\windows   # install.ps1 uses relative paths
@@ -419,8 +661,8 @@ cd $HOME\MyConfigurations\aria2\windows   # install.ps1 uses relative paths
 
 `install.ps1` copies the config and both `.vbs` launchers into
 `~\.config\aria2\`, and creates an empty `aria2.session` only if none exists —
-so restore the old session file (saved in [section 2](#2-before-you-start-from-arch))
-first to resume unfinished downloads.
+so copy `D:\Migration\home\.config\aria2\aria2.session` there first to resume
+unfinished downloads.
 
 It also registers two Task Scheduler tasks: **Aria2** (at logon, no time
 limit) and **Aria2 Update Trackers** (weekly). Check they exist with
@@ -442,54 +684,138 @@ from [section 6](#6-packages-scoop) instead.
 
 ---
 
-## 11. Known gotchas
+## 12. Personal apps and data
 
-**The profile stub path assumes OneDrive folder backup.** `install_modules.ps1`
-writes to `$HOME\OneDrive\Documents\PowerShell`. That is `$PROFILE` only when
-OneDrive is backing up Documents (Known Folder Move). On a fresh local-account
-LTSC install it usually isn't, and `$PROFILE` is
-`$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1` — the stub lands
-in the wrong place and pwsh starts with no config. Check `$PROFILE` and either
-sign in to OneDrive first or create the stub there by hand:
+None of this is managed by the repo. This repo is public, so the data table is
+deliberately generic — `D:\Migration` and the old `scoopfile.json` are the real
+checklist.
 
-```powershell
-New-Item -Force $PROFILE -Value '. "$HOME\MyConfigurations\powershell\profile.ps1"'
-```
+### 12.1 Apps
 
-**Nebula's drive letter can change.** The fresh install assigns letters in
-discovery order. Fix it in Disk Management before reinstalling apps that store
-paths into it.
+**From scoop** — `scoop import` ([section 6](#6-packages-scoop)) covers these,
+including the `java` and `games` buckets. `ghostscript` and `zoom` are left out:
+the backup in [section 2.2](#22-from-the-old-windows) filters them from the
+scoopfile.
+
+| App | What to redo after install |
+|---|---|
+| `keepassxc` | [Section 10](#10-network-share-and-password-database) |
+| `claude-code` | `claude` CLI; re-auth on first run. The old install also had a native copy in `~\.local\bin` that wasn't on PATH — skip it |
+| `osulazer` (games) | Point it back at the SSD — see the data table |
+| `temurin-jre` (java) | Sets `JAVA_HOME` |
+| `age`, `aws`, `terraform`, `uv`, `deno`, `jid`, `fastfetch` | General CLI — none of it is referenced by this repo's configs. `age` matters: the encrypted files in the data table are useless without it |
+| `ventoy` | Only for rebuilding the install stick |
+| `sharpkeys` | Not needed — [section 5.2](#52-keyboard-mouse-language-and-theme) writes the same registry value directly |
+
+**Outside scoop** — vendor installers, since there's no Store or winget:
+
+| App | What to redo after install |
+|---|---|
+| Steam | Settings → Storage → add `D:\SteamLibrary`; the games there are picked up without re-downloading. Steam Cloud restores most configs; `D:\Migration\steam-userdata` is the fallback |
+| Mental Omega | Installed in `D:\Games\Mental Omega`, so the game survives; only the Start menu shortcut is lost |
+| Vortex | Copy `D:\Migration\home\AppData\Roaming\Vortex\` to `%APPDATA%\Vortex\` before the first launch (profiles, load order, settings). Its mods and downloads aren't on C:. Its mod installer needs the **.NET 9 Desktop Runtime** (x64) and pins 9 exactly, so scoop's `windowsdesktop-runtime` (.NET 10) doesn't cover it — get 9 from Microsoft's .NET download page if Vortex's installer doesn't add it |
+| Discord, Webull Desktop, Wabbajack | Log in |
+| Cloudflare One Client (WARP) | Sign in / re-enroll |
+| NVIDIA App | Comes with the NVIDIA driver package from [section 3.7](#37-first-login) |
+| OpenRGB | Only if you still use it — config is `D:\Migration\home\AppData\Roaming\OpenRGB\OpenRGB.json` |
+| Microsoft Edge | Included in LTSC. Sign in to sync; add the KeePassXC-Browser extension if sync doesn't bring it |
+
+`~\Utilities` (restored with the rest of `home\`) holds the mouse's
+configuration tool and HWMonitor — both portable.
+
+**Fonts:** Noto Sans SC and Noto Serif SC — `D:\Migration\fonts`, right-click →
+*Install for all users*. JetBrainsMono Nerd Font Mono was also installed
+(`scoop install nerd-fonts/JetBrainsMono-NF-Mono`), though nothing in this repo
+uses it.
+
+### 12.2 Data
+
+| What | Notes |
+|---|---|
+| Desktop, Documents, Pictures | In OneDrive, not in the backup. Check OneDrive is installed — LTSC may not ship it; if not, use Microsoft's standalone installer. Sign in, then OneDrive settings → Sync and backup → Manage back up → turn on all three ([section 13](#13-known-gotchas)) |
+| Encryption identity / encrypted files | `~\.config\age\`. Anything encrypted to the age key is **unrecoverable** without it |
+| Broker / API credential files, trading working dir | Dotfiles and a dot-directory in `~`. Copy directly, never into this repo |
+| `~\.aws\` | Profile config; re-authenticate |
+| `~\.claude\` | Copy back `CLAUDE.md` (global instructions), `settings.json` and `projects\*\memory\` (per-project memory — valid only under the same account name). `sessions\`, `history.jsonl`, `.credentials.json` and `~\.claude.json` are per-machine; re-login instead |
+| `~\Documents` (local) | Notes written by tools that hardcode `~\Documents`, *not* the OneDrive-redirected one. Copy back, or into OneDrive's Documents if you'd rather have them synced |
+| `~\Downloads` | Kept for its few personal exports |
+| osu! lazer | Data stays on the external SSD at `E:\osu`. Before the first launch, put `storage.ini` (`FullPath = E:\osu`) and `framework.ini` back in `%APPDATA%\osu\`. The SSD must be E: ([section 3.7](#37-first-login)) |
+| Skyrim saves and INIs | `Documents\My Games\` — in OneDrive, so they sync back |
+| Shell history | PSReadLine's `ConsoleHost_history.txt` and zoxide's `db.zo` — optional, same paths |
+
+**Regenerate rather than copy:** `~\scoop\apps`, `~\.rustup`, `~\.cargo`,
+`%LOCALAPPDATA%\nvim-data` (lazy.nvim and mason rebuild it), `~\.cache`,
+`~\.prettierd`, `~\.local`, and every app's cache dir.
+
+---
+
+## 13. Known gotchas
+
+**OneDrive folder backup moves `$PROFILE`.** The old install had OneDrive
+backing up Desktop, Documents and Pictures, so its profile stub and PSGallery
+modules are in OneDrive. Turning that backup on again moves Documents and the
+stub with it, and the old modules come back alongside the ones
+`install_modules.ps1` installed — harmless. If pwsh starts with no config,
+check `$PROFILE` and re-run `install_modules.ps1`.
+
+**OneDrive's Desktop folder is named `桌面`.** It was created while the UI was
+Chinese. Turning on Desktop backup in an English install may create a separate
+`Desktop` folder next to it; move the files over if so.
+
+**Drive letters can change.** The fresh install assigns letters in discovery
+order, and the Ventoy stick can take E: before the SSD. Fix them in Disk
+Management before reinstalling apps that store paths into them.
 
 **`profile.ps1` has no guards.** Every tool it calls must be on PATH or pwsh
 prints errors on every launch. If it does, the missing package is in the
 [section 6](#6-packages-scoop) table.
 
-**The scoop Windows Terminal may read settings from elsewhere.**
-`symlinks.windows` links
-`$LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json`,
-which is the Store/msix package's location. The scoop build is unpackaged and
-may run in portable mode, reading settings from its own directory instead. If
-WT comes up unthemed, check where it actually reads from (Settings → Open JSON
-file) and link that path.
+**Windows Terminal reads settings from scoop's persist dir.** The scoop build
+runs in portable mode, so it reads
+`~\scoop\persist\windows-terminal\settings\settings.json`, not the Store
+package's `LocalState` — `symlinks.windows` links only the scoop path. If WT
+comes up unthemed, Settings → Open JSON file shows the path it actually reads.
+
+**Shells started outside Windows Terminal open in conhost.** The scoop build
+can't be the default terminal, so pwsh launched from the Run dialog, Flow
+Launcher or a double-clicked script gets conhost, where oh-my-posh glyphs show
+as boxes. `wt` and GlazeWM's `alt+enter` are unaffected. For an "Open in
+Terminal" context menu, run
+`reg import "$HOME\scoop\apps\windows-terminal\current\install-context.reg"`.
+
+**SMB defaults are stricter on Enterprise.** 24H2 requires SMB signing, and
+Enterprise turns off insecure guest logons. The old install already required
+signing and the share worked; it also allowed guest logons, which doesn't
+matter as long as Z: is mapped with a user name ([section 10](#10-network-share-and-password-database)).
 
 ---
 
-## 12. Verification
+## 14. Verification
 
 ```powershell
 # in a new Windows Terminal tab — should open pwsh with the gruvbox prompt
-Get-Item $HOME\.gitconfig, $LOCALAPPDATA\nvim, $HOME\.glzr\glazewm\config.yaml | Select-Object FullName, LinkType, Target
-which fzf fd rg bat zoxide yazi delta gitui nvim mpv
+Get-Item $HOME\.gitconfig, $HOME\.config\git\ignore, $LOCALAPPDATA\nvim, $HOME\.glzr\glazewm\config.yaml,
+    $HOME\scoop\persist\windows-terminal\settings\settings.json | Select-Object FullName, LinkType, Target
+which fzf fd rg bat zoxide yazi delta less gitui nvim mpv tree-sitter cc node cargo
 ```
 
 Then:
 
 - `nvim` — lazy.nvim installs plugins on first launch; `:checkhealth` after
+  (tree-sitter-manager finds `tree-sitter`, `git` and `cc`), and `:Mason` shows
+  all 18 packages installed
 - `gitui` in a repo — gruvbox theme, vim keys
-- `y` — yazi opens and the shell follows its cwd on quit
+- `y` — yazi opens with the gruvbox theme, previews render (image, PDF,
+  video), and the shell follows its cwd on quit
 - `keys` — opens `powershell/cheatsheet.md`
 - `music` — playlist picker comes up
 - `alt+enter` — GlazeWM opens a terminal; Zebar bar visible
+- `ctrl+printscreen` — ShareX's region overlay covers the whole screen (not
+  tiled by GlazeWM); the capture lands on the clipboard and in
+  `~\scoop\persist\sharex\ShareX\Screenshots\`
 - `m` in Flow Launcher — Music plugin lists playlists
 - `git commit` on a scratch change, then `git log --show-signature`
+- Caps Lock acts as Esc; `Win+Space` switches to Microsoft Pinyin
+- Z: opens and KeePassXC unlocks the database
+- osu! lazer shows your beatmaps
 - Reboot into Arch: Nebula mounts read-write, clock is correct
