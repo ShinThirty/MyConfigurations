@@ -88,16 +88,19 @@ $items = @(
     'AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt'
     'AppData\Local\zoxide\db.zo'
 )
+# robocopy prints only errors. /R:1 /W:1 skips a locked file instead of retrying it for
+# days; /XJ skips junctions like Documents\My Music, which point back at other folders
 foreach ($i in $items) {
     $src = Join-Path $HOME $i; $dst = Join-Path "$B\home" $i
-    if (Test-Path $src -PathType Container) { robocopy $src $dst /E /NFL /NDL /NJH /NJS | Out-Null }
+    if (Test-Path $src -PathType Container) { robocopy $src $dst /E /XJ /R:1 /W:1 /NP /NFL /NDL /NJH /NJS }
     elseif (Test-Path $src) { New-Item -ItemType Directory -Force (Split-Path $dst) | Out-Null; Copy-Item -Force $src $dst }
     else { Write-Host "missing: $i" -ForegroundColor Yellow }
 }
-# Vortex profiles, load order and settings, minus its caches
-robocopy "$env:APPDATA\Vortex" "$B\home\AppData\Roaming\Vortex" /E /XD Cache "Code Cache" GPUCache DawnCache temp /NFL /NDL /NJH /NJS | Out-Null
+# Vortex profiles, load order and settings, minus its caches. Quit Vortex first —
+# its databases are locked while it runs
+robocopy "$env:APPDATA\Vortex" "$B\home\AppData\Roaming\Vortex" /E /XD Cache "Code Cache" GPUCache DawnCache temp /XJ /R:1 /W:1 /NP /NFL /NDL /NJH /NJS
 # Steam's local per-game configs (the games themselves are on D:\SteamLibrary)
-robocopy "${env:ProgramFiles(x86)}\Steam\userdata" "$B\steam-userdata" /E /NFL /NDL /NJH /NJS | Out-Null
+robocopy "${env:ProgramFiles(x86)}\Steam\userdata" "$B\steam-userdata" /E /XJ /R:1 /W:1 /NP /NFL /NDL /NJH /NJS
 # Manually installed fonts (Noto Sans/Serif SC)
 New-Item -ItemType Directory -Force "$B\fonts" | Out-Null
 Copy-Item "$env:windir\Fonts\NotoS*SC*" "$B\fonts"
@@ -109,8 +112,10 @@ net use > "$B\net-use.txt"
 ```
 
 `D:\Migration\home` mirrors `$HOME`; the section that uses each piece says
-where it goes back. `.claude` includes the Claude Code login token, so delete
-`D:\Migration` once everything is restored.
+where it goes back. Run the block again right before rebooting into the
+installer — robocopy only copies what changed since, so it takes seconds.
+`.claude` includes the Claude Code login token, so delete `D:\Migration` once
+everything is restored.
 
 Not worth copying: the Steam games, Vortex's mods and downloads, and Mental
 Omega are already on D:; osu!'s data is on the external SSD; Discord, Webull
@@ -158,6 +163,13 @@ Get-FileHash "$HOME\Downloads\<ltsc>.iso"    # Windows; SHA-256 is the default
 ```sh
 sha256sum ~/Downloads/<ltsc>.iso             # Arch
 ```
+
+Microsoft doesn't always publish a hash you can reach. The Evaluation Center's
+hash sheet still lists the May 2024 image, not the September 2024 refresh
+(26100.1742) its download link now serves, and the subscriber portals show
+hashes only after signing in. Without an official hash, check the file against
+at least two independent catalogues — never only the page you downloaded from,
+which would only prove the download wasn't corrupted.
 
 ### 3.2 Download drivers
 
