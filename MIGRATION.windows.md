@@ -5,7 +5,7 @@ standing this setup back up on it. Unlike macOS and Arch there is no bootstrap
 script — the Windows side is a handful of scoop installs plus
 `setup_symlinks.ps1` and `powershell/install_modules.ps1`, listed here in order.
 
-Rough order: **back up → ISO + drivers → install USB → install Windows → fix
+Rough order: **back up → ISOs → install USB → install Windows → fix
 the boot order → Windows settings → scoop → repo → SSH keys → desktop → network
 share → personal apps → verify.**
 
@@ -104,6 +104,13 @@ robocopy "${env:ProgramFiles(x86)}\Steam\userdata" "$B\steam-userdata" /E /XJ /R
 # Manually installed fonts (Noto Sans/Serif SC)
 New-Item -ItemType Directory -Force "$B\fonts" | Out-Null
 Copy-Item "$env:windir\Fonts\NotoS*SC*" "$B\fonts"
+# The network drivers in use, as a fallback if the new install can't get online (section 3.2).
+# Windows keeps each oemNN.inf as a byte-identical copy of the INF in its driver store package
+Get-CimInstance Win32_PnPSignedDriver | Where-Object { $_.DeviceClass -eq 'NET' -and $_.HardWareID -like 'PCI\*' -and $_.InfName -like 'oem*' } | ForEach-Object {
+    $h = (Get-FileHash "$env:windir\INF\$($_.InfName)").Hash
+    Get-ChildItem "$env:windir\System32\DriverStore\FileRepository\*\*.inf" | Where-Object { (Get-FileHash $_).Hash -eq $h } |
+        ForEach-Object { robocopy $_.DirectoryName "$B\drivers\$($_.Directory.Name)" /E /R:1 /W:1 /NP /NFL /NDL /NJH /NJS }
+}
 # Inventories. The scoopfile leaves out apps you don't want back; add names to drop more
 $export = scoop export | Out-String | ConvertFrom-Json
 $export.apps = @($export.apps | Where-Object Name -notin 'ghostscript', 'zoom')
@@ -171,22 +178,22 @@ hashes only after signing in. Without an official hash, check the file against
 at least two independent catalogues — never only the page you downloaded from,
 which would only prove the download wasn't corrupted.
 
-### 3.2 Download drivers
+### 3.2 Drivers
 
-The board is an ASRock X870 Riptide WiFi. Setup may not have drivers for its
-network chips, so get these from ASRock's support page for the board (plus
-NVIDIA's site) before you start:
+Nothing to download in advance, as long as the Ethernet cable is plugged in.
+The board is an ASRock X870 Riptide WiFi:
 
-| Driver | Hardware |
+| Hardware | Driver after installation |
 |---|---|
-| LAN | Killer E3000 2.5GbE (Realtek-based) |
-| WLAN + Bluetooth | MediaTek MT7925 Wi-Fi 7 |
-| AMD chipset | X870 / Granite Ridge, including the Radeon iGPU |
-| NVIDIA | GeForce RTX 5070 Ti (Blackwell — needs a current driver) |
-| Fingerprint reader | U.are.U 4500 (USB). Windows Update usually finds it; otherwise the Crossmatch "U.are.U Fingerprint Driver (WBF)". Needed for Windows Hello fingerprint |
+| LAN: Killer E3100G 2.5GbE (Realtek RTL8125, PCI `10EC:3000`) | Built in — Windows' own `rt640x64.inf` matches it, including the April 2024 copy the 26100 image ships. Ethernet works at first login |
+| Wi-Fi 7 + Bluetooth: AMD RZ717 (MediaTek, PCI `14C3:0717`) | No built-in driver. Windows Update, or ASRock's support page |
+| AMD chipset | X870 / Granite Ridge, including the Radeon iGPU. Windows Update, or ASRock's support page |
+| NVIDIA GeForce RTX 5070 Ti | Blackwell, so it needs a current driver — nvidia.com, which also installs the NVIDIA App |
+| Fingerprint reader: U.are.U 4500 (USB) | Windows Update usually finds it; otherwise the Crossmatch "U.are.U Fingerprint Driver (WBF)". Needed for Windows Hello fingerprint |
 
-They go onto the install USB in the next step and get installed after the first
-login.
+If Ethernet doesn't come up anyway, the backup in [section 2.2](#22-from-the-old-windows)
+copied the old install's LAN and Wi-Fi driver packages to `D:\Migration\drivers`
+([section 3.7](#37-first-login)).
 
 ### 3.3 Write the install USB (Ventoy)
 
@@ -195,7 +202,7 @@ and the Arch ISO needed for [section 4](#4-restoring-arch-boot). Ventoy
 installs a small boot partition plus an exFAT data partition; ISOs are copied
 onto the data partition as plain files and picked from a menu at boot. exFAT
 has no 4 GiB file limit, so the Windows image needs no splitting. Any 16 GB+
-USB 3 stick fits the ISOs and drivers; 64 GB leaves room for extra tools.
+USB 3 stick fits both ISOs; 64 GB leaves room for extra tools.
 
 Get the Arch ISO from <https://archlinux.org/download/> and check it against
 the published SHA-256 too.
@@ -237,14 +244,12 @@ udisksctl unmount -b "${USB}1"         # if the desktop auto-mounted it
 sudo ventoy -i -g "$USB"               # -g = GPT; asks for confirmation twice
 ```
 
-**Copy the ISOs and drivers** onto the `Ventoy` partition. On Windows it shows
-up as a drive labelled `Ventoy`; eject it from the tray when done:
+**Copy the ISOs** onto the `Ventoy` partition. On Windows it shows up as a
+drive labelled `Ventoy`; eject it from the tray when done:
 
 ```powershell
 $V = "$((Get-Volume -FileSystemLabel Ventoy).DriveLetter):"
 Copy-Item "$HOME\Downloads\<ltsc>.iso", "$HOME\Downloads\archlinux-*.iso" "$V\"
-New-Item -ItemType Directory "$V\Drivers" | Out-Null
-Copy-Item -Recurse "$HOME\Downloads\<drivers>\*" "$V\Drivers\"
 ```
 
 On Arch:
@@ -254,16 +259,10 @@ udisksctl mount -b "${USB}1"           # mounts at /run/media/$USER/Ventoy
 V=/run/media/$USER/Ventoy
 
 cp ~/Downloads/<ltsc>.iso ~/Downloads/archlinux-*.iso "$V"/
-mkdir "$V"/Drivers
-cp -r ~/Downloads/<drivers>/* "$V"/Drivers/
 
 sync
 udisksctl unmount -b "${USB}1"
 ```
-
-Ventoy ignores anything that isn't a bootable image, so `Drivers/` sits
-alongside the ISOs without showing up in the boot menu. Windows reads exFAT
-natively, so the drivers are reachable after the first login.
 
 **Test-boot it once** (both entries) before the day you need it — some boards
 are picky about specific sticks, and it's better to find out early.
@@ -316,14 +315,15 @@ order. systemd-boot's files and the Arch kernel are left alone. Setup either
 reuses p4 for WinRE or puts it in `C:\Recovery`; both are fine.
 
 Setup reboots a few times. Because Windows Boot Manager is now first in the
-boot order, it continues on its own. Leave the stick in (the drivers are on
-it), but don't pick it from the boot menu again.
+boot order, it continues on its own; don't pick the stick from the boot menu
+again.
 
 ### 3.6 First-run setup (OOBE)
 
 1. Region, keyboard
-2. **Network** — if the LAN and Wi-Fi chips aren't recognized, choose **I don't
-   have internet** and install the drivers after login
+2. **Network** — Ethernet should already be connected. If it isn't, choose
+   **I don't have internet** and install the LAN driver after login
+   ([section 3.7](#37-first-login))
 3. **Account** — Enterprise editions offer **Sign-in options → Domain join
    instead**, which creates a local account. No Microsoft account needed. Name
    it **ShinThirty** again: Claude Code keys its per-project memory by path
@@ -335,19 +335,22 @@ it), but don't pick it from the boot menu again.
 
 ### 3.7 First login
 
-1. Run the installers from `Drivers\` on the stick: **chipset first**, then
-   LAN and WLAN, then NVIDIA. Reboot when they ask
-   - If the LAN package offers **Killer Intelligence Center**, skip it — it's an
-     optional Store app, and the driver works without it
-   - Check **NVIDIA Control Panel** is in the Start menu. It's a Store-style app
-     that NVIDIA's package normally installs offline; if it's missing, the NVIDIA
-     App covers most of its settings
-2. Settings → Windows Update → install everything, reboot, repeat until it's
-   clean
-3. Remove the Ventoy stick, then plug the external SSD back in
-4. Check Disk Management: Nebula is **D:**, the external SSD is **E:**, and
+1. Remove the Ventoy stick, then plug the external SSD back in
+2. Check Disk Management: Nebula is **D:**, the external SSD is **E:**, and
    nothing else changed. Fix letters here before installing anything that
    stores paths into them
+3. **No network?** Device Manager → the Ethernet controller → Update driver →
+   *Browse my computer* → `D:\Migration\drivers` (tick *Include subfolders*).
+   Same for the Wi-Fi adapter if you need it
+4. Settings → Windows Update → install everything, including **Advanced options →
+   Optional updates → Driver updates** (Wi-Fi, chipset, fingerprint). Reboot,
+   repeat until it's clean. Anything still missing in Device Manager comes from
+   ASRock's support page — **chipset first**. If an ASRock LAN package offers
+   **Killer Intelligence Center**, skip it: it's an optional Store app, and the
+   driver works without it
+5. NVIDIA driver from nvidia.com. Then check **NVIDIA Control Panel** is in the
+   Start menu. It's a Store-style app that NVIDIA's package normally installs
+   offline; if it's missing, the NVIDIA App covers most of its settings
 
 Then restore the Arch boot order ([section 4](#4-restoring-arch-boot)) before
 going further — it's one reboot into the firmware menu.
