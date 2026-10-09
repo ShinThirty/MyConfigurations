@@ -329,9 +329,9 @@ again.
    it **ShinThirty** again: Claude Code keys its per-project memory by path
    (`~\.claude\projects\C--Users-ShinThirty-…`), and the backup assumes the same
    profile path
-4. **Privacy** — turn every toggle off. Diagnostic data can be fully disabled
-   later with Group Policy (*Allow diagnostic data* = *Diagnostic data off*),
-   which only Enterprise editions honour
+4. **Privacy** — turn every toggle off. [Section 5.3](#53-telemetry) later
+   locks them off with policies and turns diagnostic data fully off, which only
+   Enterprise editions allow
 
 ### 3.7 First login
 
@@ -472,6 +472,49 @@ Then Settings → Time & language → Language & region → **Add a language** �
 中文(中华人民共和国), leaving *Set as my Windows display language* unticked so
 the UI stays English. That pulls Microsoft Pinyin from Windows Update, so do it
 after the network drivers are in. `Win+Space` switches input methods.
+
+### 5.3 Telemetry
+
+Diagnostic data fully **off** is an Enterprise and Education setting — Home and
+Pro can't go below *Required*. The OOBE privacy toggles ([section 3.6](#36-first-run-setup-oobe))
+are ordinary settings that can be switched back on; these are the policy values
+Group Policy would write, which keep them off and grey them out in Settings.
+Reboot to apply — one reboot after 5.2 and 5.3 covers both:
+
+```powershell
+function Set-Policy($key, $name, $value) { reg add $key /v $name /t REG_DWORD /d $value /f | Out-Null }
+$w = 'HKLM\SOFTWARE\Policies\Microsoft\Windows'
+
+# Diagnostic data off, no feedback prompts, no crash reports
+Set-Policy "$w\DataCollection" AllowTelemetry 0
+Set-Policy "$w\DataCollection" DoNotShowFeedbackNotifications 1
+Set-Policy "$w\Windows Error Reporting" Disabled 1
+# Advertising ID, activity history, suggested apps
+Set-Policy "$w\AdvertisingInfo" DisabledByGroupPolicy 1
+Set-Policy "$w\System" PublishUserActivities 0
+Set-Policy "$w\System" UploadUserActivities 0
+Set-Policy "$w\CloudContent" DisableWindowsConsumerFeatures 1
+# Per user: no ads or tips "tailored" from diagnostic data, and Start menu search stays
+# local instead of sending each query to Bing (Explorer's search box loses its history too)
+Set-Policy 'HKCU\Software\Policies\Microsoft\Windows\CloudContent' DisableTailoredExperiencesWithDiagnosticData 1
+Set-Policy 'HKCU\Software\Policies\Microsoft\Windows\Explorer' DisableSearchBoxSuggestions 1
+# Edge's own diagnostic data. Edge then says it's "managed by your organization" — harmless
+Set-Policy 'HKLM\SOFTWARE\Policies\Microsoft\Edge' DiagnosticData 0
+
+# The service that uploads diagnostic data
+Stop-Service DiagTrack
+Set-Service DiagTrack -StartupType Disabled
+
+# pwsh reports to Microsoft on every start unless this is set before it launches;
+# the profile runs too late
+[Environment]::SetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', '1', 'User')
+```
+
+What still talks to Microsoft, by design: Windows Update, Defender's cloud
+protection and SmartScreen, and Edge and OneDrive sync. To stop Defender
+uploading suspicious files, turn off **Automatic sample submission** (Windows
+Security → Virus & threat protection → Manage settings) but leave cloud-delivered
+protection on. Windows Security then shows a warning you can dismiss.
 
 ---
 
@@ -831,6 +874,8 @@ Then:
 - `m` in Flow Launcher — Music plugin lists playlists
 - `git commit` on a scratch change, then `git log --show-signature`
 - Caps Lock acts as Esc; `Win+Space` switches to Microsoft Pinyin
+- Settings → Privacy & security → Diagnostics & feedback says some settings are
+  managed by your organization, and `Get-Service DiagTrack` shows Stopped
 - Z: opens and KeePassXC unlocks the database
 - osu! lazer shows your beatmaps
 - Reboot into Arch: Nebula mounts read-write, clock is correct
