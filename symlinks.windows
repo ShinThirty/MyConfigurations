@@ -1,11 +1,13 @@
 # format: source:target
 $DOTFILES/git/gitconfig.windows:$HOME/.gitconfig
+$DOTFILES/git/ignore:$HOME/.config/git/ignore
 $DOTFILES/gitui:$APPDATA/gitui
 $DOTFILES/yazi/yazi.toml:$APPDATA/yazi/config/yazi.toml
 $DOTFILES/yazi/theme.toml:$APPDATA/yazi/config/theme.toml
 $DOTFILES/yazi/package.toml:$APPDATA/yazi/config/package.toml
 $DOTFILES/nvim:$LOCALAPPDATA/nvim
-$DOTFILES/wt/settings.json:$LOCALAPPDATA/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
+# Windows Terminal from scoop runs in portable mode, reading settings from its persist dir
+$DOTFILES/wt/settings.json:$HOME/scoop/persist/windows-terminal/settings/settings.json
 $DOTFILES/ideavim/ideavimrc:$HOME/.ideavimrc
 $DOTFILES/glazewm/config.yaml:$HOME/.glzr/glazewm/config.yaml
 $DOTFILES/flow-launcher/Music:$HOME/scoop/persist/flow-launcher/UserData/Plugins/Music

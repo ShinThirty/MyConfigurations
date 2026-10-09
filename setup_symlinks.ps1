@@ -1,3 +1,5 @@
+﻿# Saved as UTF-8 *with* BOM: Windows PowerShell 5.1 reads BOM-less files in the ANSI code page,
+# and the emoji below then decode to curly quotes and break parsing.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 

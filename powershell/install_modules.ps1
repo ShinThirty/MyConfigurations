@@ -1,5 +1,12 @@
-# Create stub profile that dot-sources the real profile from dotfiles
-$stubDir = "$HOME\OneDrive\Documents\PowerShell"
+# Install-Module under Windows PowerShell 5.1 targets its own module path, which pwsh never loads
+if ($PSVersionTable.PSVersion.Major -lt 7) {
+    Write-Host "Run this from pwsh (PowerShell 7), not Windows PowerShell" -ForegroundColor Red
+    exit 1
+}
+
+# Create stub profile that dot-sources the real profile from dotfiles.
+# MyDocuments follows OneDrive folder backup when it's on, so this lands on $PROFILE either way.
+$stubDir = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'PowerShell'
 $stubPath = "$stubDir\Microsoft.PowerShell_profile.ps1"
 $stubContent = '. "$HOME\MyConfigurations\powershell\profile.ps1"'
 
