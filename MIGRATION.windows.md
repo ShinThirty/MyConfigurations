@@ -810,6 +810,11 @@ limit) and **Aria2 Update Trackers** (weekly). Check they exist with
 re-run `install.ps1` elevated. Log out and back in (or
 `Start-ScheduledTask Aria2`) to start aria2.
 
+The repo's `aria2.conf` has no `bt-tracker=` line, and the weekly task first
+fires on the coming Monday, so fill it now with
+`Start-ScheduledTask 'Aria2 Update Trackers'` — it rewrites
+`~\.config\aria2\aria2.conf` and restarts aria2.
+
 Check that `${HOME}` in `aria2.conf` resolved to your profile — aria2 expands
 it itself, but Windows doesn't set `HOME` by default. With aria2 running:
 
