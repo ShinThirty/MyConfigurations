@@ -186,10 +186,10 @@ The board is an ASRock X870 Riptide WiFi:
 | Hardware | Driver after installation |
 |---|---|
 | LAN: Killer E3100G 2.5GbE (Realtek RTL8125, PCI `10EC:3000`) | Built in — Windows' own `rt640x64.inf` matches it, including the April 2024 copy the 26100 image ships. Ethernet works at first login |
-| Wi-Fi 7 + Bluetooth: AMD RZ717 (MediaTek, PCI `14C3:0717`) | No built-in driver. Windows Update, or ASRock's support page |
-| AMD chipset | X870 / Granite Ridge, including the Radeon iGPU. Windows Update, or ASRock's support page |
-| NVIDIA GeForce RTX 5070 Ti | Blackwell, so it needs a current driver — nvidia.com, which also installs the NVIDIA App |
-| Fingerprint reader: U.are.U 4500 (USB) | Windows Update usually finds it; otherwise the Crossmatch "U.are.U Fingerprint Driver (WBF)". Needed for Windows Hello fingerprint |
+| Wi-Fi 7 + Bluetooth: AMD RZ717 (MediaTek, PCI `14C3:0717`, USB `0E8D:0717`) | No built-in driver. ASRock's support page lists packages for two Wi-Fi modules — take the **MediaTek** WLAN and Bluetooth ones. The AzureWave EB601NF packages are Realtek drivers for the other module and don't match |
+| AMD chipset | X870 / Granite Ridge: PSP, GPIO, I2C, SMBus and four unnamed ACPI devices. AMD's chipset package (amd.com → Chipsets → AM5 → X870). Its *3D V-Cache Performance Optimizer* only matters on two-CCD X3D chips, not the 9800X3D |
+| NVIDIA GeForce RTX 5070 Ti | Blackwell, so it needs a current driver — nvidia.com, or NVCleanstall to leave out the NVIDIA App and telemetry |
+| Fingerprint reader: U.are.U 4500 (USB `05BA:000A`) | Crossmatch "U.are.U Fingerprint Reader Driver (WBF)" 5.0.0.5. Its readme stops at Windows 10, but it installs and starts on LTSC 2024. Needed for Windows Hello fingerprint |
 
 If Ethernet doesn't come up anyway, the backup in [section 2.2](#22-from-the-old-windows)
 copied the old install's LAN and Wi-Fi driver packages to `D:\Migration\drivers`
@@ -345,15 +345,24 @@ again.
 3. **No network?** Device Manager → the Ethernet controller → Update driver →
    *Browse my computer* → `D:\Migration\drivers` (tick *Include subfolders*).
    Same for the Wi-Fi adapter if you need it
-4. Settings → Windows Update → install everything, including **Advanced options →
-   Optional updates → Driver updates** (Wi-Fi, chipset, fingerprint). Reboot,
-   repeat until it's clean. Anything still missing in Device Manager comes from
-   ASRock's support page — **chipset first**. If an ASRock LAN package offers
-   **Killer Intelligence Center**, skip it: it's an optional Store app, and the
-   driver works without it
-5. NVIDIA driver from nvidia.com. Then check **NVIDIA Control Panel** is in the
-   Start menu. It's a Store-style app that NVIDIA's package normally installs
-   offline; if it's missing, the NVIDIA App covers most of its settings
+4. Drivers from [section 3.2](#32-drivers), **chipset first**, rebooting after
+   each: AMD chipset, then the MediaTek Wi-Fi and Bluetooth packages, then the
+   fingerprint driver. Windows Update's **Advanced options → Optional updates →
+   Driver updates** is the alternative, with whatever versions Microsoft has.
+   If an ASRock LAN package offers **Killer Intelligence Center**, skip it:
+   it's an optional Store app, and the driver works without it
+5. NVIDIA driver from nvidia.com — choose **NVIDIA Graphics Driver**, not
+   *…and NVIDIA App* — or a driver-only package built with NVCleanstall.
+   **NVIDIA Control Panel** won't appear either way: it's a Store app the
+   installer fetches from the Microsoft Store, which LTSC doesn't have.
+   Resolution, refresh rate and HDR are in Windows' display settings; G-SYNC,
+   colour range and DSR need the Control Panel
+
+Updating the BIOS (optional): ASRock's Instant Flash reads FAT32 only, so use
+a spare stick — the Ventoy partition is exFAT, and keep that stick intact for
+recovery. Flashing resets every setting (EXPO, SVM, fan curves), so note them
+first. After going from 3.50 to 4.43, systemd-boot's menu still came up; if
+it doesn't, see [section 4](#4-restoring-arch-boot)
 
 Then check that Arch still boots ([section 4](#4-restoring-arch-boot)) before
 going further — usually nothing needs fixing.
@@ -801,7 +810,7 @@ scoopfile.
 | Vortex | Copy `D:\Migration\home\AppData\Roaming\Vortex\` to `%APPDATA%\Vortex\` before the first launch (profiles, load order, settings). Its mods and downloads aren't on C:. Its mod installer needs the **.NET 9 Desktop Runtime** (x64) and pins 9 exactly, so scoop's `windowsdesktop-runtime` (.NET 10) doesn't cover it — get 9 from Microsoft's .NET download page if Vortex's installer doesn't add it |
 | Discord, Webull Desktop, Wabbajack | Log in |
 | Cloudflare One Client (WARP) | Sign in / re-enroll |
-| NVIDIA App | Comes with the NVIDIA driver package from [section 3.7](#37-first-login) |
+| NVIDIA App | Left out — the driver alone is enough ([section 3.7](#37-first-login)) |
 | OpenRGB | Only if you still use it — config is `D:\Migration\home\AppData\Roaming\OpenRGB\OpenRGB.json` |
 | Microsoft Edge | Included in LTSC. Sign in to sync; add the KeePassXC-Browser extension if sync doesn't bring it |
 
