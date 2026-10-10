@@ -860,10 +860,17 @@ value directly.
 
 | App | What to redo after install |
 |---|---|
-| Mental Omega | Installed in `D:\Games\Mental Omega`, so the game survives; only the Start menu shortcut is lost |
+| Mental Omega | Installed in `D:\Games\Mental Omega`, so the game survives; only the Start menu shortcut is lost. Recreate it pointing at `MentalOmegaClient.exe` with the game folder as working directory (snippet below the table) |
 | NVIDIA App | Left out — the driver alone is enough ([section 3.7](#37-first-login)) |
 | OpenRGB | Only if you still use it — config is `D:\Migration\home\AppData\Roaming\OpenRGB\OpenRGB.json` |
 | Microsoft Edge | Included in LTSC. Sign in to sync; add the KeePassXC-Browser extension if sync doesn't bring it |
+
+```powershell
+# Mental Omega's Start menu shortcut — the launcher loads its files relative to the working directory
+$g = 'D:\Games\Mental Omega'
+$sc = (New-Object -ComObject WScript.Shell).CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Mental Omega.lnk")
+$sc.TargetPath = "$g\MentalOmegaClient.exe"; $sc.WorkingDirectory = $g; $sc.Save()
+```
 
 `~\Utilities` (restored with the rest of `home\`) holds the mouse's
 configuration tool and HWMonitor — both portable.
