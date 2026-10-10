@@ -355,18 +355,42 @@ again.
    Start menu. It's a Store-style app that NVIDIA's package normally installs
    offline; if it's missing, the NVIDIA App covers most of its settings
 
-Then restore the Arch boot order ([section 4](#4-restoring-arch-boot)) before
-going further — it's one reboot into the firmware menu.
+Then check that Arch still boots ([section 4](#4-restoring-arch-boot)) before
+going further — usually nothing needs fixing.
 
 ---
 
 ## 4. Restoring Arch boot
 
-**Usual case — only the boot order changed.** Pick "Linux Boot Manager" from
-the firmware boot menu (F11 on this ASRock board) or move it to the top in
-firmware setup. Once in Arch, `sudo bootctl install` makes it first again
-permanently. systemd-boot auto-detects Windows Boot Manager on the same ESP, so
-no loader entry is needed for Windows.
+Reboot and see what the machine boots into, then check from Arch.
+`bootctl status` needs no root:
+
+```sh
+bootctl status | sed -n '/Boot Loaders Listed/,$p'
+lsblk -no UUID /dev/nvme1n1p1          # still 132D-60E4?
+```
+
+**Nothing changed — the common case.** On the 2026-10 LTSC reinstall, setup
+left the boot order alone: Linux Boot Manager stayed first and Windows Boot
+Manager was added but marked *inactive*. That's fine — systemd-boot
+auto-detects Windows Boot Manager on the same ESP and chainloads it from its
+own menu, so neither a firmware entry nor a loader entry is needed. Confirm
+the menu shows **Windows Boot Manager** and that it starts the new install.
+
+**Windows took over the boot order.** The machine boots straight into Windows.
+Pick "Linux Boot Manager" from the firmware boot menu (F11 on this ASRock
+board) or move it to the top in firmware setup, then once in Arch run
+`sudo bootctl install` to make it first again permanently. Windows Update can
+do this later too, when it updates its own boot files — same fix.
+
+What the entries are:
+
+| Firmware entry | File | What it is |
+|---|---|---|
+| Linux Boot Manager | `EFI/systemd/systemd-bootx64.efi` | Current systemd-boot |
+| Fallback Linux Boot Manager | `EFI/systemd/systemd-boot-fallbackx64.efi` | The previous systemd-boot version, kept when systemd updates. Tried next if the current one fails to start |
+| Windows Boot Manager | `EFI/Microsoft/Boot/bootmgfw.efi` | Written by Windows setup; started from systemd-boot's menu |
+| *(none)* | `EFI/BOOT/BOOTX64.EFI` | Removable-media default path, used when NVRAM has no entries (e.g. after a BIOS reset). `bootctl` keeps a copy of systemd-boot here; Windows setup may overwrite it |
 
 **If the ESP was wiped anyway**, boot the Ventoy stick (F11 → `UEFI:` entry)
 and pick the Arch ISO:
@@ -380,7 +404,7 @@ arch-chroot /mnt
 
 bootctl install                        # systemd-boot + NVRAM entry, first in boot order
 pacman -S linux-zen amd-ucode          # rewrites kernel + microcode to /boot, rebuilds initramfs
-tar -C /boot -xzf /home/<you>/boot-backup.tgz loader/   # restore loader entries
+tar -C /boot -xzf /home/<you>/boot-backup.tgz ./loader  # restore loader config + entries
 ```
 
 If the backup is gone, recreate `/boot/loader/entries/arch.conf`:
