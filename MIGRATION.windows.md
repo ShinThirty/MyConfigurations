@@ -82,6 +82,8 @@ $items = @(
     'scoop\persist\flow-launcher\UserData\Settings'
     'scoop\persist\keepassxc\config'
     'scoop\persist\sharex'
+    # Steam's local per-game configs (the games themselves are on D:\SteamLibrary)
+    'scoop\persist\steam\userdata'
     'AppData\Roaming\osu\storage.ini', 'AppData\Roaming\osu\framework.ini'
     'AppData\Roaming\OpenRGB\OpenRGB.json'
     # optional history
@@ -99,8 +101,6 @@ foreach ($i in $items) {
 # Vortex profiles, load order and settings, minus its caches. Quit Vortex first —
 # its databases are locked while it runs
 robocopy "$env:APPDATA\Vortex" "$B\home\AppData\Roaming\Vortex" /E /XD Cache "Code Cache" GPUCache DawnCache temp /XJ /R:1 /W:1 /NP /NFL /NDL /NJH /NJS
-# Steam's local per-game configs (the games themselves are on D:\SteamLibrary)
-robocopy "${env:ProgramFiles(x86)}\Steam\userdata" "$B\steam-userdata" /E /XJ /R:1 /W:1 /NP /NFL /NDL /NJH /NJS
 # Manually installed fonts (Noto Sans/Serif SC)
 New-Item -ItemType Directory -Force "$B\fonts" | Out-Null
 Copy-Item "$env:windir\Fonts\NotoS*SC*" "$B\fonts"
@@ -127,8 +127,8 @@ installer — robocopy only copies what changed since, so it takes seconds.
 everything is restored.
 
 Not worth copying: the Steam games, Vortex's mods and downloads, and Mental
-Omega are already on D:; osu!'s data is on the external SSD; Discord, Webull
-and Wabbajack are cloud accounts — just log in again. `C:\Users\LINGNA~1`
+Omega are already on D:; osu!'s data is on the external SSD; Discord is a cloud
+account — just log in again. `C:\Users\LINGNA~1`
 is an orphaned installer temp folder.
 
 ---
@@ -838,7 +838,7 @@ checklist.
 ### 12.1 Apps
 
 **From scoop** — `scoop import` ([section 6](#6-packages-scoop)) covers these,
-including the `java` and `games` buckets. `ghostscript`, `zoom` and `sharpkeys`
+including the `java`, `games` and `versions` buckets. `ghostscript`, `zoom` and `sharpkeys`
 are left out: the backup in [section 2.2](#22-from-the-old-windows) filters
 them from the scoopfile. SharpKeys isn't needed because
 [section 5.2](#52-keyboard-mouse-language-and-theme) writes the same registry
@@ -849,19 +849,18 @@ value directly.
 | `keepassxc` | [Section 10](#10-network-share-and-password-database) |
 | `claude-code` | `claude` CLI; re-auth on first run. Its built-in auto-updater treats the scoop install as native and drops a second copy in `~\.local\bin` and `~\.local\share\claude` (off PATH, never run). Restoring `settings.json` from the `~\.claude\` row below brings back `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops it — `scoop update claude-code` handles updates. Delete any copy that appeared before then. `claude doctor` keeps warning that the native copy is missing or off PATH; ignore it, since its suggested `claude install` puts the copy back |
 | `osulazer` (games) | Point it back at the SSD — see the data table |
+| `steam` (games) | Settings → Storage → add `D:\SteamLibrary`; the games there are picked up without re-downloading. Steam Cloud restores most configs; the fallback is `D:\Migration\home\scoop\persist\steam\userdata` → `~\scoop\persist\steam\userdata` (scoop junctions `userdata` there). The Home install had the vendor installer, so that backup's copy is `D:\Migration\steam-userdata` |
 | `temurin-jre` (java) | Sets `JAVA_HOME` |
 | `age`, `aws`, `terraform`, `uv`, `deno`, `jid`, `fastfetch` | General CLI — none of it is referenced by this repo's configs. `age` matters: the encrypted files in the data table are useless without it |
 | `ventoy` | Only for rebuilding the install stick |
+| `vortex` (games) | Copy `D:\Migration\home\AppData\Roaming\Vortex\` to `%APPDATA%\Vortex\` before the first launch (profiles, load order, settings) — the scoop package doesn't persist it elsewhere. Its mods and downloads aren't on C:. The package unpacks the vendor setup without running it, so nothing installs the .NET runtime its mod installer (`ModInstallerIPC`) needs: .NET 9 Desktop, any 9.x but not 10. `scoop install versions/windowsdesktop-runtime-9.0` from an **elevated** shell — the manifest refuses to run otherwise, so `scoop import` unelevated skips it |
+| `discord` (extras) | Log in |
 
 **Outside scoop** — vendor installers, since there's no Store or winget:
 
 | App | What to redo after install |
 |---|---|
-| Steam | Settings → Storage → add `D:\SteamLibrary`; the games there are picked up without re-downloading. Steam Cloud restores most configs; `D:\Migration\steam-userdata` is the fallback |
 | Mental Omega | Installed in `D:\Games\Mental Omega`, so the game survives; only the Start menu shortcut is lost |
-| Vortex | Copy `D:\Migration\home\AppData\Roaming\Vortex\` to `%APPDATA%\Vortex\` before the first launch (profiles, load order, settings). Its mods and downloads aren't on C:. Its mod installer needs the **.NET 9 Desktop Runtime** (x64) and pins 9 exactly, so scoop's `windowsdesktop-runtime` (.NET 10) doesn't cover it — get 9 from Microsoft's .NET download page if Vortex's installer doesn't add it |
-| Discord, Webull Desktop, Wabbajack | Log in |
-| Cloudflare One Client (WARP) | Sign in / re-enroll |
 | NVIDIA App | Left out — the driver alone is enough ([section 3.7](#37-first-login)) |
 | OpenRGB | Only if you still use it — config is `D:\Migration\home\AppData\Roaming\OpenRGB\OpenRGB.json` |
 | Microsoft Edge | Included in LTSC. Sign in to sync; add the KeePassXC-Browser extension if sync doesn't bring it |
