@@ -116,6 +116,8 @@ $export = scoop export | Out-String | ConvertFrom-Json
 $export.apps = @($export.apps | Where-Object Name -notin 'ghostscript', 'zoom', 'sharpkeys')
 $export | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 "$B\scoopfile.json"
 net use > "$B\net-use.txt"
+# net use shows the share path but not the account; the saved credential has it (not the password)
+foreach ($h in (Get-SmbMapping).RemotePath -replace '^\\\\([^\\]+).*', '$1' | Sort-Object -Unique) { cmdkey "/list:$h" >> "$B\net-use.txt" }
 ```
 
 `D:\Migration\home` mirrors `$HOME`; the section that uses each piece says
@@ -768,10 +770,12 @@ Full details in `glazewm/README.md`. The post-install steps that aren't automate
 
 The password database isn't on C: — KeePassXC opens it straight from the
 router's USB share, mapped as **Z:**. Map it again with the share path and user
-name recorded in `D:\Migration\net-use.txt`:
+name recorded in `D:\Migration\net-use.txt` (the user name is the router's
+USB-sharing account; backups made before the `cmdkey` line was added only have
+the path):
 
 ```powershell
-cmdkey /add:<share-host> /user:<user> /pass      # prompts for the password
+cmdkey /add:<share-host> /user:<user> /pass      # prompts for the password — run it in a terminal you type into
 net use Z: \\<share-host>\<share> /persistent:yes
 ```
 
