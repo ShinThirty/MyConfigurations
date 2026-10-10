@@ -795,7 +795,7 @@ Then KeePassXC:
 
 ```powershell
 cd $HOME\MyConfigurations\aria2\windows   # install.ps1 uses relative paths
-.\install.ps1
+.\install.ps1 -DownloadDir D:\Downloads    # downloads on the data disk, not C:
 .\add_firewall_rules.ps1                   # elevated — opens 6881-6999 TCP/UDP
 ```
 
@@ -815,8 +815,8 @@ it itself, but Windows doesn't set `HOME` by default. With aria2 running:
 
 ```powershell
 $body = '{"jsonrpc":"2.0","id":1,"method":"aria2.getGlobalOption"}'
-(Invoke-RestMethod http://localhost:6800/jsonrpc -Method Post -Body $body).result.dir
-# expect C:\Users\<you>/Downloads, not a literal ${HOME}
+(Invoke-RestMethod http://localhost:6800/jsonrpc -Method Post -Body $body).result | Select-Object dir, save-session
+# expect dir D:\Downloads, and save-session C:/Users/<you>/.config/aria2/aria2.session, not a literal ${HOME}
 ```
 
 `aria2/README.md` says `winget install aria2`; on LTSC use the scoop package

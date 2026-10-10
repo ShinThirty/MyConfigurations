@@ -1,3 +1,8 @@
+param(
+	# Replaces aria2.conf's dir=${HOME}/Downloads in the installed copy, e.g. D:\Downloads
+	[string]$DownloadDir
+)
+
 $TargetDirectory = "$HOME\.config\aria2"
 if (-not (Test-Path -Path $TargetDirectory))
 {
@@ -5,6 +10,11 @@ if (-not (Test-Path -Path $TargetDirectory))
 }
 
 Copy-Item -Path ..\aria2.conf -Destination $TargetDirectory
+if ($DownloadDir)
+{
+	$Conf = "$TargetDirectory\aria2.conf"
+	(Get-Content $Conf) -replace '^dir=.*', "dir=$DownloadDir" | Set-Content $Conf
+}
 Copy-Item -Path .\Start-Aria2.vbs -Destination $TargetDirectory
 Copy-Item -Path .\update_trackers.ps1 -Destination $TargetDirectory
 Copy-Item -Path .\Update-Trackers.vbs -Destination $TargetDirectory

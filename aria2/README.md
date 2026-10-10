@@ -78,6 +78,8 @@ This copies the config, session file, VBS launchers, and PowerShell scripts to `
 
 If registration fails with "Access is denied", run `install.ps1` once from an elevated prompt.
 
+Downloads go to `~/Downloads`. To put them elsewhere, pass `-DownloadDir` (e.g. `.\install.ps1 -DownloadDir D:\Downloads`): it rewrites the `dir=` line in the installed copy only, so the shared `aria2.conf` stays the same on every platform. Re-running `install.ps1` overwrites the installed config, so pass it every time.
+
 #### Firewall Rules
 
 To allow incoming BitTorrent connections (ports 6881-6999), run as Administrator:
