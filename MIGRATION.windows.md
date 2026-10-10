@@ -734,9 +734,12 @@ Full details in `glazewm/README.md`. The post-install steps that aren't automate
 - **ShareX** (screenshots, in place of Snipping Tool) — before its first launch,
   copy `D:\Migration\home\scoop\persist\sharex\` over `~\scoop\persist\sharex\`.
   That restores the old settings: captures are copied to the clipboard and saved
-  to a file, never uploaded (a fresh install uploads to Imgur by default), plus
-  the default hotkeys listed in `glazewm/README.md`. Then Application settings →
-  Integration → **Run ShareX when Windows starts**
+  to a file, never uploaded (a fresh install uploads to Imgur by default). Then:
+  - **Hotkey settings** — check them against the table in `glazewm/README.md`
+    and change any that differ. The hotkeys aren't tracked in the repo, so they
+    come from whichever backup was restored, and one taken from the old Home
+    install still has PrintScreen bindings the Keychron Q7 can't send
+  - Application settings → Integration → **Run ShareX when Windows starts**
 - `Win+V` once to enable clipboard history
 - Flow Launcher Music plugin dependencies (the plugin dir is symlinked in by
   `setup_symlinks.ps1`, but `lib/` is not tracked):
@@ -934,7 +937,7 @@ Then:
 - `keys` — opens `powershell/cheatsheet.md`
 - `music` — playlist picker comes up
 - `alt+enter` — GlazeWM opens a terminal; Zebar bar visible
-- `ctrl+printscreen` — ShareX's region overlay covers the whole screen (not
+- `ctrl+shift+alt+4` — ShareX's region overlay covers the whole screen (not
   tiled by GlazeWM); the capture lands on the clipboard and in
   `~\scoop\persist\sharex\ShareX\Screenshots\`
 - `m` in Flow Launcher — Music plugin lists playlists

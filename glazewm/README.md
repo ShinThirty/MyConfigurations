@@ -35,7 +35,9 @@ Then link the config:
 - ShareX: Application settings → Integration → **Run ShareX when Windows starts**, and
   Task settings → After capture: **Copy image to clipboard** + **Save image to file** only
   (a fresh install also uploads every capture to Imgur). Its config lives in
-  `~\scoop\persist\sharex\ShareX\`, so restoring that folder covers both
+  `~\scoop\persist\sharex\ShareX\`, so restoring that folder covers both. Then
+  check **Hotkey settings** against the table in [Screenshots](#screenshots-sharex)
+  — the config isn't tracked here, so a restored backup can carry older bindings
 
 ## Components
 
@@ -129,21 +131,26 @@ Playback control uses mpv's IPC socket (`/tmp/mpv-music` on macOS/Linux, `\\.\pi
 
 ## Screenshots (ShareX)
 
-ShareX replaces Snipping Tool (LTSC only ships the old one). Default hotkeys:
+ShareX replaces Snipping Tool (LTSC only ships the old one). The keyboard (Keychron
+Q7, 70%) has no Print Screen key, so the hotkeys are `ctrl+shift+alt` plus a number,
+after macOS's ⌘⇧3/4/5:
 
 | Action | Binding |
 |---|---|
-| Capture region | `ctrl + printscreen` |
-| Capture entire screen | `printscreen` |
-| Capture active window | `alt + printscreen` — see below |
-| Start/stop screen recording | `shift + printscreen` |
-| Start/stop GIF recording | `ctrl+shift + printscreen` |
+| Capture entire screen | `ctrl+shift+alt + 3` |
+| Capture region | `ctrl+shift+alt + 4` |
+| Start/stop screen recording | `ctrl+shift+alt + 5` |
+| Start/stop GIF recording | `ctrl+shift+alt + 6` |
+| Capture active window | `ctrl+shift+alt + w` |
+
+Nothing else here uses those: Windows Terminal takes `ctrl+shift` + 1–5/S/T/HJKL and
+`ctrl+shift+alt` + HJKL, GlazeWM takes `alt`, and JetBrains IDEs take most of
+`ctrl+alt`. ShareX's hotkeys are global, so a clash silently steals the key from the
+other app — the old install's `ctrl+shift+s` for active window disabled Windows
+Terminal's split-pane-down. They're stored in `HotkeysConfig.json`; quit ShareX
+before editing it, since ShareX rewrites it on exit.
 
 Captures go to the clipboard and to `~\scoop\persist\sharex\ShareX\Screenshots\`.
-`alt + printscreen` failed to register on the old install (another program already
-held it); rebind it in ShareX's hotkey settings if you need it. If `printscreen` opens
-Windows' own capture overlay instead of ShareX, turn off Settings → Accessibility →
-Keyboard → *Use the Print screen key to open screen capture*.
 
 GlazeWM ignores every ShareX window (`window_process: ShareX` in the ignore rule) so the
 full-screen region overlay isn't tiled.
