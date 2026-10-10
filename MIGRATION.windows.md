@@ -724,9 +724,19 @@ Full details in `glazewm/README.md`. The post-install steps that aren't automate
   over `~\scoop\persist\flow-launcher\UserData\Settings\`, start it again. That
   restores everything below; set them by hand if you skip the restore:
   - hotkey `ctrl+space` (the default `alt+space` collides with GlazeWM)
-  - **Start Flow Launcher on system startup** — check it actually starts after
-    a reboot, and toggle it off/on if not
   - **Search with Pinyin**
+
+  Leave Flow's own **Start Flow Launcher on system startup** off (the old
+  backup has it on). It writes `current\app-<version>\Flow.Launcher.exe` to the
+  Run key on every launch, and after `scoop update` that folder no longer exists
+  under `current`, so the next login skips Flow. Start it from the Startup folder
+  through the version-independent launcher instead:
+
+  ```powershell
+  Remove-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name Flow.Launcher -ErrorAction SilentlyContinue
+  $sc = (New-Object -ComObject WScript.Shell).CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Flow Launcher.lnk")
+  $sc.TargetPath = "$HOME\scoop\apps\flow-launcher\current\Flow.Launcher.exe"; $sc.Save()
+  ```
 - **Zebar** — the old install ran the starter pack's **`with-glazewm`** widget
   (`~\.glzr\zebar\settings.json`: pack `glzr-io.starter`, widget
   `with-glazewm`, preset `default`). Pick it from the Zebar tray icon if a fresh
