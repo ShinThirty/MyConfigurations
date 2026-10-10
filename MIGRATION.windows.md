@@ -946,7 +946,7 @@ matter as long as Z: is mapped with a user name ([section 10](#10-network-share-
 
 ```powershell
 # in a new Windows Terminal tab — should open pwsh with the gruvbox prompt
-Get-Item $HOME\.gitconfig, $HOME\.config\git\ignore, $LOCALAPPDATA\nvim, $HOME\.glzr\glazewm\config.yaml,
+Get-Item $HOME\.gitconfig, $HOME\.config\git\ignore, $env:LOCALAPPDATA\nvim, $HOME\.glzr\glazewm\config.yaml,
     $HOME\scoop\persist\windows-terminal\settings\settings.json | Select-Object FullName, LinkType, Target
 which fzf fd rg bat zoxide yazi delta less gitui nvim mpv tree-sitter cc node cargo
 ```
