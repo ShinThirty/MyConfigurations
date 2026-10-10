@@ -644,7 +644,14 @@ ya pkg install                        # yazi's gruvbox-dark flavor and mime-ext 
 ```
 
 > The clone uses SSH, so either do [SSH keys](#8-ssh-keys) first, or clone over
-> HTTPS and switch the remote afterwards.
+> HTTPS and switch the remote afterwards. The `vim` and `nvim` submodule URLs are
+> SSH too, so an HTTPS clone leaves both folders empty — and `~\AppData\Local\nvim`
+> links to an empty directory. After section 8:
+>
+> ```powershell
+> git remote set-url origin git@github.com:ShinThirty/MyConfigurations.git
+> git submodule update --init --recursive
+> ```
 
 The repo **must** be at `$HOME\MyConfigurations` — the profile stub and
 `profile.ps1`'s fallback both hardcode that path.
@@ -682,7 +689,8 @@ Same six files as the other platforms, from `D:\Migration\home\.ssh\` into
 Windows OpenSSH also refuses keys other users can read. Strip inherited ACLs:
 
 ```powershell
-icacls $HOME\.ssh\github, $HOME\.ssh\sourcehut, $HOME\.ssh\signing_key /inheritance:r /grant:r "${env:USERNAME}:F"
+# icacls takes one file per call
+foreach ($k in 'github', 'sourcehut', 'signing_key') { icacls "$HOME\.ssh\$k" /inheritance:r /grant:r "${env:USERNAME}:F" }
 ```
 
 Verify:
@@ -691,6 +699,18 @@ Verify:
 ssh -T git@github.com
 ssh -T git@git.sr.ht
 git -C $HOME\MyConfigurations log --show-signature -1
+```
+
+`allowed_signers` lists only this machine's key, so a commit signed on Arch or
+the Mac shows *Good signature … No principal matched* (`%G?` = `U`). That's
+expected — the signature is valid, its key just isn't listed here.
+
+`git/gitconfig.windows` sets `useConfigOnly` and no email, so every commit
+fails with *Author identity unknown* until each clone has its own — in the
+repo and both submodules, kept out of the tracked config:
+
+```powershell
+foreach ($r in '.', 'vim', 'nvim') { git -C $HOME\MyConfigurations\$r config user.email <address> }
 ```
 
 ---
@@ -810,7 +830,6 @@ value directly.
 | `temurin-jre` (java) | Sets `JAVA_HOME` |
 | `age`, `aws`, `terraform`, `uv`, `deno`, `jid`, `fastfetch` | General CLI — none of it is referenced by this repo's configs. `age` matters: the encrypted files in the data table are useless without it |
 | `ventoy` | Only for rebuilding the install stick |
-| `sharpkeys` | Not needed — [section 5.2](#52-keyboard-mouse-language-and-theme) writes the same registry value directly |
 
 **Outside scoop** — vendor installers, since there's no Store or winget:
 
