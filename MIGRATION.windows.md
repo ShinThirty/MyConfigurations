@@ -325,10 +325,13 @@ again.
    **I don't have internet** and install the LAN driver after login
    ([section 3.7](#37-first-login))
 3. **Account** — Enterprise editions offer **Sign-in options → Domain join
-   instead**, which creates a local account. No Microsoft account needed. Name
-   it **ShinThirty** again: Claude Code keys its per-project memory by path
-   (`~\.claude\projects\C--Users-ShinThirty-…`), and the backup assumes the same
-   profile path
+   instead**, which creates a local account. Despite the name, it joins no
+   domain. No Microsoft account needed. Name it **ShinThirty** again: Claude Code
+   keys its per-project memory by path (`~\.claude\projects\C--Users-ShinThirty-…`),
+   and the backup assumes the same profile path. Signing in with a Microsoft
+   account here would name the profile folder after the first five characters
+   of its email instead; to use one, link it later from Settings → Accounts →
+   Your info, which keeps the folder name
 4. **Privacy** — turn every toggle off. [Section 5.3](#53-telemetry) later
    locks them off with policies and turns diagnostic data fully off, which only
    Enterprise editions allow
