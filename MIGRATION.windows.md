@@ -838,7 +838,7 @@ value directly.
 | App | What to redo after install |
 |---|---|
 | `keepassxc` | [Section 10](#10-network-share-and-password-database) |
-| `claude-code` | `claude` CLI; re-auth on first run. The old install also had a native copy in `~\.local\bin` that wasn't on PATH — skip it |
+| `claude-code` | `claude` CLI; re-auth on first run. Its built-in auto-updater treats the scoop install as native and drops a second copy in `~\.local\bin` and `~\.local\share\claude` (off PATH, never run). Restoring `settings.json` from the `~\.claude\` row below brings back `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops it — `scoop update claude-code` handles updates. Delete any copy that appeared before then. `claude doctor` keeps warning that the native copy is missing or off PATH; ignore it, since its suggested `claude install` puts the copy back |
 | `osulazer` (games) | Point it back at the SSD — see the data table |
 | `temurin-jre` (java) | Sets `JAVA_HOME` |
 | `age`, `aws`, `terraform`, `uv`, `deno`, `jid`, `fastfetch` | General CLI — none of it is referenced by this repo's configs. `age` matters: the encrypted files in the data table are useless without it |
