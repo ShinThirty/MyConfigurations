@@ -113,7 +113,7 @@ Get-CimInstance Win32_PnPSignedDriver | Where-Object { $_.DeviceClass -eq 'NET' 
 }
 # Inventories. The scoopfile leaves out apps you don't want back; add names to drop more
 $export = scoop export | Out-String | ConvertFrom-Json
-$export.apps = @($export.apps | Where-Object Name -notin 'ghostscript', 'zoom')
+$export.apps = @($export.apps | Where-Object Name -notin 'ghostscript', 'zoom', 'sharpkeys')
 $export | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 "$B\scoopfile.json"
 net use > "$B\net-use.txt"
 ```
@@ -586,12 +586,18 @@ scoop install aria2
 
 # yazi detects file types with Git for Windows' file(1)
 [Environment]::SetEnvironmentVariable('YAZI_FILE_ONE', "$HOME\scoop\apps\git\current\usr\bin\file.exe", 'User')
+
+# rustup-gnu installs rustup but no toolchain, and a plain `rustup default stable`
+# picks MSVC, which can't link without Visual Studio. Pin the GNU host first
+rustup set default-host x86_64-pc-windows-gnu
+rustup default stable
 ```
 
 **Shortcut:** `scoop import D:\Migration\scoopfile.json` (from
 [section 2.2](#22-from-the-old-windows)) reinstalls the old install's app and
 bucket list, personal apps included, minus what the backup filtered out
-(ghostscript, zoom). It doesn't cover pwsh, oh-my-posh,
+(ghostscript, zoom, sharpkeys). It installs each app's latest version, not the
+one recorded in the file. It doesn't cover pwsh, oh-my-posh,
 Windows Terminal or Rust, which came from winget and the Store there — so run
 the block above too; scoop skips anything already installed.
 
@@ -628,7 +634,9 @@ prompt. Windows PowerShell 5.1 trips over all three steps:
   with a BOM so this one at least parses)
 
 ```powershell
-git clone --recurse-submodules git@github.com:ShinThirty/MyConfigurations.git $HOME\MyConfigurations
+# -c core.autocrlf=false: ~\.gitconfig (which sets it) isn't linked yet, and scoop
+# git's system default (true) would check every file out with CRLF
+git clone -c core.autocrlf=false --recurse-submodules git@github.com:ShinThirty/MyConfigurations.git $HOME\MyConfigurations
 cd $HOME\MyConfigurations
 .\setup_symlinks.ps1
 .\powershell\install_modules.ps1
@@ -649,7 +657,8 @@ runs.
 
 `install_modules.ps1` writes the profile stub to `Documents\PowerShell\` —
 wherever Documents currently is, which is `OneDrive\Documents` once OneDrive
-folder backup is on — and installs CompletionPredictor, posh-git,
+folder backup is on, so set up OneDrive ([section 12.2](#122-data)) before this
+section — and installs CompletionPredictor, posh-git,
 Terminal-Icons and PSFzf from PSGallery.
 
 ---
@@ -787,9 +796,11 @@ checklist.
 ### 12.1 Apps
 
 **From scoop** — `scoop import` ([section 6](#6-packages-scoop)) covers these,
-including the `java` and `games` buckets. `ghostscript` and `zoom` are left out:
-the backup in [section 2.2](#22-from-the-old-windows) filters them from the
-scoopfile.
+including the `java` and `games` buckets. `ghostscript`, `zoom` and `sharpkeys`
+are left out: the backup in [section 2.2](#22-from-the-old-windows) filters
+them from the scoopfile. SharpKeys isn't needed because
+[section 5.2](#52-keyboard-mouse-language-and-theme) writes the same registry
+value directly.
 
 | App | What to redo after install |
 |---|---|
@@ -826,7 +837,7 @@ uses it.
 
 | What | Notes |
 |---|---|
-| Desktop, Documents, Pictures | In OneDrive, not in the backup. Check OneDrive is installed — LTSC may not ship it; if not, use Microsoft's standalone installer. Sign in, then OneDrive settings → Sync and backup → Manage back up → turn on all three ([section 13](#13-known-gotchas)) |
+| Desktop, Documents, Pictures | In OneDrive, not in the backup. LTSC doesn't ship OneDrive, so install it from Microsoft's standalone installer (`https://go.microsoft.com/fwlink/?linkid=844652`, signed by Microsoft Corporation). Sign in, then turn on backup for all three when it offers, or later under OneDrive settings → Sync and backup → Manage back up ([section 13](#13-known-gotchas)). Do this **before** [section 7](#7-clone-and-link), so `install_modules.ps1` writes the profile stub straight into OneDrive's Documents — the old stub and modules sync back there anyway |
 | Encryption identity / encrypted files | `~\.config\age\`. Anything encrypted to the age key is **unrecoverable** without it |
 | Broker / API credential files, trading working dir | Dotfiles and a dot-directory in `~`. Copy directly, never into this repo |
 | `~\.aws\` | Profile config; re-authenticate |
@@ -853,8 +864,8 @@ stub with it, and the old modules come back alongside the ones
 check `$PROFILE` and re-run `install_modules.ps1`.
 
 **OneDrive's Desktop folder is named `桌面`.** It was created while the UI was
-Chinese. Turning on Desktop backup in an English install may create a separate
-`Desktop` folder next to it; move the files over if so.
+Chinese. On the 2026-10 LTSC install, Desktop backup reused it directly. If a
+separate `Desktop` folder ever appears next to it, move the files over.
 
 **Drive letters can change.** The fresh install assigns letters in discovery
 order, and the Ventoy stick can take E: before the SSD. Fix them in Disk
