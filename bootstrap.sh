@@ -171,6 +171,16 @@ else
   warn "if it reports locally modified plugins, re-run with: ya pkg install --discard"
 fi
 
+# --- Monthly update reminder --------------------------------------------------
+info "Monthly update reminder"
+if [[ -e "$HOME/Library/LaunchAgents/local.monthly-update-reminder.plist" ]]; then
+  skip "launch agent already registered"
+elif "$DOTFILES/mac/update-reminder.sh" --register >/dev/null; then
+  ok "launch agent registered (MIGRATION.md section 8)"
+else
+  warn "registering failed — run mac/update-reminder.sh --register"
+fi
+
 # --- PATH sanity check --------------------------------------------------------
 # Verify in a real login shell, since that is where /etc/zprofile's path_helper
 # runs and where the ordering can go wrong.

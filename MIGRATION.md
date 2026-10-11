@@ -31,6 +31,7 @@ cd ~/MyConfigurations
 4. Runs `setup_symlinks.sh` (`symlinks` + `symlinks.darwin`)
 5. Creates `~/.zprofile`, `~/.zshenv`, `~/.zshrc.local` if missing
 6. Runs `ya pkg install` for yazi plugins
+7. Registers the monthly update reminder ([section 8](#8-monthly-updates))
 
 Flags: `--no-brew` to skip package installation, `--rust` to also install rustup.
 
@@ -89,7 +90,7 @@ want, skip what you don't.
 | `microsoft-edge` | Sign in |
 | `discord` | Log in |
 | `webull` | Log in |
-| `shadowsocksx-ng` | Re-enter server config; copy the local rule files (see below) |
+| `clash-verge-rev` | Import the subscription or profile (see below). Install Service Mode in its settings and turn on TUN mode, so terminal tools (brew, `go install`, git) go through it too, not just apps that follow the system proxy. Set it up before a trip to mainland China — fetching it from there is the hard part |
 | `claude-code@latest` | `claude` CLI; re-auth on first run |
 
 **General CLI** — none of it is referenced by the configs in this repo, so pick
@@ -143,7 +144,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 | `~/.claude/settings.json` | Claude Code prefs. `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
 | Obsidian vault | Lives in iCloud Drive, so it **syncs on its own** — sign into iCloud and wait. Don't copy it manually. |
 | `~/Documents` | Personal documents, analysis, scripts, tax records. |
-| Proxy app rules | The tunneling app's local rule files, under its own dotfile dir. |
+| Proxy client profiles | Clash Verge Rev's profiles, under its Application Support dir. They hold server credentials — copy them, or re-import from the subscription URL. |
 | `~/.zsh_history` | Optional, along with the fzf history dir. |
 
 **Regenerate rather than copy:** `~/.rustup`, `~/.cargo`, `~/.npm`, `~/.gradle`,
@@ -255,3 +256,73 @@ Once the new machine is verified:
 3. Remove the old SSH keys from GitHub and sourcehut **if** you rotated instead of copying
 4. Rotate the broker/API keys if the old disk isn't being wiped immediately
 5. Erase All Content and Settings
+
+---
+
+## 8. Monthly updates
+
+Attended, once a month. Apple ships on no fixed day, so the Mac borrows the
+Windows box's schedule: due the day after Patch Tuesday, the second Tuesday,
+and both machines come due together.
+
+**The reminder.** `bootstrap.sh` registers it; to do it by hand, or again after
+moving the repo:
+
+```sh
+~/MyConfigurations/mac/update-reminder.sh --register
+```
+
+That writes `~/Library/LaunchAgents/local.monthly-update-reminder.plist`, which
+macOS announces as a background item from zsh. From the due day until
+`update.sh` next runs, it posts a notification at login, and at noon for a Mac
+left on, at most once a day. The notification comes from Script Editor: allow
+it the first time, and set Script Editor's style to **Alerts** in System
+Settings → Notifications so it stays until dismissed. Clicking it opens Script
+Editor, so dismiss it instead. Both scripts keep their state in
+`~/.local/state/monthly-update`.
+
+**The update.**
+
+```sh
+~/MyConfigurations/mac/update.sh
+```
+
+It lists what Software Update has and opens it in System Settings, runs
+`brew upgrade`, reinstalls the Brewfile's Go tools at `@latest`, runs
+`rustup update`, `sheldon lock --update` and `ya pkg upgrade`, checks the
+Brewfile against what's installed and reads `brew doctor`, and checks that `git`
+still resolves to Homebrew's in a login shell. It ends with what's left, which
+is some of:
+
+- **Software Update** — automatic updates are on, but they can sit offered for
+  weeks. Installing takes your password and usually a restart, so it stays in
+  System Settings; do it after the script finishes. A new major version is
+  listed but left out — that's a decision, not a chore
+- **Apps that were running** — upgrading a cask replaces the app even while it
+  runs, and the old version keeps running until restarted. kitty is the usual
+  one, since the script runs in it. Casks that quit their app to upgrade
+  (KeePassXC, Webull) the script reopens
+- **Not installed from the Brewfile** — an entry added on another Mac, or never
+  installed on this one: `brew bundle install --file=Brewfile`
+- **brew doctor** — mostly deprecated and disabled casks, which brew no longer
+  updates. The Command Line Tools warning is left out, since Software Update
+  covers it
+- **tmux** — the server keeps running the old version until its last session ends
+- **nvim** — `:Lazy update`, then `:MasonToolsUpdate` and `:TSUpdate!`. Mason
+  doesn't finish headless, so this stays manual
+- **vim** — `:PlugUpdate`
+- **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions
+- **`ya pkg install --discard`** if `ya pkg upgrade` aborted over a plugin
+  you never modified. A bump committed on another machine changes the
+  recorded hashes, so the plugins still deployed here look locally edited.
+  Then run `ya pkg upgrade` again
+
+`zsh/zshrc` still offers a sheldon update every 14 days; `update.sh` resets its
+timer.
+
+**Not in the script, because they update themselves:** Edge, Discord,
+Obsidian and Clash Verge Rev (their casks are marked `auto_updates`, which
+`brew upgrade` skips),
+App Store apps, and the firmware, which comes with macOS updates. KeePassXC
+has its own update check off, so brew is the only thing that updates it —
+keep it that way if a restored config turns it back on.
