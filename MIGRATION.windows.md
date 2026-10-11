@@ -487,6 +487,18 @@ Set-ItemProperty $k -Name AppsUseLightTheme -Value 0
 Set-ItemProperty $k -Name SystemUsesLightTheme -Value 0
 ```
 
+**No Recycle Bin on the desktop** — the same switch as Personalization →
+Themes → Desktop icon settings, but it works whether or not Personalization is
+locked. It only hides the icon; `shell:RecycleBinFolder` still opens the bin.
+Press F5 on the desktop to apply:
+
+```powershell
+$k = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel'
+# guarded: New-Item -Force on an existing key recreates it, dropping its other values
+if (-not (Test-Path $k)) { New-Item $k -Force | Out-Null }
+Set-ItemProperty $k -Name '{645FF040-5081-101B-9F08-00AA002F954E}' -Value 1 -Type DWord
+```
+
 **Mouse and keyboard.** Enhance pointer precision off, shortest key-repeat
 delay, NumLock on at boot, and the Sticky Keys shortcut (Shift ×5) off. Sign
 out to apply:
