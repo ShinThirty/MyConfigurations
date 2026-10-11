@@ -319,9 +319,7 @@ It ends with what's left, which is some of:
 
 **Firmware.** The BIOS is checked from Windows
 ([MIGRATION.windows.md section 15](MIGRATION.windows.md#15-monthly-updates)).
-Microcode, `linux-firmware` and the NVIDIA driver come through pacman. `fwupd`
-isn't installed, since the only device here that LVFS carries firmware for is
-the Logitech Unifying receiver.
+Microcode, `linux-firmware` and the NVIDIA driver come through pacman.
 
 **Not in the script:** Steam updates itself and its runtime. `reflector.timer`
 stays off, because the script refreshes the mirrorlist itself, with the
