@@ -480,18 +480,13 @@ Windows assumes local time, so the clock jumps every time you switch OS:
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" /v RealTimeIsUniversal /t REG_DWORD /d 1 /f
 ```
 
-**Turn off Fast Startup.** It hibernates the kernel on shutdown, leaving NTFS
-volumes dirty; Linux then mounts Nebula read-only or refuses it.
+**Turn off Hibernate and Fast Startup.** Both leave NTFS volumes dirty on
+shutdown; Linux then mounts Nebula read-only or refuses it.
 
 ```powershell
-powercfg /h off   # also removes hiberfil.sys
+powercfg /h off   # Hibernate, and removes hiberfil.sys
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v HiberbootEnabled /t REG_DWORD /d 0 /f   # Fast Startup
 ```
-
-This also removes Hibernate. The old install kept Hibernate and turned off
-only Fast Startup (Control Panel → Power Options → *Choose what the power
-buttons do*). If you want that instead, `powercfg /h on` and untick Fast
-Startup there — but a hibernated Windows leaves Nebula just as dirty, so shut
-down fully before booting Arch.
 
 **Automatic device encryption.** 24H2 can turn on BitLocker device encryption
 during OOBE. Check `manage-bde -status`; turn it off unless you want it, and if
@@ -533,14 +528,17 @@ Set-ItemProperty $k -Name '{645FF040-5081-101B-9F08-00AA002F954E}' -Value 1 -Typ
 ```
 
 **Mouse and keyboard.** Enhance pointer precision off, shortest key-repeat
-delay, NumLock on at boot, and the Sticky Keys shortcut (Shift ×5) off. Sign
-out to apply:
+delay, NumLock on from the logon screen, and the Sticky Keys shortcut
+(Shift ×5) off. Sign out to apply — with NumLock on, because Windows can save
+the current NumLock state over the setting when you sign out or shut down:
 
 ```powershell
 $m = 'HKCU:\Control Panel\Mouse'
 'MouseSpeed', 'MouseThreshold1', 'MouseThreshold2' | ForEach-Object { Set-ItemProperty $m -Name $_ -Value '0' }
 Set-ItemProperty 'HKCU:\Control Panel\Keyboard' -Name KeyboardDelay -Value '0'
 Set-ItemProperty 'HKCU:\Control Panel\Keyboard' -Name InitialKeyboardIndicators -Value '2'
+# the logon screen's own copy: 0x80000002, NumLock on
+Set-ItemProperty 'Registry::HKEY_USERS\.DEFAULT\Control Panel\Keyboard' -Name InitialKeyboardIndicators -Value '2147483650'
 Set-ItemProperty 'HKCU:\Control Panel\Accessibility\StickyKeys' -Name Flags -Value '506'
 ```
 
