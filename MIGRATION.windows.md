@@ -1125,6 +1125,10 @@ settings. It ends with what's left, which is some of:
 - **nvim** — `:Lazy update`, then `:MasonToolsUpdate` and `:TSUpdate!`. Mason
   doesn't finish headless, so this stays manual
 - **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions
+- **`ya pkg install --discard`** if `ya pkg upgrade` aborted over a plugin
+  you never modified. A bump committed on another machine changes the
+  recorded hashes, so the plugins still deployed here look locally edited.
+  Then run `ya pkg upgrade` again
 
 **Drivers and BIOS.** Compare the printed versions against the sources in
 [section 3.2](#32-drivers)'s table — chipset first, rebooting after each. The

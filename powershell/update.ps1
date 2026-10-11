@@ -62,7 +62,10 @@ Write-Step 'PowerShell modules'
 Update-PSResource -TrustRepository
 
 Write-Step 'yazi packages'
+# A bump pulled from another machine changes package.toml's hashes under the
+# plugins deployed here, so ya takes them for local edits and aborts
 ya pkg upgrade
+if ($LASTEXITCODE) { $todo.Add('ya pkg upgrade failed: if it says you modified a plugin you never touched, package.toml was bumped elsewhere: ya pkg install --discard, then ya pkg upgrade') }
 if (git -C $repo status --porcelain -- yazi/package.toml) { $todo.Add('Commit the new yazi/package.toml revisions') }
 
 $todo.Add('nvim: :Lazy update, then :MasonToolsUpdate and :TSUpdate!')

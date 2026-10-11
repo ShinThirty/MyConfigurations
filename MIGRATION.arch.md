@@ -312,6 +312,10 @@ It ends with what's left, which is some of:
 - **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions. It
   only reaches the repo through its symlink, so the [section 7](#7-known-gotchas)
   drift blocks this step until it's fixed
+- **`ya pkg install --discard`** if `ya pkg upgrade` aborted over a plugin
+  you never modified. A bump committed on another machine changes the
+  recorded hashes, so the plugins still deployed here look locally edited.
+  Then run `ya pkg upgrade` again
 
 **Firmware.** The BIOS is checked from Windows
 ([MIGRATION.windows.md section 15](MIGRATION.windows.md#15-monthly-updates)).
