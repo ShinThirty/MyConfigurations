@@ -188,7 +188,7 @@ The board is an ASRock X870 Riptide WiFi:
 
 | Hardware | Driver after installation |
 |---|---|
-| LAN: Killer E3100G 2.5GbE (Realtek RTL8125, PCI `10EC:3000`) | Built in — Windows' own `rt640x64.inf` matches it, including the April 2024 copy the 26100 image ships. Ethernet works at first login |
+| LAN: Killer E3100G 2.5GbE (Realtek RTL8125, PCI `10EC:3000`) | Built in — Windows' own `rt640x64.inf` matches it, including the April 2024 copy the 26100 image ships. Ethernet works at first login. The 2026-10 install came up on Killer's own September 2020 driver (`e3xw10x64.inf` 10.45); ASRock's LAN package has newer ones, but take only the driver out of it (below) |
 | Wi-Fi 7 + Bluetooth: AMD RZ717 (MediaTek, PCI `14C3:0717`, USB `0E8D:0717`) | No built-in driver. ASRock's support page lists packages for two Wi-Fi modules — take the **MediaTek** WLAN and Bluetooth ones. The AzureWave EB601NF packages are Realtek drivers for the other module and don't match |
 | AMD chipset | X870 / Granite Ridge: PSP, GPIO, I2C, SMBus and four unnamed ACPI devices. AMD's chipset package (amd.com → Chipsets → AM5 → X870). Its *3D V-Cache Performance Optimizer* only matters on two-CCD X3D chips, not the 9800X3D |
 | NVIDIA GeForce RTX 5070 Ti | Blackwell, so it needs a current driver — nvidia.com, or NVCleanstall to leave out the NVIDIA App and telemetry |
@@ -198,6 +198,35 @@ The board is an ASRock X870 Riptide WiFi:
 If Ethernet doesn't come up anyway, the backup in [section 2.2](#22-from-the-old-windows)
 copied the old install's LAN and Wi-Fi driver packages to `D:\Migration\drivers`
 ([section 3.7](#37-first-login)).
+
+**The LAN driver without the Killer suite.** ASRock's LAN download (e.g.
+`Killer_LAN(v35.24.5373).zip`) is the whole Killer Performance Suite: an
+InstallShield installer that also adds Killer's services and tries to fetch
+Killer Intelligence Center. The driver is inside, but only reachable once the
+installer has unpacked itself:
+
+1. Run the installer and **stop at its first screen**. It has by then unpacked
+   to a `%TEMP%\{GUID}` folder holding `Killer Performance Driver Suite UWD.msi`.
+   Copy that MSI out, then cancel — nothing has been installed at that point
+2. Unpack it with 7-Zip, which only reads the files, and install just the
+   driver. `e3xw10x64.inf` is the build of the driver this box already runs; the
+   package also has `e3k25cx21x64.inf`, a NetAdapterCx build for the same chip.
+   Leave the `killernetworkextension` INFs out — they are what installs
+   Killer's services
+
+```powershell
+$k = "$HOME\Downloads\killer"             # holding the MSI copied out of %TEMP%
+7z x "$k\Killer Performance Driver Suite UWD.msi" "-o$k\msi"
+7z x "$k\msi\Data1.cab" "-o$k\cab"
+New-Item -ItemType Directory "$k\driver" | Out-Null
+Copy-Item "$k\cab\e3xw10x64.inf", "$k\cab\e3xw10x64.cat", "$k\cab\e3xw10x64.sys" "$k\driver"
+pnputil /add-driver "$k\driver\e3xw10x64.inf" /install   # elevated; Ethernet drops for a few seconds
+```
+
+Once the new driver works, `pnputil /enum-drivers /class Net` lists the old
+package; `pnputil /delete-driver oem<NN>.inf` (elevated) removes it. Run
+unelevated, `pnputil` misreports a package as still in use instead of asking
+for admin rights.
 
 ### 3.3 Write the install USB (Ventoy)
 
@@ -354,8 +383,9 @@ again.
    fingerprint driver. Windows Update's **Advanced options → Optional updates →
    Driver updates** is the alternative, with whatever versions Microsoft has,
    until [section 5.4](#54-drivers-stay-out-of-windows-update) takes drivers out of Windows Update.
-   If an ASRock LAN package offers **Killer Intelligence Center**, skip it:
-   it's an optional Store app, and the driver works without it
+   For the LAN, install only the driver from ASRock's Killer package
+   ([section 3.2](#32-drivers)) — Killer Intelligence Center is an optional
+   Store app, and the driver works without it
 5. NVIDIA driver from nvidia.com — choose **NVIDIA Graphics Driver**, not
    *…and NVIDIA App* — or a driver-only package built with NVCleanstall.
    **NVIDIA Control Panel** won't appear either way: it's a Store app the
