@@ -532,6 +532,16 @@ if (-not (Test-Path $k)) { New-Item $k -Force | Out-Null }
 Set-ItemProperty $k -Name '{645FF040-5081-101B-9F08-00AA002F954E}' -Value 1 -Type DWord
 ```
 
+**No Game Bar.** LTSC leaves out the Game Bar app but not game capture, so
+Windows still reaches for the overlay around games and asks for an app to open
+an `ms-gamingoverlay` link. Turn capture off; the policy keeps it off:
+
+```powershell
+Set-ItemProperty 'HKCU:\System\GameConfigStore' -Name GameDVR_Enabled -Value 0 -Type DWord
+Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' -Name AppCaptureEnabled -Value 0 -Type DWord
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v AllowGameDVR /t REG_DWORD /d 0 /f
+```
+
 **Mouse and keyboard.** Enhance pointer precision off, shortest key-repeat
 delay, NumLock on at boot, and the Sticky Keys shortcut (Shift ×5) off. Sign
 out to apply:
