@@ -7,7 +7,8 @@ script — the Windows side is a handful of scoop installs plus
 
 Rough order: **back up → ISOs → install USB → install Windows → fix
 the boot order → Windows settings → scoop → repo → SSH keys → desktop → network
-share → personal apps → verify.**
+share → personal apps → verify.** After that, [section 15](#15-monthly-updates)
+keeps it current.
 
 > Scope note: the Windows side of this repo covers PowerShell, git, gitui, nvim,
 > yazi, Windows Terminal, GlazeWM, Flow Launcher, aria2 and IdeaVim. Personal
@@ -191,6 +192,7 @@ The board is an ASRock X870 Riptide WiFi:
 | Wi-Fi 7 + Bluetooth: AMD RZ717 (MediaTek, PCI `14C3:0717`, USB `0E8D:0717`) | No built-in driver. ASRock's support page lists packages for two Wi-Fi modules — take the **MediaTek** WLAN and Bluetooth ones. The AzureWave EB601NF packages are Realtek drivers for the other module and don't match |
 | AMD chipset | X870 / Granite Ridge: PSP, GPIO, I2C, SMBus and four unnamed ACPI devices. AMD's chipset package (amd.com → Chipsets → AM5 → X870). Its *3D V-Cache Performance Optimizer* only matters on two-CCD X3D chips, not the 9800X3D |
 | NVIDIA GeForce RTX 5070 Ti | Blackwell, so it needs a current driver — nvidia.com, or NVCleanstall to leave out the NVIDIA App and telemetry |
+| AMD Radeon iGPU (the 9800X3D's) | Windows Update installs a June 2024 driver (32.0.11024.2) before [section 5.4](#54-drivers-stay-out-of-windows-update) stops it, and nothing updates it after. A current one comes from AMD — or turn the iGPU off in the BIOS if no display uses it |
 | Fingerprint reader: U.are.U 4500 (USB `05BA:000A`) | Crossmatch "U.are.U Fingerprint Reader Driver (WBF)" 5.0.0.5. Its readme stops at Windows 10, but it installs and starts on LTSC 2024. Needed for Windows Hello fingerprint |
 
 If Ethernet doesn't come up anyway, the backup in [section 2.2](#22-from-the-old-windows)
@@ -350,7 +352,8 @@ again.
 4. Drivers from [section 3.2](#32-drivers), **chipset first**, rebooting after
    each: AMD chipset, then the MediaTek Wi-Fi and Bluetooth packages, then the
    fingerprint driver. Windows Update's **Advanced options → Optional updates →
-   Driver updates** is the alternative, with whatever versions Microsoft has.
+   Driver updates** is the alternative, with whatever versions Microsoft has,
+   until [section 5.4](#54-drivers-stay-out-of-windows-update) takes drivers out of Windows Update.
    If an ASRock LAN package offers **Killer Intelligence Center**, skip it:
    it's an optional Store app, and the driver works without it
 5. NVIDIA driver from nvidia.com — choose **NVIDIA Graphics Driver**, not
@@ -566,6 +569,19 @@ uploading suspicious files, turn off **Automatic sample submission** (Windows
 Security → Virus & threat protection → Manage settings) but leave cloud-delivered
 protection on. Windows Security then shows a warning you can dismiss.
 
+### 5.4 Drivers stay out of Windows Update
+
+Drivers come from the vendors ([section 3.2](#32-drivers)) and are updated by
+hand ([section 15](#15-monthly-updates)). Left on, Windows Update installs its
+own catalogue versions as well: on the 2026-10 install it added NVIDIA's July
+driver twice after the September one from nvidia.com was in. This is the
+*Do not include drivers with Windows Updates* policy — everything else still
+comes through, and Optional updates → Driver updates goes empty:
+
+```powershell
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" /v ExcludeWUDriversInQualityUpdate /t REG_DWORD /d 1 /f
+```
+
 ---
 
 ## 6. Packages (scoop)
@@ -764,6 +780,9 @@ Full details in `glazewm/README.md`. The post-install steps that aren't automate
     come from whichever backup was restored, and one taken from the old Home
     install still has PrintScreen bindings the Keychron Q7 can't send
   - Application settings → Integration → **Run ShareX when Windows starts**
+  - Its own update check off, so only scoop updates it ([section 15](#15-monthly-updates)).
+    The old backup has it on. With ShareX quit, set `"AutoCheckUpdate": false` in
+    `~\scoop\persist\sharex\ShareX\ApplicationConfig.json`
 - `Win+V` once to enable clipboard history
 - Flow Launcher Music plugin dependencies (the plugin dir is symlinked in by
   `setup_symlinks.ps1`, but `lib/` is not tracked):
@@ -986,3 +1005,70 @@ Then:
 - Z: opens and KeePassXC unlocks the database
 - osu! lazer shows your beatmaps
 - Reboot into Arch: Nebula mounts read-write, clock is correct
+
+---
+
+## 15. Monthly updates
+
+Attended, once a month, after Patch Tuesday — the second Tuesday, when LTSC's
+cumulative update ships. LTSC gets no feature updates. Drivers and the BIOS are
+yours to update; [section 5.4](#54-drivers-stay-out-of-windows-update) keeps
+them out of Windows Update.
+
+**The reminder.** Register it once per install, from pwsh:
+
+```powershell
+~\MyConfigurations\powershell\update_reminder.ps1 -Register
+```
+
+From the day after Patch Tuesday until `update.ps1` next runs, it shows a
+toast at logon, and at noon for a session left open, at most once a day. The
+task runs it through `Update-Reminder.vbs` under Windows PowerShell, which has
+the toast API pwsh lacks. Both scripts keep their state in
+`%LOCALAPPDATA%\monthly-update`.
+
+**The update.** From pwsh, unelevated:
+
+```powershell
+~\MyConfigurations\powershell\update.ps1
+```
+
+It opens Settings → Windows Update, updates scoop and its apps, runs
+`rustup update`, `Update-PSResource` and `ya pkg upgrade`, prints the BIOS and
+driver versions, and checks that an update hasn't reset the section 5
+settings. It ends with what's left, which is some of:
+
+- **pwsh and Windows Terminal** — the script runs inside both, so it can't
+  replace them. Close every Terminal and pwsh window, then from Win+R →
+  `powershell`: `scoop update pwsh windows-terminal`
+- **`windowsdesktop-runtime-9.0`** — its manifest refuses to run unelevated, so
+  update it from an elevated shell. The `-9.0` manifest stays on 9.x, which is
+  what Vortex needs ([section 12.1](#121-apps))
+- **Apps that were running** — scoop skips an app whose files are in use. The
+  script lists them and waits while you quit them; aria2 it stops and restarts
+  itself
+- **nvim** — `:Lazy update`, then `:MasonToolsUpdate` and `:TSUpdate!`. Mason
+  doesn't finish headless, so this stays manual
+- **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions
+
+**Drivers and BIOS.** Compare the printed versions against the sources in
+[section 3.2](#32-drivers)'s table — chipset first, rebooting after each. The
+fingerprint driver is discontinued, so there's nothing to check. Before a BIOS
+flash, note EXPO, SVM and the fan curves — flashing resets them — and use a
+FAT32 stick, not the Ventoy one ([section 3.7](#37-first-login)). Afterwards,
+check that Arch still boots ([section 4](#4-restoring-arch-boot)).
+
+**Restarts.** Windows Update finishes installing on the next boot into
+Windows, so when it restarts, pick Windows Boot Manager in systemd-boot's menu
+if Arch is the default. An update that rewrites Windows' boot files can also
+put Windows Boot Manager first in the firmware boot order — section 4 has the
+fix.
+
+**Not in the script, because they update themselves:** Edge, OneDrive, Steam
+(scoop's manifest is a `nightly` it never updates), Discord's modules, and
+Flow Launcher's plugins. KeePassXC, ShareX, Flow Launcher and Claude Code have
+their own update checks off, so scoop is the only thing that updates them —
+keep it that way if a restored config turns one back on.
+
+**Now and then:** after `scoop update ventoy`, run **Update** in Ventoy2Disk on
+the install stick, and swap in a current Arch ISO ([section 3.3](#33-write-the-install-usb-ventoy)).
