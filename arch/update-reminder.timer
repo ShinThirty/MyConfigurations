@@ -1,0 +1,11 @@
+[Unit]
+Description=Monthly update reminder, after login and daily at noon
+
+[Timer]
+# The user manager starts at login; give Hyprland and swaync time to come up
+OnStartupSec=2min
+# For a session left open for days
+OnCalendar=*-*-* 12:00
+
+[Install]
+WantedBy=timers.target

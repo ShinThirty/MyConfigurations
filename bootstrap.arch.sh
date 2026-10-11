@@ -113,6 +113,15 @@ ok "vim/ and nvim/ checked out"
 info "Symlinks"
 "$DOTFILES/setup_symlinks.sh"
 
+# --- Monthly update reminder --------------------------------------------------
+# symlinks.linux just linked the units in. See MIGRATION.arch.md section 10.
+info "Monthly update reminder"
+if systemctl --user enable --now update-reminder.timer 2>/dev/null; then
+  ok "update-reminder.timer enabled"
+else
+  warn "couldn't enable it, so once logged in: systemctl --user enable --now update-reminder.timer"
+fi
+
 # --- Shell stubs (machine-local, deliberately not tracked in the repo) --------
 # No PATH gymnastics needed here: /usr/bin is the only bin dir that matters on
 # Arch, so unlike macOS there is no ~/.zprofile ordering problem to work around.

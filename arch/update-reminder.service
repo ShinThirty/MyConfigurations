@@ -1,0 +1,7 @@
+[Unit]
+Description=Monthly update reminder (MIGRATION.arch.md section 10)
+
+[Service]
+# Oneshot has no start timeout by default, and the script waits on the notification
+Type=oneshot
+ExecStart=%h/MyConfigurations/arch/update-reminder.sh

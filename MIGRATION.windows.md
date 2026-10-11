@@ -1101,7 +1101,8 @@ From the day after Patch Tuesday until `update.ps1` next runs, it shows a
 toast at logon, and at noon for a session left open, at most once a day. The
 task runs it through `Update-Reminder.vbs` under Windows PowerShell, which has
 the toast API pwsh lacks. Both scripts keep their state in
-`%LOCALAPPDATA%\monthly-update`.
+`%LOCALAPPDATA%\monthly-update`. Arch reminds on the same date
+([MIGRATION.arch.md section 10](MIGRATION.arch.md#10-monthly-updates)).
 
 **The update.** From pwsh, unelevated:
 

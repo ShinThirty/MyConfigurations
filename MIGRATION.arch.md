@@ -5,6 +5,7 @@ is `bootstrap.arch.sh` + `pkglist.arch`; everything else is listed here because
 it can't be (or shouldn't be) checked into a public repo.
 
 Rough order: **install Arch → repo → bootstrap → SSH keys → desktop → personal data → verify.**
+After that, [section 10](#10-monthly-updates) keeps it current.
 
 > Scope note: this repo covers the shell, editors, terminal and CLI tooling.
 > The **desktop** — Hyprland, waybar, rofi, swaync, greetd, fcitx5, theming,
@@ -48,10 +49,11 @@ cd ~/MyConfigurations
 1. Installs everything in `pkglist.arch` (`pacman -S --needed`; it only builds
    paru if the list has grown an `aur/` entry)
 2. Checks out the `vim/` and `nvim/` submodules
-3. Runs `setup_symlinks.sh` (`symlinks`, plus `symlinks.linux` if you add one)
-4. Creates `~/.zshenv` and `~/.zshrc.local` if missing
-5. Sets the login shell to `/usr/bin/zsh` via `chsh`
-6. Runs `ya pkg install` for yazi plugins
+3. Runs `setup_symlinks.sh` (`symlinks`, then `symlinks.linux`)
+4. Enables the monthly update reminder ([section 10](#10-monthly-updates))
+5. Creates `~/.zshenv` and `~/.zshrc.local` if missing
+6. Sets the login shell to `/usr/bin/zsh` via `chsh`
+7. Runs `ya pkg install` for yazi plugins
 
 Flags: `--no-pkg` to skip package installation, `--rust` to also install rustup,
 `--aria2` to install the aria2 systemd user units, `--print-packages` to just
@@ -199,7 +201,9 @@ systemctl --user enable --now aria2_update_tracker.timer
 
 **Go tools are not in `pkglist.arch`.** The macOS `Brewfile` lists ~22
 `go "..."` entries (gopls, dlv, golangci-lint, gofumpt, …) that nvim's Go setup
-expects. On Arch they install the same way everywhere:
+expects. `arch/update.sh` installs and updates that list
+([section 10](#10-monthly-updates)), so its first run doubles as the install. By
+hand it's the same everywhere:
 
 ```sh
 go install golang.org/x/tools/gopls@latest      # and the rest of the Brewfile list
@@ -213,10 +217,6 @@ already exist, so if a real file is there from an older setup the symlink is
 never created and `ya pkg install` uses stale plugin pins. On the current Linux
 box `yazi.toml` and `theme.toml` are symlinks but `package.toml` is not — delete
 it and re-run `setup_symlinks.sh`, then `ya pkg install`.
-
-**`symlinks.linux` does not exist yet.** `setup_symlinks.sh` looks for it and
-silently skips it. Nothing in the repo is Linux-only today; create the file if
-that changes.
 
 **DKMS drivers and kernel upgrades.** `nvidia-open-dkms` needs the matching
 `linux-zen-headers` present *before* the kernel package upgrades, or you reboot
@@ -262,3 +262,64 @@ Then:
 3. Remove the old SSH keys from GitHub and sourcehut **if** you rotated instead of copying
 4. Rotate the broker/API keys if the old disk isn't being wiped immediately
 5. Wipe the disk (`shred`/`blkdiscard`, or a full-disk encryption key destroy)
+
+---
+
+## 10. Monthly updates
+
+Attended, once a month. Arch has no release day of its own, so the reminder
+shares Windows' due date, the day after Patch Tuesday, and one sitting covers
+both systems. Day-to-day `paru` runs carry on as before; this is the sweep for
+what they don't reach.
+
+**The reminder.** `bootstrap.arch.sh` enables it. On an install that predates
+it, once `setup_symlinks.sh` has linked the units in from `symlinks.linux`:
+
+```sh
+systemctl --user enable --now update-reminder.timer
+```
+
+From the due date until `update.sh` next runs, it shows a notification two
+minutes after login, and at noon for a session left open, at most once a day.
+It stays on screen until dismissed, and **Update now** opens kitty running the
+update. Both scripts keep their state in `~/.local/state/monthly-update`.
+
+**The update.** From a terminal, as your normal user:
+
+```sh
+~/MyConfigurations/arch/update.sh
+```
+
+It refreshes the mirrorlist with reflector, runs `paru -Syu` (Arch news first)
+and walks through new `.pacnew` files with `pacdiff`. Outside pacman it runs
+`rustup update`, `go install` for the Brewfile's `go` lines, `uv python
+upgrade`, `sheldon lock --update`, vim-plug and `ya pkg upgrade`. Then it checks
+for a newer GE-Proton, failed units, orphans and AUR packages that were deleted.
+It ends with what's left, which is some of:
+
+- **Reboot** after a kernel or NVIDIA driver upgrade. The running kernel's
+  modules are gone, and GPU programs (Steam, `voice-dictate`'s Vulkan backend)
+  fail until the loaded module matches the userspace again. The same goes for
+  a day-to-day `paru` that brings either in
+- **`.pacnew` files you skipped**: `DIFFPROG='nvim -d' pacdiff --sudo`
+- **Go tools the Brewfile doesn't list.** `go install` never removes anything,
+  so binaries from older lists sit in `~/go/bin` and never update. Delete them
+  or add them to the Brewfile
+- **GE-Proton**: add the new release in ProtonUp-Qt. Games that pin a version
+  by name need switching to it in Steam
+- **nvim**: `:Lazy update`, then `:MasonToolsUpdate` and `:TSUpdate!`, as on
+  Windows
+- **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions. It
+  only reaches the repo through its symlink, so the [section 7](#7-known-gotchas)
+  drift blocks this step until it's fixed
+
+**Firmware.** The BIOS is checked from Windows
+([MIGRATION.windows.md section 15](MIGRATION.windows.md#15-monthly-updates)).
+Microcode, `linux-firmware` and the NVIDIA driver come through pacman. `fwupd`
+isn't installed, since the only device here that LVFS carries firmware for is
+the Logitech Unifying receiver.
+
+**Not in the script:** Steam updates itself and its runtime. `reflector.timer`
+stays off, because the script refreshes the mirrorlist itself, with the
+arguments it was first generated with. `/etc/xdg/reflector/reflector.conf` has
+different ones and isn't used.
