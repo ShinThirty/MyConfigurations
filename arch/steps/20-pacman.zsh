@@ -16,6 +16,22 @@ update() {
   info 'System and AUR packages'
   paru -Syu || todo+=("paru -Syu didn't finish; run it again")
 
+  # An upgrade replaces a binary under the process running it, which keeps the
+  # old version until restarted: /proc shows its exe as deleted. Checked rather
+  # than this run's upgrades, so a day-to-day paru's are caught too.
+  # aria2 runs headless from its user service (aria2/linux); restart it on the new binary
+  local pid
+  pid=$(systemctl --user show --property MainPID --value aria2.service 2>/dev/null)
+  if (( pid )) && [[ $(readlink /proc/$pid/exe) == *' (deleted)' ]]; then
+    systemctl --user restart aria2.service && ok 'restarted aria2 on the new version'
+  fi
+  for pid in ${(f)"$(pgrep -u $UID -x 'tmux: server')"}; do
+    if [[ $(readlink /proc/$pid/exe) == *' (deleted)' ]]; then
+      todo+=('tmux: the server runs the old version until its last session ends (or tmux kill-server)')
+      break
+    fi
+  done
+
   info 'Config files from upgrades (.pacnew, .pacsave)'
   local pacfiles=(${(f)"$(pacdiff --output)"})
   if (( ! $#pacfiles )); then

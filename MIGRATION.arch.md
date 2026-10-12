@@ -290,20 +290,29 @@ update. Both scripts keep their state in `~/.local/state/monthly-update`.
 ~/MyConfigurations/arch/update.sh
 ```
 
-It refreshes the mirrorlist with reflector, runs `paru -Syu` (Arch news first)
-and walks through new `.pacnew` files with `pacdiff`. Outside pacman it runs
-`rustup update`, `go install` for the Brewfile's `go` lines, `uv python
-upgrade`, `sheldon lock --update`, vim-plug's `PlugUpgrade` and `PlugUpdate`,
-nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
+It refreshes the mirrorlist with reflector, runs `paru -Syu` (Arch news first),
+restarts aria2 if an upgrade (this one or a day-to-day `paru`) replaced its
+binary, and walks through new `.pacnew` files with `pacdiff`. Outside pacman
+it runs `rustup update`, `go install` for the Brewfile's `go` lines,
+`uv python upgrade`, `sheldon lock --update`, vim-plug's `PlugUpgrade` and
+`PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`. Then it checks
-for a newer GE-Proton, failed units, orphans and AUR packages that were deleted,
-and runs the cleanup below. It ends with what's left, which is some of:
+for a newer GE-Proton, that systemd-boot is still first in the boot order,
+failed units, orphans and AUR packages that were deleted, and runs the cleanup
+below. It ends with what's left, which is some of:
 
 - **Reboot** after a kernel or NVIDIA driver upgrade. The running kernel's
   modules are gone, and GPU programs (Steam, `voice-dictate`'s Vulkan backend)
   fail until the loaded module matches the userspace again. The same goes for
   a day-to-day `paru` that brings either in
 - **`.pacnew` files you skipped**: `DIFFPROG='nvim -d' pacdiff --sudo`
+- **tmux**: the server keeps running the old version until its last session
+  ends, or `tmux kill-server`
+- **Reset** the boot order if Windows Update put Windows Boot Manager first:
+  `sudo bootctl install` puts systemd-boot back
+  ([MIGRATION.windows.md section 4](MIGRATION.windows.md#4-restoring-arch-boot)).
+  pacman resets nothing itself, since it writes a `.pacnew` rather than
+  replace a config you changed
 - **Go tools the Brewfile doesn't list.** `go install` never removes anything,
   so binaries from older lists sit in `~/go/bin` and never update. Delete them
   or add them to the Brewfile
