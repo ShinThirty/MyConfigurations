@@ -323,6 +323,9 @@ some of:
 - **nvim** — a plugin `Lazy! sync` couldn't update, or a mason package that's
   still behind (`:Mason`, then `U`). nvim exits 0 whatever happens, so the
   script reads its output and asks mason afterwards
+- **vim** — a plugin `PlugUpdate` couldn't update. vim clears the screen when
+  it quits, so the script saves `PlugUpdate`'s report first and prints the
+  failures from it
 - **Commit vim-plug** if `PlugUpgrade` replaced `vim/autoload/plug.vim`: in the
   vim submodule, then the submodule in the repo
 - **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions. It

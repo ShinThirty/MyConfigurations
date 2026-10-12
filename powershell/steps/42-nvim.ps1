@@ -19,7 +19,7 @@
             $errors | ForEach-Object { Write-Host "  $_" }
             $todo.Add('nvim: Lazy! sync failed for the plugins above')
         }
-        if ($moved) { Write-Ok "updated $moved" } else { Write-Ok 'plugins up to date' }
+        if ($moved) { Write-Ok "updated $moved" } elseif (-not $errors) { Write-Ok 'plugins up to date' }
 
         Write-Step 'nvim tools and LSP servers'
         # In a second nvim, so it runs the plugin code the first one just updated. It prints nothing

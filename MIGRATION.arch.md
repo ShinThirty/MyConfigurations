@@ -320,6 +320,7 @@ below. It ends with what's left, which is some of:
   by name need switching to it in Steam
 - **nvim**: a plugin `Lazy! sync` couldn't update, or a mason package that's
   still behind (`:Mason`, then `U`)
+- **vim**: a plugin `PlugUpdate` couldn't update
 - **Commit vim-plug** if `PlugUpgrade` replaced `vim/autoload/plug.vim`: in the
   vim submodule, then the submodule in the repo
 - **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions. It

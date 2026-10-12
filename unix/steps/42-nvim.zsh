@@ -20,7 +20,7 @@ update() {
     print -rl -- $errors | sed 's/^/  /'
     todo+=('nvim: Lazy! sync failed for the plugins above')
   fi
-  if (( $#moved )); then ok "updated $moved"; else ok 'plugins up to date'; fi
+  if (( $#moved )); then ok "updated $moved"; elif (( ! $#errors )); then ok 'plugins up to date'; fi
 
   info 'nvim tools and LSP servers'
   # In a second nvim, so it runs the plugin code the first one just updated. It
