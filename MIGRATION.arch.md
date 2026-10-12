@@ -106,11 +106,7 @@ stop verifying).
 ## 4. Git config
 
 `symlinks` points `~/.gitconfig` at `git/gitconfig`, which is shared with macOS.
-Nothing in it is macOS-specific, but one line is worth knowing about:
-
-- `core.hooksPath = /usr/local/gitconfig/hooks/` does not exist on either
-  machine. Git silently finds no hooks, so it's harmless — but it also means no
-  hooks run anywhere. Recreate the directory or delete the line.
+Nothing in it is macOS-specific.
 
 Commit signing is SSH-based (`user.signingkey = ~/.ssh/signing_key.pub`,
 `gpg.ssh.allowedSignersFile = ~/.ssh/allowed_signers`), so it works as soon as

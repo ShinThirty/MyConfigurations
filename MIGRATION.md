@@ -141,7 +141,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 
 | What | Notes |
 |---|---|
-| Password manager database | Copy from its local data dir. A second copy lives on the network share; `keepassxc/sync.sh` seeds a missing local copy from there and merges both ways. Its `backups/` dir is disposable. |
+| Password manager database | `~/.local/share/keepass/*.kdbx`, then open it in KeePassXC. A second copy lives on the network share, and `keepassxc/sync.sh` merges the two both ways — but it looks only at that path, so with the database anywhere else it seeds a second local copy from the share, and the two drift apart. Its `backups/` dir is disposable. |
 | Encryption identity | The age key. Anything encrypted to it is **unrecoverable** without this file — copy it or lose access. |
 | Broker / API credential file | Plaintext keys. Copy directly, never into this repo. Rotating them as part of the move is the safer play. |
 | Trading working dir | Local SQLite DB plus scratch subdirectories. |
@@ -164,12 +164,6 @@ source line with a file check, so nothing breaks if ghcup is absent.
 ---
 
 ## 5. Known gotchas
-
-**Dead `core.hooksPath`.** `git/gitconfig` sets
-`core.hooksPath = /usr/local/gitconfig/hooks/`, which does not exist on this Mac
-either. Git silently finds no hooks, so it's harmless but it also means no hooks
-run anywhere. Either recreate that directory on the new machine or delete the
-line from `git/gitconfig`.
 
 **Intel vs Apple Silicon Homebrew prefix.** `~/.zprofile` hardcodes a prefix.
 `bootstrap.sh` writes whichever one the new machine actually uses

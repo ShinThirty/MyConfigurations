@@ -3,7 +3,6 @@
 [core]
 	ignorecase = false
 	pager = delta
-	hooksPath = /usr/local/gitconfig/hooks/
 [user]
 	name = Lingnan Liu
 	useConfigOnly = true
