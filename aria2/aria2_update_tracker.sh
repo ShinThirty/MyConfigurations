@@ -4,7 +4,9 @@ echo "Start updating BitTorrent tracker list at $(date)"
 
 # 1. Define variables
 tracker_url="https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt"
-conf_file="$XDG_CONFIG_HOME/aria2/aria2.conf"
+# launchd and systemd start this without XDG_CONFIG_HOME, which only an
+# interactive zsh exports
+conf_file="${XDG_CONFIG_HOME:-$HOME/.config}/aria2/aria2.conf"
 
 # 2. Download and format the list (replace newlines with commas)
 tracker_list=$(curl -s "$tracker_url" | awk 'NF' | tr '\n' ',' | sed 's/,$//')

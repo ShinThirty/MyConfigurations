@@ -56,11 +56,50 @@ cd ~/MyConfigurations
 7. Runs `ya pkg install` for yazi plugins
 
 Flags: `--no-pkg` to skip package installation, `--rust` to also install rustup,
-`--aria2` to install the aria2 systemd user units, `--print-packages` to just
-dump the parsed list.
+`--aria2` to install aria2's config and systemd user units, `--voice` to
+download the models for voice dictation, `--print-packages` to just dump the
+parsed list. aria2 and voice dictation each leave a step for you, below.
 
 Unlike the macOS script there is no `~/.zprofile` / PATH ordering step —
 `/usr/bin` is the only bin dir that matters here, so nothing shadows anything.
+
+**aria2** (`--aria2`). Copies `aria2.conf` and the tracker script into
+`~/.config/aria2/`, and the systemd user units into `~/.config/systemd/user/`;
+enabling them is left to you. It creates an empty `aria2.session` only if none
+exists, so to resume unfinished downloads, copy the old machine's
+`~/.config/aria2/aria2.session` there first — once aria2 runs, it rewrites the
+file every minute. Then:
+
+```sh
+systemctl --user enable --now aria2.service
+systemctl --user enable --now aria2_update_tracker.timer   # weekly tracker refresh
+systemctl --user start aria2_update_tracker.service        # trackers now: the repo's aria2.conf has none
+```
+
+By hand, `aria2/linux/install.sh` only works from inside `aria2/linux/` (it
+copies `../aria2.conf`), and from zsh: it writes to `$XDG_CONFIG_HOME/aria2`,
+which only an interactive zsh exports, so from bash it would write to `/aria2`.
+The flag takes care of both. Downloads go to `~/Downloads`; for incoming
+BitTorrent peers, forward 6881–6999 on the router. `arch/update.sh` restarts
+aria2 when an upgrade replaces its binary.
+
+**Voice dictation** (`--voice`). Downloads the two models `voice-dictate` needs
+into `~/.local/share/whisper.cpp/`: Whisper large-v3-turbo (574 MB), and the
+Silero VAD model, without which silence comes out as confident filler text.
+`pkglist.arch` installs whisper.cpp with its Vulkan backend and `wtype`, the
+desktop brings `pw-record` and `notify-send`, `symlinks.linux` links the script
+into `~/.local/bin`, and the SUPER+Z binding is in the Hyprland config, from the
+bare repo ([section 5](#5-the-hyprland-bare-repo)). Then:
+
+```sh
+voice-dictate doctor   # dependencies, models, mic and GPU backend
+```
+
+**IdeaVim.** `symlinks` links `~/.ideavimrc`, which matters once a JetBrains
+IDE is installed. Install the **IdeaVim** and **Which-Key** plugins from the
+IDE's Marketplace: the config's `set which-key` needs the second for its
+key-binding popup. The other plugins it loads (surround, commentary, NERDTree,
+…) are built into IdeaVim.
 
 ---
 
@@ -117,7 +156,8 @@ section 3 is done — no GPG agent or keychain helper involved.
 ## 5. The Hyprland bare repo
 
 The desktop config is **not** in this repo. It lives in a git bare repo at
-`~/.dotfiles.git` and currently tracks `~/.config/hypr` only.
+`~/.dotfiles.git`, which tracks `~/.config/hypr` and the qt5ct and qt6ct
+settings.
 
 **It has no remote.** Nothing is pushed anywhere, so it has to be copied off the
 old machine wholesale or it's gone:
@@ -145,6 +185,18 @@ session and its tools the way you normally do (Hyprland, waybar, rofi, swaync,
 wlogout, cliphist, grim/slurp/swappy, greetd, fcitx5, the Qt/GTK theming stack,
 GUI apps) — `pkglist.arch` intentionally leaves all of it out. `pacman -Qqe` on
 the old machine is the honest checklist.
+
+**Upgrading KooL's Hyprland setup.** `~/.config/hypr` started as KooL's
+Hyprland-Dots, installed by the `~/Arch-Hyprland` installer. Upgrade them with
+`arch/kooldots-upgrade.sh`, not KooL's `copy.sh --express-upgrade` alone: that
+replaces qt5ct, qt6ct and yazi, which this repo and the bare repo own, undoes
+two waybar fixes, and installs a second Oh My Zsh beside sheldon's. The script
+backs up first (a tarball and a bare-repo tag), runs the upgrade, puts all of
+that back, re-adds this machine's Hyprland settings if they're missing (the
+SUPER+Z dictation binding among them), and checks that the config loads.
+`--post-only` runs just the repairs and checks. It's safe to rerun, and worth a
+run after a fresh KooL install too, since the installer replaces the same
+files; what it can't fix, it lists at the end.
 
 ---
 
@@ -180,20 +232,6 @@ None of this is in the repo. Decide case by case what you actually still need.
 **`chsh` doesn't apply to the current session.** `bootstrap.arch.sh` sets the
 login shell, but you stay in bash until the next login. `exec zsh` to try it
 immediately; log out and back in to make it stick for the display manager too.
-
-**`XDG_CONFIG_HOME` is only exported from an interactive zsh.** It's set in
-`lib/core/common.zsh`, so any script run before the first zsh login sees it
-empty. `aria2/linux/install.sh` writes to `$XDG_CONFIG_HOME/aria2` and would
-land in `/aria2` without it — `bootstrap.arch.sh --aria2` passes a default
-explicitly, but running `install.sh` by hand from bash does not.
-
-**`aria2/linux/install.sh` uses relative paths.** It copies `../aria2.conf`, so
-it only works from inside `aria2/linux/`. Enable the units afterwards:
-
-```sh
-systemctl --user enable --now aria2.service
-systemctl --user enable --now aria2_update_tracker.timer
-```
 
 **Go tools are not in `pkglist.arch`.** The macOS `Brewfile` lists ~22
 `go "..."` entries (gopls, dlv, golangci-lint, gofumpt, …) that nvim's Go setup

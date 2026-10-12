@@ -126,8 +126,40 @@ brew install hashicorp/tap/terraform   # needs: brew tap hashicorp/tap
 
 | App | What to redo |
 |---|---|
-| KeePassXC | Point it at the database (see below) |
+| KeePassXC | Open the database (see below). Then Settings → Browser Integration → turn it on and tick **Edge**, which writes Edge's native-messaging manifest, and connect the KeePassXC-Browser extension, which Edge sync brings back |
 | AeroSpace, kitty | Grant **Accessibility** permission in System Settings → Privacy & Security |
+| aria2 | Its daemon and tracker updates need an install of their own (below) |
+| findutils (`locate`) | Run `loaddb` once. `locate` searches `~/locatedb`, which only `loaddb` builds (your home folder, minus `/Volumes`), and nothing rebuilds it on a schedule — run it again when results are stale |
+
+**aria2.** `aria2/darwin/install.sh` copies `aria2.conf` and the tracker
+script into `~/.config/aria2/`, and two launch agents into
+`~/Library/LaunchAgents/`: `com.aria2` runs aria2 at login and keeps it running,
+and `com.aria2.regular.tracker.update` refreshes its BitTorrent trackers on
+Fridays at 11:30. The script creates an empty `aria2.session` only if none
+exists, so to resume unfinished downloads, copy the old Mac's
+`~/.config/aria2/aria2.session` there first — once aria2 runs, it rewrites the
+file every minute. The script uses relative paths, so run it from its folder,
+and from zsh: it writes to `$XDG_CONFIG_HOME`, which only an interactive zsh
+exports.
+
+```sh
+cd ~/MyConfigurations/aria2/darwin && bash install.sh
+launchctl load ~/Library/LaunchAgents/com.aria2.plist
+launchctl load ~/Library/LaunchAgents/com.aria2.regular.tracker.update.plist
+~/.config/aria2/aria2_update_tracker.sh   # trackers now: the repo's aria2.conf has none
+curl -s localhost:6800/jsonrpc -d '{"jsonrpc":"2.0","id":1,"method":"aria2.getVersion"}'
+```
+
+The plists hardcode `/Users/shinthirty` and `/opt/homebrew`, so under another
+user name or on an Intel Mac, fix them in the repo first. Downloads go to
+`~/Downloads`; for incoming BitTorrent peers, forward 6881–6999 on the router.
+`aria2/README.md` covers the AriaNg frontend and the browser extension.
+
+**IdeaVim.** `bootstrap.sh` links `~/.ideavimrc`, which matters once a
+JetBrains IDE is installed. Install the **IdeaVim** and **Which-Key** plugins
+from the IDE's Marketplace: the config's `set which-key` needs the second for
+its key-binding popup. The other plugins it loads (surround, commentary,
+NERDTree, …) are built into IdeaVim.
 
 ---
 
@@ -149,6 +181,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 | `~/.claude/settings.json` | Claude Code prefs. `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
 | Obsidian vault | Lives in iCloud Drive, so it **syncs on its own** — sign into iCloud and wait. Don't copy it manually. |
 | `~/Documents` | Personal documents, analysis, scripts, tax records. |
+| `~/Music/playlists/` | Plain-text playlists the `music` function reads. Small, easy to forget. |
 | Proxy client profiles | Clash Verge Rev's profiles, under its Application Support dir. They hold server credentials — copy them, or re-import from the subscription URL. |
 | `~/.zsh_history` | Optional, along with the fzf history dir. |
 
@@ -241,6 +274,7 @@ Then:
 - `tmux` — prefix keys and gruvbox theme active
 - `gitui` in a repo — gruvbox theme, vim keys
 - `keys` — opens the cheatsheet
+- `music` — playlist picker comes up (needs `~/Music/playlists/`)
 - `git commit` on a scratch change, then `git log --show-signature` to confirm SSH signing
 - AeroSpace responds to its keybindings (needs Accessibility permission first)
 

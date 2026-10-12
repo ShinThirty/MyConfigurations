@@ -986,6 +986,13 @@ configuration tool and HWMonitor — both portable.
 (`scoop install nerd-fonts/JetBrainsMono-NF-Mono`), though nothing in this repo
 uses it.
 
+**IdeaVim:** `setup_symlinks.ps1` links `~\.ideavimrc`
+([section 7](#7-clone-and-link)), which matters once a JetBrains IDE is
+installed. Install the **IdeaVim** and **Which-Key** plugins from the IDE's
+Marketplace: the config's `set which-key` needs the second for its key-binding
+popup. The other plugins it loads (surround, commentary, NERDTree, …) are built
+into IdeaVim.
+
 ### 12.2 Data
 
 | What | Notes |
