@@ -294,8 +294,8 @@ It refreshes the mirrorlist with reflector, runs `paru -Syu` (Arch news first)
 and walks through new `.pacnew` files with `pacdiff`. Outside pacman it runs
 `rustup update`, `go install` for the Brewfile's `go` lines, `uv python
 upgrade`, `sheldon lock --update`, vim-plug and `ya pkg upgrade`. Then it checks
-for a newer GE-Proton, failed units, orphans and AUR packages that were deleted.
-It ends with what's left, which is some of:
+for a newer GE-Proton, failed units, orphans and AUR packages that were deleted,
+and runs the cleanup below. It ends with what's left, which is some of:
 
 - **Reboot** after a kernel or NVIDIA driver upgrade. The running kernel's
   modules are gone, and GPU programs (Steam, `voice-dictate`'s Vulkan backend)
@@ -316,6 +316,37 @@ It ends with what's left, which is some of:
   you never modified. A bump committed on another machine changes the
   recorded hashes, so the plugins still deployed here look locally edited.
   Then run `ya pkg upgrade` again
+- **An old uv Python a venv still uses.** The cleanup keeps it and names the
+  venv. Recreating the venv moves it onto the minor-version link, and next
+  month's cleanup removes the old Python
+
+**The cleanup.** `update.sh` ends by running `cleanup.sh`, which asks nothing.
+`go clean -modcache` empties the Go module cache. Go never prunes it, so it
+keeps every version ever downloaded (the first run found 44 of
+`golang.org/x/tools`), and each month's `go install @latest` adds another set.
+Go projects download what they need again on their next build. The uv Pythons
+that `uv python upgrade` replaced are uninstalled: venvs point at the
+minor-version link, which moved to the new release, so only a venv made against
+the old one directly needs it. `uv cache prune` drops unused uv cache entries.
+Run `~/MyConfigurations/arch/cleanup.sh` on its own to free the space sooner.
+
+Left out because they look after themselves: the journal (journald caps it),
+`/var/tmp` and coredumps (systemd-tmpfiles), `/tmp` (a tmpfs), and Go's build
+cache and Cargo's download cache, which trim themselves. paru deletes its build
+folders when `~/.config/paru/paru.conf` has `CleanAfter`. The pacman cache is
+pruned by `paccache.timer`, but only once it's set up. On a new install,
+`sudo systemctl edit paccache.service` and add:
+
+```ini
+[Service]
+ExecStart=
+ExecStart=/usr/bin/paccache -rk2
+ExecStart=/usr/bin/paccache -ruk0
+```
+
+then `sudo systemctl enable --now paccache.timer`. Weekly, it keeps the two
+newest versions of each installed package, enough to downgrade one, and deletes
+the downloads of packages that were removed.
 
 **Firmware.** The BIOS is checked from Windows
 ([MIGRATION.windows.md section 15](MIGRATION.windows.md#15-monthly-updates)).

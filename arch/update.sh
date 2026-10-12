@@ -3,8 +3,8 @@
 # Monthly update, attended (MIGRATION.arch.md section 10). Run as your normal user.
 # Covers what day-to-day `paru` runs don't: mirrors, merging .pacnew files, the
 # toolchains and plugins outside pacman, and checks for what needs a reboot or a
-# look. Ends with what's left for you. Finishing records the run, which silences
-# update-reminder.sh until the next due date.
+# look. Runs cleanup.sh, then ends with what's left for you. Finishing records
+# the run, which silences update-reminder.sh until the next due date.
 
 set -uo pipefail
 
@@ -87,7 +87,8 @@ else
 fi
 
 info "uv-managed Pythons"
-# Venvs point at the minor-version directory, so they pick up the new patch release
+# Venvs point at the minor-version directory, so they pick up the new patch
+# release. cleanup.sh uninstalls the one it replaces
 uv python upgrade || todo+=("uv python upgrade failed")
 
 # --- Plugins ------------------------------------------------------------------
@@ -179,6 +180,10 @@ if [[ -r /sys/module/nvidia/version ]]; then
   [[ -z $nvidia || $nvidia == "$loaded" ]] ||
     reboot_for+=("the NVIDIA driver went from $loaded to $nvidia")
 fi
+
+# The Go module cache, superseded uv Pythons and the uv cache
+# shellcheck source=arch/cleanup.sh
+source "$DOTFILES/arch/cleanup.sh"
 
 # --- Left for you -------------------------------------------------------------
 info "Left for you"
