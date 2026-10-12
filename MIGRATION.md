@@ -35,6 +35,10 @@ cd ~/MyConfigurations
 
 Flags: `--no-brew` to skip package installation, `--rust` to also install rustup.
 
+**Turn off natural scrolling** in System Settings → Mouse, so the wheel scrolls
+the same way as on Windows and Arch. macOS has one setting for the mouse and
+the trackpad, so this flips the trackpad too.
+
 ---
 
 ## 2. SSH keys
