@@ -95,6 +95,13 @@ uv
 # Some nvim plugins build Lua rocks
 luarocks
 
+# --- Monthly update (arch/update.sh) -----------------------------------------
+# pacdiff, for the .pacnew files, and paccache, which paccache.timer runs
+# (MIGRATION.arch.md section 10)
+pacman-contrib
+# Refreshes the mirrorlist
+reflector
+
 # --- Voice dictation ---------------------------------------------------------
 # voice/voice-dictate transcribes the mic locally with whisper.cpp and types the
 # result into the focused window. ggml-vulkan puts inference on the dGPU without
