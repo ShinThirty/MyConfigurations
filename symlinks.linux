@@ -1,3 +1,4 @@
 # format: source:target
 $DOTFILES/arch/update-reminder.service:$HOME/.config/systemd/user/update-reminder.service
 $DOTFILES/arch/update-reminder.timer:$HOME/.config/systemd/user/update-reminder.timer
+$DOTFILES/voice/voice-dictate:$HOME/.local/bin/voice-dictate

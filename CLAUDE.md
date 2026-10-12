@@ -36,7 +36,7 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
 - `powershell/cheatsheet.md` - Key bindings reference for Windows (PowerShell aliases, git, gitui)
 - `symlinks` - Declarative symlink mappings (all platforms)
 - `symlinks.darwin` - macOS-specific symlink mappings
-- `symlinks.linux` - Linux-specific symlink mappings (the update-reminder systemd user units)
+- `symlinks.linux` - Linux-specific symlink mappings (the update-reminder systemd user units, `voice-dictate`)
 - `symlinks.windows` - Windows-specific symlink mappings
 - `Brewfile` - macOS package manifest (formulae, casks, fonts, Go tools). Scoped to what *this repo's* configs need — personal apps and general-purpose CLI live in MIGRATION.md instead, and must not be added back here. `brew bundle dump --file=Brewfile -f` regenerates from the machine and pulls all of that back in, so re-trim after dumping. Never run `brew bundle` with `--cleanup` against it
 - `bootstrap.sh` - macOS new-machine setup: Xcode CLT, Homebrew, `brew bundle`, submodules, `setup_symlinks.sh`, machine-local shell stubs, the update reminder's launch agent. Idempotent, never overwrites existing files. Flags: `--no-brew`, `--rust`
