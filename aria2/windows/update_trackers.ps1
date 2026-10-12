@@ -2,8 +2,17 @@
 $trackerUrl = "https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_best.txt"
 $confPath = "$HOME\.config\aria2\aria2.conf"
 
-# 2. Download and format the list
-$trackers = (Invoke-RestMethod $trackerUrl) -split "\r?\n" | Where-Object { $_ -ne "" }
+# 2. Download and format the list. A failed download would otherwise replace
+# the working list with none, and restart aria2 for it.
+try {
+	$trackers = (Invoke-RestMethod $trackerUrl -ErrorAction Stop) -split "\r?\n" | Where-Object { $_ -ne "" }
+} catch {
+	$trackers = $null
+}
+if (-not $trackers) {
+	Write-Host "Couldn't download the tracker list, so aria2.conf keeps its old one."
+	exit 1
+}
 $trackerString = "bt-tracker=" + ($trackers -join ",")
 
 # 3. Read config, remove old tracker line, add new one
