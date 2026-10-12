@@ -2,9 +2,9 @@
 #
 # update.sh — monthly update for macOS, attended (MIGRATION.md section 8).
 #
-# Updates everything that can be updated from here and ends with what's left
-# for you. Finishing records the run, which silences update-reminder.sh until
-# the next Patch Tuesday.
+# Updates everything that can be updated from here, runs cleanup.sh, and ends
+# with what's left for you. Finishing records the run, which silences
+# update-reminder.sh until the next Patch Tuesday.
 
 [[ "$OSTYPE" == darwin* ]] || { print -u2 "update.sh is macOS-only (got $OSTYPE)"; exit 1 }
 
@@ -80,8 +80,6 @@ fi
 if (( ${formulae[(Ie)tmux]} )) && tmux list-sessions &>/dev/null; then
   todo+=('tmux: the server runs the old version until its last session ends (or tmux kill-server)')
 fi
-brew cleanup --prune=all                        # old versions and every cached download
-
 left=(${(f)"$(brew outdated --quiet)"})
 (( $#left )) && todo+=("Still outdated: brew upgrade $left")
 
@@ -144,6 +142,9 @@ if [[ $resolved_git == $(brew --prefix)/* ]]; then
 else
   todo+=("git resolves to ${resolved_git:-nothing} in a login shell, not Homebrew's (MIGRATION.md section 5)")
 fi
+
+# Homebrew's old versions and downloads, the Go module cache and the uv cache
+source "$DOTFILES/mac/cleanup.sh"
 
 info 'Left for you'
 todo+=('nvim: :Lazy update, then :MasonToolsUpdate and :TSUpdate!' 'vim: :PlugUpdate')

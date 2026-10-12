@@ -290,9 +290,9 @@ Editor, so dismiss it instead. Both scripts keep their state in
 It lists what Software Update has and opens it in System Settings, runs
 `brew upgrade`, reinstalls the Brewfile's Go tools at `@latest`, runs
 `rustup update`, `sheldon lock --update` and `ya pkg upgrade`, checks the
-Brewfile against what's installed and reads `brew doctor`, and checks that `git`
-still resolves to Homebrew's in a login shell. It ends with what's left, which
-is some of:
+Brewfile against what's installed and reads `brew doctor`, checks that `git`
+still resolves to Homebrew's in a login shell, and runs the cleanup below. It
+ends with what's left, which is some of:
 
 - **Software Update** — automatic updates are on, but they can sit offered for
   weeks. Installing takes your password and usually a restart, so it stays in
@@ -316,6 +316,17 @@ is some of:
   you never modified. A bump committed on another machine changes the
   recorded hashes, so the plugins still deployed here look locally edited.
   Then run `ya pkg upgrade` again
+
+**The cleanup.** `update.sh` ends by running `cleanup.sh`, which asks nothing:
+`brew cleanup --prune=all` removes old versions and every cached download,
+`go clean -modcache` empties the Go module cache, and `uv cache prune` drops
+unused uv cache entries. Go never prunes its module cache, so it keeps every
+version ever downloaded, and each month's `go install @latest` adds another
+set; Go projects download what they need again on their next build. Run
+`~/MyConfigurations/mac/cleanup.sh` on its own to free the space sooner. Left
+out because they look after themselves: macOS clears its temp folder, Go trims
+its build cache, and Edge's updater deletes its old installers from
+`~/Library/Application Support/Microsoft/EdgeUpdater`.
 
 `zsh/zshrc` still offers a sheldon update every 14 days; `update.sh` resets its
 timer.
