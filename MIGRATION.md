@@ -37,7 +37,8 @@ Flags: `--no-brew` to skip package installation, `--rust` to also install rustup
 
 **Turn off natural scrolling** in System Settings → Mouse, so the wheel scrolls
 the same way as on Windows and Arch. macOS has one setting for the mouse and
-the trackpad, so this flips the trackpad too.
+the trackpad, so this flips the trackpad too. The monthly update checks that
+it stays off.
 
 ---
 
@@ -293,10 +294,14 @@ Editor, so dismiss it instead. Both scripts keep their state in
 
 It lists what Software Update has and opens it in System Settings, runs
 `brew upgrade`, reinstalls the Brewfile's Go tools at `@latest`, runs
-`rustup update`, `sheldon lock --update` and `ya pkg upgrade`, checks the
+`rustup update`, `uv python upgrade` (once uv has Pythons of its own),
+`sheldon lock --update`, vim-plug's `PlugUpgrade` and `PlugUpdate`, nvim's
+`Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
+themselves the next time nvim starts), and `ya pkg upgrade`, checks the
 Brewfile against what's installed and reads `brew doctor`, checks that `git`
-still resolves to Homebrew's in a login shell, and runs the cleanup below. It
-ends with what's left, which is some of:
+still resolves to Homebrew's in a login shell and that natural scrolling is
+still off, and runs the cleanup below. It ends with what's left, which is
+some of:
 
 - **Software Update** — automatic updates are on, but they can sit offered for
   weeks. Installing takes your password and usually a restart, so it stays in
@@ -312,21 +317,33 @@ ends with what's left, which is some of:
   updates. The Command Line Tools warning is left out, since Software Update
   covers it
 - **tmux** — the server keeps running the old version until its last session ends
-- **nvim** — `:Lazy update`, then `:MasonToolsUpdate` and `:TSUpdate!`. Mason
-  doesn't finish headless, so this stays manual
-- **vim** — `:PlugUpdate`
-- **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions
+- **Go tools the Brewfile doesn't list** — `go install` never removes anything,
+  so binaries from older lists sit in `~/go/bin` and never update. Delete them
+  or add them to the Brewfile
+- **nvim** — a plugin `Lazy! sync` couldn't update, or a mason package that's
+  still behind (`:Mason`, then `U`). nvim exits 0 whatever happens, so the
+  script reads its output and asks mason afterwards
+- **Commit vim-plug** if `PlugUpgrade` replaced `vim/autoload/plug.vim`: in the
+  vim submodule, then the submodule in the repo
+- **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions. It
+  only reaches the repo through its symlink, so the
+  [section 5](#5-known-gotchas) drift blocks this step until it's fixed
 - **`ya pkg install --discard`** if `ya pkg upgrade` aborted over a plugin
   you never modified. A bump committed on another machine changes the
   recorded hashes, so the plugins still deployed here look locally edited.
   Then run `ya pkg upgrade` again
+- **Reset** — something a macOS update turned back: the PATH order
+  ([section 5](#5-known-gotchas)), or a setting from this runbook, such as
+  natural scrolling ([section 1](#1-clone-and-bootstrap))
 
-**The cleanup.** `update.sh` ends by running `cleanup.sh`, which asks nothing:
+**The cleanup.** `update.sh` ends with it, and it asks nothing:
 `brew cleanup --prune=all` removes old versions and every cached download,
 `go clean -modcache` empties the Go module cache, and `uv cache prune` drops
-unused uv cache entries. Go never prunes its module cache, so it keeps every
-version ever downloaded, and each month's `go install @latest` adds another
-set; Go projects download what they need again on their next build. Run
+unused uv cache entries. Once uv has Pythons of its own, it also uninstalls the
+ones `uv python upgrade` replaced, as on Arch. Go never prunes its module
+cache, so it keeps every version ever downloaded, and each month's
+`go install @latest` adds another set; Go projects download what they need
+again on their next build. Run
 `~/MyConfigurations/mac/cleanup.sh` on its own to free the space sooner. Left
 out because they look after themselves: macOS clears its temp folder, Go trims
 its build cache, and Edge's updater deletes its old installers from
@@ -334,6 +351,12 @@ its build cache, and Edge's updater deletes its old installers from
 
 `zsh/zshrc` still offers a sheldon update every 14 days; `update.sh` resets its
 timer.
+
+**Adding to it.** Each tool is a step file with an update, a cleanup or both:
+`unix/steps/` for what Arch runs too, `mac/steps/` for the Mac's own.
+`unix/runner.zsh` explains the format and the numbering. A setting you make by
+hand goes in the table in `mac/steps/80-settings.zsh`, so the update notices
+when macOS resets it.
 
 **Not in the script, because they update themselves:** Edge, Discord,
 Obsidian and Clash Verge Rev (their casks are marked `auto_updates`, which

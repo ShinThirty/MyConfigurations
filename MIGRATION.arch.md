@@ -293,7 +293,9 @@ update. Both scripts keep their state in `~/.local/state/monthly-update`.
 It refreshes the mirrorlist with reflector, runs `paru -Syu` (Arch news first)
 and walks through new `.pacnew` files with `pacdiff`. Outside pacman it runs
 `rustup update`, `go install` for the Brewfile's `go` lines, `uv python
-upgrade`, `sheldon lock --update`, vim-plug and `ya pkg upgrade`. Then it checks
+upgrade`, `sheldon lock --update`, vim-plug's `PlugUpgrade` and `PlugUpdate`,
+nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
+themselves the next time nvim starts), and `ya pkg upgrade`. Then it checks
 for a newer GE-Proton, failed units, orphans and AUR packages that were deleted,
 and runs the cleanup below. It ends with what's left, which is some of:
 
@@ -307,8 +309,10 @@ and runs the cleanup below. It ends with what's left, which is some of:
   or add them to the Brewfile
 - **GE-Proton**: add the new release in ProtonUp-Qt. Games that pin a version
   by name need switching to it in Steam
-- **nvim**: `:Lazy update`, then `:MasonToolsUpdate` and `:TSUpdate!`, as on
-  Windows
+- **nvim**: a plugin `Lazy! sync` couldn't update, or a mason package that's
+  still behind (`:Mason`, then `U`)
+- **Commit vim-plug** if `PlugUpgrade` replaced `vim/autoload/plug.vim`: in the
+  vim submodule, then the submodule in the repo
 - **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions. It
   only reaches the repo through its symlink, so the [section 7](#7-known-gotchas)
   drift blocks this step until it's fixed
@@ -320,7 +324,7 @@ and runs the cleanup below. It ends with what's left, which is some of:
   venv. Recreating the venv moves it onto the minor-version link, and next
   month's cleanup removes the old Python
 
-**The cleanup.** `update.sh` ends by running `cleanup.sh`, which asks nothing.
+**The cleanup.** `update.sh` ends with it, and it asks nothing.
 `go clean -modcache` empties the Go module cache. Go never prunes it, so it
 keeps every version ever downloaded (the first run found 44 of
 `golang.org/x/tools`), and each month's `go install @latest` adds another set.
@@ -347,6 +351,10 @@ ExecStart=/usr/bin/paccache -ruk0
 then `sudo systemctl enable --now paccache.timer`. Weekly, it keeps the two
 newest versions of each installed package, enough to downgrade one, and deletes
 the downloads of packages that were removed.
+
+**Adding to it.** Each tool is a step file with an update, a cleanup or both:
+`unix/steps/` for what macOS runs too, `arch/steps/` for Arch's own.
+`unix/runner.zsh` explains the format and the numbering.
 
 **Firmware.** The BIOS is checked from Windows
 ([MIGRATION.windows.md section 15](MIGRATION.windows.md#15-monthly-updates)).
