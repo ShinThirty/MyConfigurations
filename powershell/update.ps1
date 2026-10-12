@@ -1,7 +1,7 @@
 # Monthly update, attended (MIGRATION.windows.md section 15). Run from pwsh, unelevated.
 # Updates everything that can be updated from here, reports the driver and BIOS versions to
-# check against the vendors, and ends with what's left for you. Finishing records the run,
-# which silences update_reminder.ps1 until the next Patch Tuesday.
+# check against the vendors, runs cleanup.ps1, and ends with what's left for you. Finishing
+# records the run, which silences update_reminder.ps1 until the next Patch Tuesday.
 if ($PSVersionTable.PSVersion.Major -lt 7) {
     Write-Host "Run this from pwsh (PowerShell 7), not Windows PowerShell" -ForegroundColor Red
     exit 1
@@ -142,6 +142,9 @@ if ($drift) {
 } else {
     Write-Host '  All as set'
 }
+
+# Old module versions, the uv cache, week-old TEMP files and unused driver packages
+& "$PSScriptRoot\cleanup.ps1" -Todo $todo
 
 Write-Step 'Left for you'
 $todo | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }

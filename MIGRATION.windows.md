@@ -1110,8 +1110,8 @@ the toast API pwsh lacks. Both scripts keep their state in
 
 It opens Settings → Windows Update, updates scoop and its apps, runs
 `rustup update`, `Update-PSResource` and `ya pkg upgrade`, prints the BIOS and
-driver versions, and checks that an update hasn't reset the section 5
-settings. It ends with what's left, which is some of:
+driver versions, checks that an update hasn't reset the section 5 settings,
+and runs the cleanup below. It ends with what's left, which is some of:
 
 - **pwsh and Windows Terminal** — the script runs inside both, so it can't
   replace them. Close every Terminal and pwsh window, then from Win+R →
@@ -1130,12 +1130,26 @@ settings. It ends with what's left, which is some of:
   recorded hashes, so the plugins still deployed here look locally edited.
   Then run `ya pkg upgrade` again
 
+**The cleanup.** `update.ps1` ends by running `cleanup.ps1`. Without asking,
+it removes old PowerShell module versions, runs `uv cache prune`, and deletes
+TEMP files older than 7 days. A module version loaded in the session, or a
+TEMP file in use, waits for next month. Then it lists the driver packages
+nothing needs and asks before deleting them: third-party packages no device
+uses, and packages that only devices unplugged for over 30 days use, whose
+device entries it removes first. Everything you approve is deleted from one
+elevated window, so there's one UAC prompt. It never offers printer drivers
+(`prnms009.inf` is Microsoft Print to PDF) or the packages vendor installers
+put back for hardware this PC doesn't have (`nvpcf`, `nvppc`, `smbusamd`).
+
 **Drivers and BIOS.** Compare the printed versions against the sources in
 [section 3.2](#32-drivers)'s table — chipset first, rebooting after each. The
 fingerprint driver is discontinued, so there's nothing to check. Before a BIOS
 flash, note EXPO, SVM and the fan curves — flashing resets them — and use a
 FAT32 stick, not the Ventoy one ([section 3.7](#37-first-login)). Afterwards,
-check that Arch still boots ([section 4](#4-restoring-arch-boot)).
+check that Arch still boots ([section 4](#4-restoring-arch-boot)). Each new
+driver leaves the package it replaced behind, unused; run
+`~\MyConfigurations\powershell\cleanup.ps1` to delete it now rather than at
+next month's run.
 
 **Restarts.** Windows Update finishes installing on the next boot into
 Windows, so when it restarts, pick Windows Boot Manager in systemd-boot's menu
