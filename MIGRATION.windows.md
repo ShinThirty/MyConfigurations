@@ -1109,10 +1109,14 @@ the toast API pwsh lacks. Both scripts keep their state in
 ```
 
 It opens Settings → Windows Update, updates scoop and its apps, runs
-`rustup update`, `Update-PSResource` and `ya pkg upgrade`, prints the BIOS and
-driver versions, checks that an update hasn't reset the section 5 settings,
-and runs the cleanup below. It ends with what's left, which is some of:
+`rustup update`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the
+parsers rebuild themselves the next time nvim starts), `ya pkg upgrade` and
+`Update-PSResource`, prints the BIOS and driver versions, checks that an update
+hasn't reset the section 5 settings, and runs the cleanup below. It ends with
+what's left, which is some of:
 
+- **Windows Update** — finish it in Settings, and reboot if it asks (Restarts,
+  below)
 - **pwsh and Windows Terminal** — the script runs inside both, so it can't
   replace them. Close every Terminal and pwsh window, then from Win+R →
   `powershell`: `scoop update pwsh windows-terminal`
@@ -1122,17 +1126,25 @@ and runs the cleanup below. It ends with what's left, which is some of:
 - **Apps that were running** — scoop skips an app whose files are in use. The
   script lists them and waits while you quit them; aria2 it stops and restarts
   itself
-- **nvim** — `:Lazy update`, then `:MasonToolsUpdate` and `:TSUpdate!`. Mason
-  doesn't finish headless, so this stays manual
-- **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions
+- **nvim** — a plugin `Lazy! sync` couldn't update, or a mason package that's
+  still behind (`:Mason`, then `U`). nvim exits 0 whatever happens, so the
+  script reads its output and asks mason afterwards
+- **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions. It
+  only reaches the repo through its symlink, so if
+  `%APPDATA%\yazi\config\package.toml` has become a plain file, the script
+  skips yazi until you delete it and rerun `setup_symlinks.ps1` (section 7)
 - **`ya pkg install --discard`** if `ya pkg upgrade` aborted over a plugin
   you never modified. A bump committed on another machine changes the
   recorded hashes, so the plugins still deployed here look locally edited.
   Then run `ya pkg upgrade` again
+- **Drivers and BIOS** — check the versions it printed (below)
+- **Reset** — a section 5 setting an update turned back, or a Run entry an app
+  put back
 
-**The cleanup.** `update.ps1` ends by running `cleanup.ps1`. Without asking,
-it removes old PowerShell module versions, runs `uv cache prune`, and deletes
-TEMP files older than 7 days. A module version loaded in the session, or a
+**The cleanup.** `update.ps1` ends with it. Without asking, it removes old
+scoop versions and their downloads, runs `uv cache prune`, removes old
+PowerShell module versions, and deletes TEMP files older than 7 days. A module
+version loaded in the session, or a
 TEMP file in use, waits for next month. Then it lists the driver packages
 nothing needs and asks before deleting them: third-party packages no device
 uses, and packages that only devices unplugged for over 30 days use, whose
@@ -1150,6 +1162,12 @@ check that Arch still boots ([section 4](#4-restoring-arch-boot)). Each new
 driver leaves the package it replaced behind, unused; run
 `~\MyConfigurations\powershell\cleanup.ps1` to delete it now rather than at
 next month's run.
+
+**Adding to it.** Each tool is a step file in `powershell/steps/` with an
+update, a cleanup or both, numbered as the same tool is on macOS and Arch.
+`powershell/runner.ps1` explains the format. A setting you make by hand in
+section 5 goes in the table in `steps/80-settings.ps1`, so the update notices
+when Windows resets it.
 
 **Restarts.** Windows Update finishes installing on the next boot into
 Windows, so when it restarts, pick Windows Boot Manager in systemd-boot's menu
