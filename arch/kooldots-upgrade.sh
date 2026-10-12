@@ -265,16 +265,12 @@ fi
 
 info "kitty: UserConfigs/kitty.conf"
 # KooL's launchers force --config on this file, so it only includes the repo's
-# config. copy.sh's kitty patch appends remember_window_size no to it, which
-# would override kitty's default for every window those launchers open
+# config. copy.sh's kitty patch may append remember_window_size no to it; the
+# repo's config sets that too (kitty 0.49+ reopens windows maximized without it)
 stub="$U/kitty.conf"
 include='include ~/.config/kitty/kitty.conf'
 if grep -qxF "$include" "$stub" 2>/dev/null; then
-  if grep -q '^remember_window_size ' "$stub"; then
-    sed -i '/^remember_window_size /d' "$stub" && ok "dropped the remember_window_size line copy.sh's patch added"
-  else
-    skip "already only includes ~/.config/kitty/kitty.conf"
-  fi
+  skip "already includes ~/.config/kitty/kitty.conf"
 else
   printf '%s\n' "# Points KooL's launchers (which force --config on this file) at the repo's" \
     "# kitty config: ~/MyConfigurations/kitty via the ~/.config/kitty symlink." "$include" > "$stub" &&
