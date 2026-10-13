@@ -21,7 +21,7 @@ Out of scope for this repo, but the decisions that matter downstream:
 
 | Choice | What this setup assumes |
 |---|---|
-| Kernel | `linux-zen` on the current machine; any kernel works, just keep its `-headers` installed if you use DKMS drivers |
+| Kernel | `linux-zen` on the current machine, with `linux-lts` as a fallback boot entry ([known gotchas](#7-known-gotchas)); any kernel works, just keep its `-headers` installed if you use DKMS drivers |
 | Microcode | `amd-ucode` or `intel-ucode`, matched to the CPU |
 | GPU | `nvidia-open-dkms` (Turing or newer) on the current machine — rebuilds on every kernel bump, so headers must stay in sync |
 | Filesystem | Nothing in this repo cares, but `timeshift` snapshots assume Btrfs or an ext4 + rsync setup |
@@ -257,7 +257,37 @@ it and re-run `setup_symlinks.sh`, then `ya pkg install`.
 
 **DKMS drivers and kernel upgrades.** `nvidia-open-dkms` needs the matching
 `linux-zen-headers` present *before* the kernel package upgrades, or you reboot
-into a machine with no GPU driver. Keep both in the same `pacman -Syu`.
+into a machine with no GPU driver. Keep both in the same `pacman -Syu`. If a zen
+upgrade breaks the driver build anyway, boot the fallback. `linux-lts` and
+`linux-lts-headers` are installed too, and the menu entry
+`/boot/loader/entries/arch-lts.conf` is `arch.conf` with `linux-zen` swapped for
+`linux-lts`. Keep the two `options` lines the same.
+
+**Bluetooth is off on purpose.** Since the Windows reinstall, the onboard
+MediaTek MT7925's Bluetooth (USB `0e8d:0717`) often stops answering the Linux
+driver's setup. On each boot that hit it, the timeout held up udev, and with it
+`/boot` and `systemd-rfkill`, for 15 s or more. It also tripped up the onboard
+audio on the same USB controller. Bluetooth isn't used on Arch, so
+`/etc/modprobe.d/no-bluetooth.conf` holds `blacklist btusb` and
+`bluetooth.service` is disabled. If you need Bluetooth here, delete the file and
+re-enable the service, and expect the stalls back.
+
+**The USB DAC stalls the initrd without a quirk.** The `UAC1 DAC` (`1852:5110`)
+doesn't answer a 255-byte string-descriptor read. The kernel waited out its 5 s
+timeout on every boot, every later device on the same USB controller waited
+behind it, and the switch to the real root waited for them all.
+`usbcore.quirks=1852:5110:a` on the boot entries' `options` lines makes the
+kernel skip that read. To check a quirk without rebooting:
+`echo 1852:5110:a | sudo tee /sys/module/usbcore/parameters/quirks`, then replug the
+device and read `journalctl -k`.
+
+**The onboard audio is off in the BIOS.** Since the Windows reinstall, the
+motherboard's USB audio (`26ce:0a08`, the rear and front jacks) makes Linux's
+audio driver wait about 5 s while it sets the device up, and the GPU driver and
+the rest of USB setup wait behind it. Sound goes through the USB DAC anyway. A
+BIOS flash turns the onboard audio back on. To see which USB device stalls, time
+each one's reconnect: `echo 0`, then `echo 1`, to
+`/sys/bus/usb/devices/<port>/authorized`.
 
 **GitHub key is RSA.** `~/.ssh/github` is a 4096-bit RSA key with no comment.
 Still accepted by GitHub, but a good moment to rotate to ed25519.

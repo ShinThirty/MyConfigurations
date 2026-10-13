@@ -395,9 +395,9 @@ again.
 
 Updating the BIOS (optional): ASRock's Instant Flash reads FAT32 only, so use
 a spare stick — the Ventoy partition is exFAT, and keep that stick intact for
-recovery. Flashing resets every setting (EXPO, SVM, fan curves), so note them
-first. After going from 3.50 to 4.43, systemd-boot's menu still came up; if
-it doesn't, see [section 4](#4-restoring-arch-boot)
+recovery. Flashing resets every setting (EXPO, SVM, fan curves, onboard audio
+off), so note them first. After going from 3.50 to 4.43, systemd-boot's menu
+still came up; if it doesn't, see [section 4](#4-restoring-arch-boot)
 
 Then check that Arch still boots ([section 4](#4-restoring-arch-boot)) before
 going further — usually nothing needs fixing.
@@ -1204,8 +1204,9 @@ put back for hardware this PC doesn't have (`nvpcf`, `nvppc`, `smbusamd`).
 **Drivers and BIOS.** Compare the printed versions against the sources in
 [section 3.2](#32-drivers)'s table — chipset first, rebooting after each. The
 fingerprint driver is discontinued, so there's nothing to check. Before a BIOS
-flash, note EXPO, SVM and the fan curves — flashing resets them — and use a
-FAT32 stick, not the Ventoy one ([section 3.7](#37-first-login)). Afterwards,
+flash, note EXPO, SVM, the fan curves and onboard audio off — flashing resets
+them — and use a FAT32 stick, not the Ventoy one
+([section 3.7](#37-first-login)). Afterwards,
 check that Arch still boots ([section 4](#4-restoring-arch-boot)). Each new
 driver leaves the package it replaced behind, unused; run
 `~\MyConfigurations\powershell\cleanup.ps1` to delete it now rather than at
