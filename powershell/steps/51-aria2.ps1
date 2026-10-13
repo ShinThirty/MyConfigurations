@@ -20,18 +20,17 @@
 
         # The installed aria2.conf has two lines of its own: dir= from install.ps1 -DownloadDir, and
         # the bt-tracker= the weekly task writes, which the repo's lacks. The rest should match, so
-        # it's rewritten from the repo's with those two kept.
-        $own = '^(dir|bt-tracker)='
+        # the installed copy should be the repo's with those two kept, and is rewritten when it isn't.
+        # Compared whole and case-sensitively, so a lost dir= line or a value whose case changed
+        # counts too; a lost dir= comes back as the repo's.
         $repoConf = @(Get-Content "$repo\aria2\aria2.conf")
         $installed = @(Get-Content $conf)
-        $want = ($repoConf -notmatch $own) -join "`n"
-        $have = ($installed -notmatch $own) -join "`n"
-        if ($want -ne $have) {
-            $dirLine = @($installed -match '^dir=')[0]
-            $merged = foreach ($line in ($repoConf -notmatch '^bt-tracker=')) {
-                if ($dirLine -and $line -match '^dir=') { $dirLine } else { $line }
-            }
-            @($merged) + @($installed -match '^bt-tracker=') | Set-Content $conf
+        $dirLine = @($installed -match '^dir=')[0]
+        $merged = @(foreach ($line in ($repoConf -notmatch '^bt-tracker=')) {
+            if ($dirLine -and $line -match '^dir=') { $dirLine } else { $line }
+        }) + @($installed -match '^bt-tracker=')
+        if (($merged -join "`n") -cne ($installed -join "`n")) {
+            $merged | Set-Content $conf
             $changed.Add('aria2.conf')
         }
 
