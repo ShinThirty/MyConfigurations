@@ -41,10 +41,13 @@ update() {
   fi
 
   (( ${#${(M)changed:#*.(service|timer)}} )) && systemctl --user daemon-reload
-  # try-restart leaves a stopped unit stopped
-  if (( ${changed[(Ie)aria2.conf]} || ${changed[(Ie)aria2.service]} )); then
-    systemctl --user try-restart aria2.service && ok 'restarted aria2'
+  # Only a running aria2 is restarted: a stopped one starts on the new files.
+  # try-restart would do the same, but exits 0 either way.
+  if (( ${changed[(Ie)aria2.conf]} || ${changed[(Ie)aria2.service]} )) &&
+     systemctl --user is-active --quiet aria2.service; then
+    systemctl --user restart aria2.service && ok 'restarted aria2'
   fi
+  # try-restart leaves a stopped unit stopped
   (( ${changed[(Ie)aria2_update_tracker.timer]} )) && systemctl --user try-restart aria2_update_tracker.timer
   local unit
   for unit in aria2.service aria2_update_tracker.timer; do
