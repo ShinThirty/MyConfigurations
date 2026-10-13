@@ -15,6 +15,16 @@ update() {
   local settings=(
     NSGlobalDomain com.apple.swipescrolldirection 0
     'natural scrolling is on again: turn it off in System Settings → Mouse (MIGRATION.md section 1)'
+    com.apple.spaces spans-displays 1
+    'displays have separate Spaces again: turn it off in System Settings → Desktop & Dock, then log out (MIGRATION.md section 1)'
+    com.apple.WindowManager EnableTilingByEdgeDrag 0
+    'dragging a window to a screen edge tiles it again: turn it off in System Settings → Desktop & Dock (MIGRATION.md section 1)'
+    com.apple.WindowManager EnableTopTilingByEdgeDrag 0
+    'dragging a window to the menu bar fills the screen again: turn it off in System Settings → Desktop & Dock (MIGRATION.md section 1)'
+    com.apple.dock expose-group-apps 1
+    'Mission Control no longer groups windows by app: turn it on in System Settings → Desktop & Dock (MIGRATION.md section 1)'
+    com.apple.desktopservices DSDontWriteNetworkStores 1
+    'Finder writes .DS_Store files to network shares again (MIGRATION.md section 1): defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true'
   )
   local domain key want fix
   for domain key want fix in $settings; do

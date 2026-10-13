@@ -40,6 +40,29 @@ the same way as on Windows and Arch. macOS has one setting for the mouse and
 the trackpad, so this flips the trackpad too. The monthly update checks that
 it stays off.
 
+**Settings for AeroSpace and the network share.** Then log out and back in,
+which the first one needs:
+
+```sh
+# Displays share one set of Spaces, as AeroSpace's guide recommends with more
+# than one display: macOS moves a window between Spaces when it changes display,
+# which AeroSpace can't follow. The cost: a native-fullscreen app blacks out the
+# other display. It also turns off macOS's own window tiling.
+defaults write com.apple.spaces spans-displays -bool true
+# In case separate Spaces come back: dragging a window to a screen edge or the
+# menu bar would tile it over AeroSpace's layout
+defaults write com.apple.WindowManager EnableTilingByEdgeDrag -bool false
+defaults write com.apple.WindowManager EnableTopTilingByEdgeDrag -bool false
+# Mission Control groups windows by app, without which it shows them smaller
+# than they need to be
+defaults write com.apple.dock expose-group-apps -bool true
+# No .DS_Store files on tp-share, where Windows and Arch see them
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+```
+
+All but the last are in System Settings → Desktop & Dock. The monthly update
+checks these too.
+
 ---
 
 ## 2. SSH keys
@@ -331,8 +354,8 @@ It lists what Software Update has and opens it in System Settings, runs
 themselves the next time nvim starts), and `ya pkg upgrade`, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config
 changed), checks the Brewfile against what's installed and reads `brew doctor`, checks that `git`
-still resolves to Homebrew's in a login shell and that natural scrolling is
-still off, and runs the cleanup below. It ends with what's left, which is
+still resolves to Homebrew's in a login shell and that the settings from
+section 1 are still as set, and runs the cleanup below. It ends with what's left, which is
 some of:
 
 - **Software Update** — automatic updates are on, but they can sit offered for
