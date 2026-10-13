@@ -95,6 +95,10 @@ aria2 doesn't update BitTorrent trackers automatically. The tracker update scrip
 - **macOS/Linux**: `aria2_update_tracker.sh` (handled by launchd/systemd)
 - **Windows**: `windows/update_trackers.ps1` (handled by Task Scheduler)
 
+## Keeping the Copies Current
+
+The install scripts copy these files rather than link them, since the tracker scripts rewrite `aria2.conf`. So a change here reaches a machine through its monthly update (`mac/steps/51-aria2.zsh`, `arch/steps/51-aria2.zsh`, `powershell/steps/51-aria2.ps1`): it copies the repo's scripts, launch agents, units and launchers over the installed ones, rewrites the installed `aria2.conf` from the repo's while keeping its `bt-tracker=` line (and on Windows its `dir=` line), and restarts aria2 if its config changed. Re-running an install script instead overwrites `aria2.conf` and drops the trackers until the next refresh.
+
 ## Frontend
 
 Use [AriaNg](https://github.com/mayswind/AriaNg) as a web frontend to manage downloads via the RPC interface. Browser extensions for automatic download interception:

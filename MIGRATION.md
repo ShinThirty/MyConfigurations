@@ -151,7 +151,10 @@ curl -s localhost:6800/jsonrpc -d '{"jsonrpc":"2.0","id":1,"method":"aria2.getVe
 ```
 
 The plists hardcode `/Users/shinthirty` and `/opt/homebrew`, so under another
-user name or on an Intel Mac, fix them in the repo first. Downloads go to
+user name or on an Intel Mac, fix them in the repo first. The installed files
+are copies, since the tracker refresh rewrites `aria2.conf`. The monthly update
+([section 8](#8-monthly-updates)) brings them back in line with the repo,
+keeping only the tracker line, so a local edit to them doesn't last. Downloads go to
 `~/Downloads`; for incoming BitTorrent peers, forward 6881–6999 on the router.
 `aria2/README.md` covers the AriaNg frontend and the browser extension.
 
@@ -325,8 +328,9 @@ It lists what Software Update has and opens it in System Settings, runs
 `rustup update`, `uv python upgrade` (once uv has Pythons of its own),
 `sheldon lock --update`, vim-plug's `PlugUpgrade` and `PlugUpdate`, nvim's
 `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
-themselves the next time nvim starts), and `ya pkg upgrade`, checks the
-Brewfile against what's installed and reads `brew doctor`, checks that `git`
+themselves the next time nvim starts), and `ya pkg upgrade`, brings aria2's
+installed copies back in line with the repo (restarting aria2 if its config
+changed), checks the Brewfile against what's installed and reads `brew doctor`, checks that `git`
 still resolves to Homebrew's in a login shell and that natural scrolling is
 still off, and runs the cleanup below. It ends with what's left, which is
 some of:
@@ -363,6 +367,8 @@ some of:
   you never modified. A bump committed on another machine changes the
   recorded hashes, so the plugins still deployed here look locally edited.
   Then run `ya pkg upgrade` again
+- **aria2** — a launch agent that isn't loaded: `launchctl load` it
+  ([section 3](#3-apps-and-tools-not-covered-by-the-brewfile))
 - **Reset** — something a macOS update turned back: the PATH order
   ([section 5](#5-known-gotchas)), or a setting from this runbook, such as
   natural scrolling ([section 1](#1-clone-and-bootstrap))

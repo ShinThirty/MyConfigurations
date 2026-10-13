@@ -81,7 +81,10 @@ copies `../aria2.conf`), and from zsh: it writes to `$XDG_CONFIG_HOME/aria2`,
 which only an interactive zsh exports, so from bash it would write to `/aria2`.
 The flag takes care of both. Downloads go to `~/Downloads`; for incoming
 BitTorrent peers, forward 6881–6999 on the router. `arch/update.sh` restarts
-aria2 when an upgrade replaces its binary.
+aria2 when an upgrade replaces its binary. The installed files are copies,
+since the tracker refresh rewrites `aria2.conf`, and the same update brings
+them back in line with the repo, keeping only the tracker line, so a local edit
+to them doesn't last.
 
 **Voice dictation** (`--voice`). Downloads the two models `voice-dictate` needs
 into `~/.local/share/whisper.cpp/`: Whisper large-v3-turbo (574 MB), and the
@@ -330,8 +333,9 @@ binary, and walks through new `.pacnew` files with `pacdiff`. Outside pacman
 it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 `uv python upgrade`, `sheldon lock --update`, vim-plug's `PlugUpgrade` and
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
-themselves the next time nvim starts), and `ya pkg upgrade`. Then it checks
-for a newer GE-Proton, that systemd-boot is still first in the boot order,
+themselves the next time nvim starts), and `ya pkg upgrade`, and brings
+aria2's installed copies back in line with the repo (restarting aria2 if its
+config or unit changed). Then it checks for a newer GE-Proton, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, and runs the cleanup
 below. It ends with what's left, which is some of:
 
@@ -352,6 +356,8 @@ below. It ends with what's left, which is some of:
   or add them to the Brewfile
 - **GE-Proton**: add the new release in ProtonUp-Qt. Games that pin a version
   by name need switching to it in Steam
+- **aria2**: a unit that isn't enabled: `systemctl --user enable --now` it
+  ([section 2](#2-clone-and-bootstrap))
 - **nvim**: a plugin `Lazy! sync` couldn't update, or a mason package that's
   still behind (`:Mason`, then `U`)
 - **vim**: a plugin `PlugUpdate` couldn't update

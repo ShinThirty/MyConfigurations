@@ -920,6 +920,12 @@ fires on the coming Monday, so fill it now with
 `Start-ScheduledTask 'Aria2 Update Trackers'` — it rewrites
 `~\.config\aria2\aria2.conf` and restarts aria2.
 
+The installed files are copies, since the weekly task rewrites `aria2.conf`.
+The monthly update ([section 15](#15-monthly-updates)) brings them back in line
+with the repo, keeping only the `dir=` and `bt-tracker=` lines, so a local edit
+to them doesn't last, and a repo change needs no rerun of `install.ps1`, which
+would overwrite `aria2.conf`, trackers and all.
+
 Check that `${HOME}` in `aria2.conf` resolved to your profile — aria2 expands
 it itself, but Windows doesn't set `HOME` by default. With aria2 running:
 
@@ -1118,7 +1124,9 @@ the toast API pwsh lacks. Both scripts keep their state in
 It opens Settings → Windows Update, updates scoop and its apps, runs
 `rustup update`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the
 parsers rebuild themselves the next time nvim starts), `ya pkg upgrade` and
-`Update-PSResource`, prints the BIOS and driver versions, checks that an update
+`Update-PSResource`, prints the BIOS and driver versions, brings aria2's
+installed copies back in line with the repo (restarting aria2 if its config
+changed), checks that an update
 hasn't reset the section 5 settings, and runs the cleanup below. It ends with
 what's left, which is some of:
 
@@ -1145,6 +1153,8 @@ what's left, which is some of:
   recorded hashes, so the plugins still deployed here look locally edited.
   Then run `ya pkg upgrade` again
 - **Drivers and BIOS** — check the versions it printed (below)
+- **aria2** — one of its tasks is gone or disabled
+  ([section 11](#11-aria2))
 - **Reset** — a section 5 setting an update turned back, or a Run entry an app
   put back
 
