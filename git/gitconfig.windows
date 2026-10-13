@@ -3,6 +3,7 @@
 [core]
 	autocrlf = false
 	ignorecase = false
+	longpaths = true
 	pager = delta
 [user]
 	name = Lingnan Liu

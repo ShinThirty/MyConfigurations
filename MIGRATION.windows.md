@@ -498,6 +498,24 @@ uses `New-Item -ItemType SymbolicLink`, which needs either Developer Mode or an
 elevated shell. Only pwsh honours Developer Mode; Windows PowerShell 5.1 still
 needs elevation (see [section 7](#7-clone-and-link)).
 
+**Long paths.** Without this, paths over 260 characters fail, and mason's npm
+packages nest deep enough to hit it. `scoop checkup` warns until it's set. Git
+for Windows has its own switch, `core.longpaths` in `git/gitconfig.windows`:
+
+```powershell
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
+```
+
+**sudo.** Windows ships `sudo` but leaves it off. With it on, an admin
+one-liner runs from an ordinary terminal tab behind a UAC prompt
+(`sudo reg add …`; a cmdlet needs `sudo pwsh -c "…"`). `disableInput` runs
+the command in the same window but doesn't pass it keystrokes; `normal` does,
+for interactive admin shells, and Microsoft calls it the least safe mode:
+
+```powershell
+sudo config --enable disableInput
+```
+
 ### 5.2 Keyboard, mouse, language and theme
 
 **Caps Lock ⇄ Esc.** The old install swapped them with SharpKeys, which just
@@ -525,6 +543,13 @@ $k = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\
 # guarded: New-Item -Force on an existing key recreates it, dropping its other values
 if (-not (Test-Path $k)) { New-Item $k -Force | Out-Null }
 Set-ItemProperty $k -Name '{645FF040-5081-101B-9F08-00AA002F954E}' -Value 1 -Type DWord
+```
+
+**File extensions shown** in Explorer, so `report.pdf.exe` doesn't pass for
+`report.pdf`. New Explorer windows pick it up; F5 in an open one:
+
+```powershell
+Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name HideFileExt -Value 0
 ```
 
 **Mouse and keyboard.** Enhance pointer precision off, shortest key-repeat
@@ -647,12 +672,18 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v AllowGameDVR /t RE
 ```
 
 **No tips and suggestions.** Windows still schedules tips for new features
-(the `\SoftLanding\` tasks) even with the consumer features off in 5.3:
+(the `\SoftLanding\` tasks) even with the consumer features off in 5.3. The
+rest are the screens an update brings up — the welcome page and *Let's finish
+setting up your device* — and the facts and tips on the lock screen:
 
 ```powershell
 $k = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager'
-'SoftLandingEnabled', 'SubscribedContent-338389Enabled', 'SystemPaneSuggestionsEnabled' |
+'SoftLandingEnabled', 'SubscribedContent-338389Enabled', 'SystemPaneSuggestionsEnabled',
+    'SubscribedContent-310093Enabled', 'SubscribedContent-338387Enabled', 'RotatingLockScreenOverlayEnabled' |
     ForEach-Object { Set-ItemProperty $k -Name $_ -Value 0 -Type DWord }
+$k = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement'
+if (-not (Test-Path $k)) { New-Item $k | Out-Null }
+Set-ItemProperty $k -Name ScoobeSystemSettingEnabled -Value 0 -Type DWord
 Get-ScheduledTask -TaskPath '\SoftLanding\*' -ErrorAction SilentlyContinue | Disable-ScheduledTask | Out-Null
 ```
 

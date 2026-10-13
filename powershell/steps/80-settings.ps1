@@ -9,10 +9,14 @@
             'HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation' = @{ RealTimeIsUniversal = 1 }
             'HKLM:\SYSTEM\CurrentControlSet\Control\Power' = @{ HibernateEnabled = 0 }
             'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power' = @{ HiberbootEnabled = 0 }
+            'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' = @{ LongPathsEnabled = 1 }
+            # sudo config --enable disableInput
+            'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Sudo' = @{ Enabled = 2 }
             # 5.2
             'HKLM:\SYSTEM\CurrentControlSet\Control\Keyboard Layout' = @{ 'Scancode Map' = '00000000000000000300000001003A003A00010000000000' }
             'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' = @{ AppsUseLightTheme = 0; SystemUsesLightTheme = 0 }
             'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' = @{ '{645FF040-5081-101B-9F08-00AA002F954E}' = 1 }
+            'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' = @{ HideFileExt = 0 }
             'HKCU:\Control Panel\Mouse' = @{ MouseSpeed = '0'; MouseThreshold1 = '0'; MouseThreshold2 = '0' }
             'HKCU:\Control Panel\Keyboard' = @{ KeyboardDelay = '0'; InitialKeyboardIndicators = '2' }
             'Registry::HKEY_USERS\.DEFAULT\Control Panel\Keyboard' = @{ InitialKeyboardIndicators = '2147483650' }
@@ -35,7 +39,9 @@
             "$p\Windows\GameDVR" = @{ AllowGameDVR = 0 }
             'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager' = @{
                 SoftLandingEnabled = 0; 'SubscribedContent-338389Enabled' = 0; SystemPaneSuggestionsEnabled = 0
+                'SubscribedContent-310093Enabled' = 0; 'SubscribedContent-338387Enabled' = 0; RotatingLockScreenOverlayEnabled = 0
             }
+            'HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement' = @{ ScoobeSystemSettingEnabled = 0 }
         }
         $drift = [System.Collections.Generic.List[string]]::new()
         foreach ($key in $expected.Keys) {
