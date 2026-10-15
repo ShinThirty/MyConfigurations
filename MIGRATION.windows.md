@@ -713,7 +713,7 @@ scoop install 7zip ffmpeg jq poppler resvg imagemagick
 # nvim: parsers are compiled; mason installs npm, pypi and cargo packages
 scoop install tree-sitter mingw nodejs rustup-gnu
 # Desktop
-scoop install extras/glazewm extras/zebar extras/flow-launcher extras/sharex
+scoop install extras/glazewm extras/zebar extras/flow-launcher extras/sharex extras/oculante
 # Music
 scoop install mpv yt-dlp python
 # Downloads
@@ -754,6 +754,7 @@ What needs what:
 | `python` | `pip install` for the Flow Launcher Music plugin; mason's `ty` (pypi) |
 | `mpv`, `yt-dlp` | `music` function and the Flow Launcher plugin |
 | `sharex` | Screenshots and screen recording in place of Snipping Tool, which LTSC only ships in its old form (`glazewm/README.md`) |
+| `oculante` | Image viewer in place of Photos, which LTSC doesn't ship ([section 9](#9-desktop)) |
 
 ---
 
@@ -888,6 +889,28 @@ Full details in `glazewm/README.md`. The post-install steps that aren't automate
   - Its own update check off, so only scoop updates it ([section 15](#15-monthly-updates)).
     The old backup has it on. With ShareX quit, set `"AutoCheckUpdate": false` in
     `~\scoop\persist\sharex\ShareX\ApplicationConfig.json`
+- **Oculante** (images, in place of Photos) — a fresh install sets JPEG, PNG,
+  GIF and BMP to open in Paint, which LTSC doesn't include either. Put Oculante
+  in **Open with** for the types it reads, through scoop's `current` link so
+  the entry survives updates:
+
+  ```powershell
+  $p = 'HKCU:\Software\Classes\Oculante.Image'
+  if (-not (Test-Path "$p\shell\open\command")) { New-Item "$p\shell\open\command" -Force | Out-Null }
+  Set-ItemProperty $p -Name '(default)' -Value 'Image'
+  Set-ItemProperty "$p\shell\open\command" -Name '(default)' -Value "`"$HOME\scoop\apps\oculante\current\oculante.exe`" `"%1`""
+  '.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tif', '.tiff', '.avif', '.heic', '.heif', '.jxl',
+      '.ico', '.psd', '.svg', '.qoi', '.tga', '.exr', '.hdr', '.dds' | ForEach-Object {
+          $k = "HKCU:\Software\Classes\$_\OpenWithProgids"
+          if (-not (Test-Path $k)) { New-Item $k -Force | Out-Null }
+          New-ItemProperty $k -Name Oculante.Image -Value '' -PropertyType String -Force | Out-Null
+      }
+  ```
+
+  Then make it the default by hand, since Windows resets a default written
+  straight to the registry: right-click a file of each type → **Open with** →
+  **Choose another app** → oculante → **Always**. Update it with scoop, not its
+  own update button
 - `Win+V` once to enable clipboard history
 - Flow Launcher Music plugin dependencies (the plugin dir is symlinked in by
   `setup_symlinks.ps1`, but `lib/` is not tracked):
