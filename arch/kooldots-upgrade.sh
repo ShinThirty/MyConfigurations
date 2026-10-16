@@ -124,7 +124,7 @@ if [[ -d $HOME/.dotfiles.git ]]; then
   done
   if (( ${#restored[@]} )); then ok "restored ${restored[*]}"; else skip "already as committed"; fi
 else
-  todo+=("qt5ct/qt6ct: no ~/.dotfiles.git to restore them from; set Noto Sans 11 / Noto Sans Mono 11 in each")
+  todo+=("qt5ct/qt6ct: no ~/.dotfiles.git to restore them from; set Noto Sans 10 / Noto Sans Mono 10 in each")
 fi
 
 info "yazi (this repo's symlinks and the installed plugins)"
