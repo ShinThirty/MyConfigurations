@@ -289,6 +289,55 @@ BIOS flash turns the onboard audio back on. To see which USB device stalls, time
 each one's reconnect: `echo 0`, then `echo 1`, to
 `/sys/bus/usb/devices/<port>/authorized`.
 
+**Fingerprint: hyprlock needs its own PAM file.** The reader is a DigitalPersona
+U.are.U 4500 (`05ba:000a`); enroll two fingers with `fprintd-enroll -f
+left-index-finger` and `-f right-index-finger`. For `sudo`, polkit and login,
+`/etc/pam.d/system-auth` has `pam_fprintd` added after `pam_systemd_home`,
+whose jump grows by one to step over it:
+
+```
+-auth      [success=3 default=ignore]  pam_systemd_home.so
+auth       [success=2 default=ignore]  pam_fprintd.so timeout=10
+```
+
+PAM asks one module at a time, so the password prompt only comes once
+`pam_fprintd` gives up. `timeout=10` makes that 10 s rather than the default 30.
+
+hyprlock reads the reader itself (the `auth { fingerprint { enabled = true } }`
+block in `~/.config/hypr/hyprlock.conf`, which KooL's upgrade keeps), so its PAM
+file must not run `pam_fprintd` too. The two race for the reader at every lock,
+and hyprlock never retries a claim it loses. The packaged `/etc/pam.d/hyprlock`
+only includes `login`, which ends in `system-auth`. Replace it with that stack
+minus `pam_fprintd`:
+
+```
+auth       required                    pam_shells.so
+auth       requisite                   pam_nologin.so
+auth       required                    pam_faillock.so      preauth
+-auth      [success=2 default=ignore]  pam_systemd_home.so
+auth       [success=1 authtok_err=die default=bad]  pam_unix.so  try_first_pass nullok
+auth       [default=die]               pam_faillock.so      authfail
+auth       optional                    pam_permit.so
+auth       required                    pam_env.so
+auth       required                    pam_faillock.so      authsucc
+```
+
+`authtok_err=die` matters too. A fingerprint unlock cancels the password prompt
+hyprlock was waiting on, and without it faillock counts that as a failed
+attempt. Three fingerprint unlocks in 15 minutes then locked the password out
+for 10, `sudo` included. A wrong password still counts. pacman keeps the edited
+file across hyprlock updates and puts its own beside it as a `.pacnew`.
+
+The reader still drops out in two cases, both hyprlock's to fix. After 3 minutes
+of a lock, libfprint pauses any reader that has been scanning that long ("Device
+disabled to prevent overheating" in `journalctl -u fprintd`), and hyprlock gives
+up on it for that lock. After a suspend, the reader reconnects as a new device
+and hyprlock keeps talking to the old one. Type the password then. The fix is
+hyprlock [PR #962](https://github.com/hyprwm/hyprlock/pull/962), not merged as
+of October 2026: it adds `auth:fingerprint:inactive_timeout`, which releases the
+reader while you're away and claims it again on input. Once a release has it,
+set it under hypridle's 30 s screen-off, to about 25.
+
 **GitHub key is RSA.** `~/.ssh/github` is a 4096-bit RSA key with no comment.
 Still accepted by GitHub, but a good moment to rotate to ed25519.
 
