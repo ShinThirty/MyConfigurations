@@ -119,7 +119,7 @@ want, skip what you don't.
 | `discord` | Log in |
 | `webull` | Log in |
 | `clash-verge-rev` | Import the subscription or profile (see below). Install Service Mode in its settings and turn on TUN mode, so terminal tools (brew, `go install`, git) go through it too, not just apps that follow the system proxy. Set it up before a trip to mainland China — fetching it from there is the hard part |
-| `claude-code@latest` | `claude` CLI; re-auth on first run |
+| `claude-code@latest` | `claude` CLI; re-auth on first run. Restoring `settings.json` from the `~/.claude/` row below brings back `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — the monthly `brew upgrade` handles updates |
 
 **General CLI** — none of it is referenced by the configs in this repo, so pick
 what you actually miss:

@@ -218,7 +218,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 | Broker / API credential file | Plaintext keys. Copy directly, never into this repo. Rotating them as part of the move is the safer play. |
 | Trading working dir | Local SQLite DB plus scratch subdirectories. |
 | `~/.aws/config` | Profile definitions only, no secrets. Copy it, then re-authenticate; the `login/cache` and `cli/cache` dirs are disposable. |
-| `~/.claude/settings.json` | Claude Code prefs. `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
+| `~/.claude/settings.json` | Claude Code prefs, including `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — it comes from the AUR, so the monthly `paru -Syu` handles updates. `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
 | `~/Music/playlists/` | Plain-text playlists the `music` function reads. Small, easy to forget. |
 | `~/.local/share/nvim/sessions`, shada | Optional editor state. |
 | `~/.zsh_history` | Optional, along with the fzf history dir. |
