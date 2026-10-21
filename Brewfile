@@ -123,5 +123,5 @@ go "github.com/onsi/ginkgo/v2/ginkgo"
 go "go.uber.org/mock/mockgen"
 
 # --- Everything else lives in MIGRATION.md ---
-# Personal apps, general-purpose CLI, App Store and direct-download software
-# are listed there under "Apps and tools not covered by the Brewfile".
+# Personal apps and general-purpose CLI are listed there under "Apps and tools
+# not covered by the Brewfile".

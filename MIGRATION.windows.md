@@ -86,7 +86,6 @@ $items = @(
     # Steam's local per-game configs (the games themselves are on D:\SteamLibrary)
     'scoop\persist\steam\userdata'
     'AppData\Roaming\osu\storage.ini', 'AppData\Roaming\osu\framework.ini'
-    'AppData\Roaming\OpenRGB\OpenRGB.json'
     # optional history
     'AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt'
     'AppData\Local\zoxide\db.zo'
@@ -112,9 +111,11 @@ Get-CimInstance Win32_PnPSignedDriver | Where-Object { $_.DeviceClass -eq 'NET' 
     Get-ChildItem "$env:windir\System32\DriverStore\FileRepository\*\*.inf" | Where-Object { (Get-FileHash $_).Hash -eq $h } |
         ForEach-Object { robocopy $_.DirectoryName "$B\drivers\$($_.Directory.Name)" /E /R:1 /W:1 /NP /NFL /NDL /NJH /NJS }
 }
-# Inventories. The scoopfile leaves out apps you don't want back; add names to drop more
+# Inventories. The scoopfile leaves out apps you don't want back, and the java bucket,
+# which was only there for temurin-jre; add names to drop more
 $export = scoop export | Out-String | ConvertFrom-Json
-$export.apps = @($export.apps | Where-Object Name -notin 'ghostscript', 'zoom', 'sharpkeys')
+$export.apps = @($export.apps | Where-Object Name -notin 'ghostscript', 'zoom', 'sharpkeys', 'temurin-jre')
+$export.buckets = @($export.buckets | Where-Object Name -ne 'java')
 $export | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 "$B\scoopfile.json"
 net use > "$B\net-use.txt"
 # net use shows the share path but not the account; the saved credential has it (not the password)
@@ -731,7 +732,7 @@ rustup default stable
 **Shortcut:** `scoop import D:\Migration\scoopfile.json` (from
 [section 2.2](#22-from-the-old-windows)) reinstalls the old install's app and
 bucket list, personal apps included, minus what the backup filtered out
-(ghostscript, zoom, sharpkeys). It installs each app's latest version, not the
+(ghostscript, zoom, sharpkeys, temurin-jre). It installs each app's latest version, not the
 one recorded in the file. It doesn't cover pwsh, oh-my-posh,
 Windows Terminal or Rust, which came from winget and the Store there — so run
 the block above too; scoop skips anything already installed.
@@ -1003,9 +1004,10 @@ checklist.
 ### 12.1 Apps
 
 **From scoop** — `scoop import` ([section 6](#6-packages-scoop)) covers these,
-including the `java`, `games` and `versions` buckets. `ghostscript`, `zoom` and `sharpkeys`
-are left out: the backup in [section 2.2](#22-from-the-old-windows) filters
-them from the scoopfile. SharpKeys isn't needed because
+including the `games` and `versions` buckets. `ghostscript`, `zoom`, `sharpkeys`
+and `temurin-jre` are left out, and the `java` bucket with them: the backup in
+[section 2.2](#22-from-the-old-windows) filters them from the scoopfile.
+SharpKeys isn't needed because
 [section 5.2](#52-keyboard-mouse-language-and-theme) writes the same registry
 value directly.
 
@@ -1015,7 +1017,6 @@ value directly.
 | `claude-code` | `claude` CLI; re-auth on first run. Its built-in auto-updater treats the scoop install as native and drops a second copy in `~\.local\bin` and `~\.local\share\claude` (off PATH, never run). Restoring `settings.json` from the `~\.claude\` row below brings back `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops it — `scoop update claude-code` handles updates. Delete any copy that appeared before then. `claude doctor` keeps warning that the native copy is missing or off PATH; ignore it, since its suggested `claude install` puts the copy back |
 | `osulazer` (games) | Point it back at the SSD — see the data table |
 | `steam` (games) | Settings → Storage → add `D:\SteamLibrary`; the games there are picked up without re-downloading. Steam Cloud restores most configs; the fallback is `D:\Migration\home\scoop\persist\steam\userdata` → `~\scoop\persist\steam\userdata` (scoop junctions `userdata` there). The Home install had the vendor installer, so that backup's copy is `D:\Migration\steam-userdata` |
-| `temurin-jre` (java) | Sets `JAVA_HOME` |
 | `uv` | The manifest sets `UV_CACHE_DIR` to `~\scoop\persist\uv\cache`, and again on every `scoop update`, so the old `D:\uv-cache` setting doesn't come back on its own. The projects are on D:, and uv hardlinks from the cache into a venv, which can't cross drives, so junction the cache there: `New-Item -ItemType Junction ~\scoop\persist\uv\cache -Target D:\uv-cache`. Pass `--cache-dir D:\uv-cache` to `uv cache clean`/`prune`/`size` — through the junction, `clean` deletes the link (uv then quietly starts a new cache on C:) and `size` reports 0 |
 | `age`, `aws`, `terraform`, `deno`, `jid`, `fastfetch` | General CLI — none of it is referenced by this repo's configs. `age` matters: the encrypted files in the data table are useless without it |
 | `ventoy` | Only for rebuilding the install stick |
@@ -1027,8 +1028,6 @@ value directly.
 | App | What to redo after install |
 |---|---|
 | Mental Omega | Installed in `D:\Games\Mental Omega`, so the game survives; only the Start menu shortcut is lost. Recreate it pointing at `MentalOmegaClient.exe` with the game folder as working directory (snippet below the table) |
-| NVIDIA App | Left out — the driver alone is enough ([section 3.7](#37-first-login)) |
-| OpenRGB | Only if you still use it — config is `D:\Migration\home\AppData\Roaming\OpenRGB\OpenRGB.json` |
 | Microsoft Edge | Included in LTSC. Sign in to sync; add the KeePassXC-Browser extension if sync doesn't bring it |
 
 ```powershell

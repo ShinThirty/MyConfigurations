@@ -117,7 +117,6 @@ want, skip what you don't.
 | `obsidian` | Vault is in iCloud, see below |
 | `microsoft-edge` | Sign in |
 | `discord` | Log in |
-| `webull` | Log in |
 | `clash-verge-rev` | Import the subscription or profile (see below). Install Service Mode in its settings and turn on TUN mode, so terminal tools (brew, `go install`, git) go through it too, not just apps that follow the system proxy. Set it up before a trip to mainland China — fetching it from there is the hard part |
 | `claude-code@latest` | `claude` CLI; re-auth on first run. Restoring `settings.json` from the `~/.claude/` row below brings back `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — the monthly `brew upgrade` handles updates |
 
@@ -131,19 +130,6 @@ brew install hashicorp/tap/terraform   # needs: brew tap hashicorp/tap
 
 `age` is the one with a hard dependency elsewhere — the encryption identity in
 [section 4](#4-personal-data-to-bring-over) is useless without it.
-
-**Mac App Store** — sign in with your Apple ID, then Account → Purchased:
-
-- WeChat
-- Transocks
-- Pages Creator Studio
-- Apple iWork / iLife (Pages, Numbers, Keynote, GarageBand, iMovie)
-
-**Direct download:**
-
-- TurboTax (2024, 2025) — reinstall only if you need to open old returns; the
-  `.tax20XX` data files live in `~/Documents` and must be copied separately
-- 央视频HD
 
 **In the Brewfile but needs setup after install:**
 
@@ -364,8 +350,8 @@ some of:
   listed but left out — that's a decision, not a chore
 - **Apps that were running** — upgrading a cask replaces the app even while it
   runs, and the old version keeps running until restarted. kitty is the usual
-  one, since the script runs in it. Casks that quit their app to upgrade
-  (KeePassXC, Webull) the script reopens
+  one, since the script runs in it. The script reopens an app whose cask quits
+  it to upgrade, like KeePassXC
 - **Not installed from the Brewfile** — an entry added on another Mac, or never
   installed on this one: `brew bundle install --file=Brewfile`
 - **brew doctor** — mostly deprecated and disabled casks, which brew no longer

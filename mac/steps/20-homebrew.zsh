@@ -7,7 +7,7 @@ update() {
   local casks=(${(f)"$(brew outdated --cask --quiet)"})
 
   # Upgrading a cask replaces its app whether or not it's running, and quits the
-  # app first when the cask says to (KeePassXC, Webull). Note what's running, to
+  # app first when the cask says to (KeePassXC). Note what's running, to
   # reopen what got quit and list what's still on the old version.
   local running=() cask app
   for cask in $casks; do
