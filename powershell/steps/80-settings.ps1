@@ -60,7 +60,7 @@
         $tips = @(Get-ScheduledTask -TaskPath '\SoftLanding\*' -ErrorAction SilentlyContinue | Where-Object State -ne 'Disabled')
         if ($tips) { $drift.Add("$($tips.Count) \SoftLanding\ tip tasks are enabled (section 5.5)") }
         $runNames = 'HKCU:', 'HKLM:' | ForEach-Object { (Get-Item "$_\Software\Microsoft\Windows\CurrentVersion\Run").GetValueNames() }
-        $unwanted = [ordered]@{ 'Logitech Download Assistant' = '5.4'; 'MicrosoftEdgeAutoLaunch_*' = '5.5'; 'Flow.Launcher' = '9' }
+        $unwanted = [ordered]@{ 'Logitech Download Assistant' = '5.4'; 'MicrosoftEdgeAutoLaunch_*' = '5.5' }
         foreach ($pattern in $unwanted.Keys) {
             $runNames | Where-Object { $_ -like $pattern } | ForEach-Object { $drift.Add("the Run key has $_ again (section $($unwanted[$pattern]))") }
         }

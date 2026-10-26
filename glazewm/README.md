@@ -9,16 +9,11 @@ Tiling window manager setup for Windows, replicating core Hyprland functionality
 scoop bucket add extras
 scoop install extras/glazewm
 scoop install extras/zebar
-scoop install extras/flow-launcher
 scoop install extras/sharex
 
 # Music
 scoop install mpv
 scoop install yt-dlp
-
-# Flow Launcher Music plugin dependency
-cd "$HOME\scoop\persist\flow-launcher\UserData\Plugins\Music"
-pip install -r requirements.txt -t lib
 ```
 
 Then link the config:
@@ -30,7 +25,6 @@ Then link the config:
 ### Post-install
 
 - Right-click GlazeWM tray icon -> **Run on system startup**
-- Change Flow Launcher hotkey to `ctrl+space` (default `alt+space` conflicts with GlazeWM)
 - Enable clipboard history: press `Win+V` and follow the prompt
 - ShareX: Application settings → Integration → **Run ShareX when Windows starts**, and
   Task settings → After capture: **Copy image to clipboard** + **Save image to file** only
@@ -45,11 +39,11 @@ Then link the config:
 |---|---|---|
 | Hyprland | **GlazeWM** | Tiling window manager |
 | waybar | **Zebar** | Status bar |
-| rofi | **Flow Launcher** | App launcher |
+| rofi | Start menu (built-in) | App launcher |
 | grim + slurp | **ShareX** | Screenshots and screen recording |
 | cliphist | `Win+V` (built-in) | Clipboard history |
 | swww | **Lively Wallpaper** (optional) | Animated wallpapers |
-| rofi-beats | **Flow Launcher Music plugin** + mpv | Music player |
+| rofi-beats | `music` (PowerShell) + mpv | Music player |
 | cava | -- | Audio visualizer (no good Windows port) |
 
 ## Keybindings
@@ -110,9 +104,7 @@ Available data providers: CPU, memory, battery, network, date/time, media, Glaze
 
 Playlists are plain text files in `~/Music/playlists/` with `Title | URL` format.
 
-**Flow Launcher plugin** (keyword `m`): type `m` to see playback controls (when playing) and playlists, `m lofi` to browse tracks, `m lofi rock` to search within a playlist. See `flow-launcher/Music/`.
-
-**Terminal** (PowerShell `powershell/music.ps1`, zsh `lib/after/music.zsh`):
+From the terminal (PowerShell `powershell/music.ps1`, zsh `lib/after/music.zsh`):
 
 ```
 music                        # fzf-select playlist, then pick tracks or play/shuffle all
@@ -160,4 +152,4 @@ full-screen region overlay isn't tiled.
 - No smooth window animations (GlazeWM has basic ones, not Hyprland-level)
 - No window blur or rounded corners
 - No per-app opacity rules (only focused vs unfocused)
-- Flow Launcher replaces rofi but lacks rofi's scripting flexibility
+- The Start menu launches apps, but can't be scripted like rofi

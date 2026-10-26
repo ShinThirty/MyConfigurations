@@ -85,7 +85,6 @@ powershell/       - PowerShell config: profile, git aliases, dirhistory, music (
 aria2/            - aria2 download manager (shared config + per-platform setup)
 aerospace/        - AeroSpace window manager (macOS)
 glazewm/          - GlazeWM tiling window manager (Windows, Hyprland-like)
-flow-launcher/    - Flow Launcher plugins (Windows): Music playlist player (mpv + yt-dlp)
 wt/               - Windows Terminal settings
 ideavim/          - IdeaVim config for JetBrains IDEs (requires Which-Key plugin)
 vim/              - Vim config (submodule, vim-plug)

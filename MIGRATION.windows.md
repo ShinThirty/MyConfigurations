@@ -11,7 +11,7 @@ share → personal apps → verify.** After that, [section 15](#15-monthly-updat
 keeps it current.
 
 > Scope note: the Windows side of this repo covers PowerShell, git, gitui, nvim,
-> yazi, Windows Terminal, GlazeWM, Flow Launcher, aria2 and IdeaVim. Personal
+> yazi, Windows Terminal, GlazeWM, aria2 and IdeaVim. Personal
 > apps and data aren't managed by the repo; [section 12](#12-personal-apps-and-data)
 > lists them so nothing gets lost.
 
@@ -80,7 +80,6 @@ $items = @(
     'Documents', 'Downloads', 'Music', 'Utilities'
     # app state (sections 9-12)
     '.config\aria2\aria2.session'
-    'scoop\persist\flow-launcher\UserData\Settings'
     'scoop\persist\keepassxc\config'
     'scoop\persist\sharex'
     # Steam's local per-game configs (the games themselves are on D:\SteamLibrary)
@@ -714,7 +713,7 @@ scoop install 7zip ffmpeg jq poppler resvg imagemagick
 # nvim: parsers are compiled; mason installs npm, pypi and cargo packages
 scoop install tree-sitter mingw nodejs rustup-gnu
 # Desktop
-scoop install extras/glazewm extras/zebar extras/flow-launcher extras/sharex extras/oculante
+scoop install extras/glazewm extras/zebar extras/sharex extras/oculante
 # Music
 scoop install mpv yt-dlp python
 # Downloads
@@ -752,8 +751,8 @@ What needs what:
 | `tree-sitter`, `mingw` | nvim's tree-sitter-manager builds parsers with the `tree-sitter` CLI and `cc` |
 | `nodejs` | mason: 8 of the 18 nvim tools are npm packages (css/html/json/eslint LSPs, emmet-ls, vim-language-server, prettierd, markdownlint) |
 | `rustup-gnu` | mason builds `shellharden` with cargo. The GNU toolchain needs no Visual Studio; the old install used rustup's MSVC toolchain plus VS 2022 and the Windows SDK |
-| `python` | `pip install` for the Flow Launcher Music plugin; mason's `ty` (pypi) |
-| `mpv`, `yt-dlp` | `music` function and the Flow Launcher plugin |
+| `python` | mason's `ty` (pypi) |
+| `mpv`, `yt-dlp` | `music` function |
 | `sharex` | Screenshots and screen recording in place of Snipping Tool, which LTSC only ships in its old form (`glazewm/README.md`) |
 | `oculante` | Image viewer in place of Photos, which LTSC doesn't ship ([section 9](#9-desktop)) |
 
@@ -857,23 +856,6 @@ foreach ($r in '.', 'vim', 'nvim') { git -C $HOME\MyConfigurations\$r config use
 Full details in `glazewm/README.md`. The post-install steps that aren't automated:
 
 - GlazeWM tray icon → **Run on system startup**
-- **Flow Launcher** — quit it, copy `D:\Migration\home\scoop\persist\flow-launcher\UserData\Settings\`
-  over `~\scoop\persist\flow-launcher\UserData\Settings\`, start it again. That
-  restores everything below; set them by hand if you skip the restore:
-  - hotkey `ctrl+space` (the default `alt+space` collides with GlazeWM)
-  - **Search with Pinyin**
-
-  Leave Flow's own **Start Flow Launcher on system startup** off (the old
-  backup has it on). It writes `current\app-<version>\Flow.Launcher.exe` to the
-  Run key on every launch, and after `scoop update` that folder no longer exists
-  under `current`, so the next login skips Flow. Start it from the Startup folder
-  through the version-independent launcher instead:
-
-  ```powershell
-  Remove-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name Flow.Launcher -ErrorAction SilentlyContinue
-  $sc = (New-Object -ComObject WScript.Shell).CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\Flow Launcher.lnk")
-  $sc.TargetPath = "$HOME\scoop\apps\flow-launcher\current\Flow.Launcher.exe"; $sc.Save()
-  ```
 - **Zebar** — the old install ran the starter pack's **`with-glazewm`** widget
   (`~\.glzr\zebar\settings.json`: pack `glzr-io.starter`, widget
   `with-glazewm`, preset `default`). Pick it from the Zebar tray icon if a fresh
@@ -913,16 +895,8 @@ Full details in `glazewm/README.md`. The post-install steps that aren't automate
   **Choose another app** → oculante → **Always**. Update it with scoop, not its
   own update button
 - `Win+V` once to enable clipboard history
-- Flow Launcher Music plugin dependencies (the plugin dir is symlinked in by
-  `setup_symlinks.ps1`, but `lib/` is not tracked):
-
-  ```powershell
-  cd "$HOME\scoop\persist\flow-launcher\UserData\Plugins\Music"
-  pip install -r requirements.txt -t lib
-  ```
-
-- Copy `D:\Migration\home\Music\` back to `~\Music\` — the `music` function and
-  the plugin both read `playlists\`
+- Copy `D:\Migration\home\Music\` back to `~\Music\` — the `music` function
+  reads `playlists\`
 
 ---
 
@@ -1101,8 +1075,8 @@ package's `LocalState` — `symlinks.windows` links only the scoop path. If WT
 comes up unthemed, Settings → Open JSON file shows the path it actually reads.
 
 **Shells started outside Windows Terminal open in conhost.** The scoop build
-can't be the default terminal, so pwsh launched from the Run dialog, Flow
-Launcher or a double-clicked script gets conhost, where oh-my-posh glyphs show
+can't be the default terminal, so pwsh launched from the Run dialog, the Start
+menu or a double-clicked script gets conhost, where oh-my-posh glyphs show
 as boxes. `wt` and GlazeWM's `alt+enter` are unaffected. For an "Open in
 Terminal" context menu, run
 `reg import "$HOME\scoop\apps\windows-terminal\current\install-context.reg"`.
@@ -1137,7 +1111,6 @@ Then:
 - `ctrl+shift+alt+4` — ShareX's region overlay covers the whole screen (not
   tiled by GlazeWM); the capture lands on the clipboard and in
   `~\scoop\persist\sharex\ShareX\Screenshots\`
-- `m` in Flow Launcher — Music plugin lists playlists
 - `git commit` on a scratch change, then `git log --show-signature`
 - Caps Lock acts as Esc; `Win+Space` switches to Microsoft Pinyin
 - Settings → Privacy & security → Diagnostics & feedback says some settings are
@@ -1247,10 +1220,10 @@ put Windows Boot Manager first in the firmware boot order — section 4 has the
 fix.
 
 **Not in the script, because they update themselves:** Edge, OneDrive, Steam
-(scoop's manifest is a `nightly` it never updates), Discord's modules, and
-Flow Launcher's plugins. KeePassXC, ShareX, Flow Launcher and Claude Code have
-their own update checks off, so scoop is the only thing that updates them —
-keep it that way if a restored config turns one back on.
+(scoop's manifest is a `nightly` it never updates) and Discord's modules.
+KeePassXC, ShareX and Claude Code have their own update checks off, so scoop
+is the only thing that updates them — keep it that way if a restored config
+turns one back on.
 
 **Now and then:** after `scoop update ventoy`, run **Update** in Ventoy2Disk on
 the install stick, and swap in a current Arch ISO ([section 3.3](#33-write-the-install-usb-ventoy)).
