@@ -104,6 +104,35 @@ IDE's Marketplace: the config's `set which-key` needs the second for its
 key-binding popup. The other plugins it loads (surround, commentary, NERDTree,
 …) are built into IdeaVim.
 
+**Helium**, the browser. It's a GUI app: `paru -S helium-browser-bin`. Its
+configuration is in `helium/`. `symlinks.linux` links `helium-browser-flags.conf`
+into `~/.config/`. It sets `--force-dark-mode`, and `--password-store=basic`,
+which encrypts cookies with Chromium's built-in key instead of a key from
+KeePassXC's Secret Service. `policies.json` force-installs KeePassXC-Browser and
+Aria2 Explorer by extension ID alone, with no update URL, so Helium fetches them
+through its own services. Helium reads policies from
+`/etc/chromium/policies/managed/`:
+
+```sh
+sudo install -d /etc/chromium/policies/managed
+sudo ln -s ~/MyConfigurations/helium/policies.json /etc/chromium/policies/managed/helium.json
+```
+
+Then:
+
+1. Start Helium, accept Helium services on its setup page, and close it. The
+   extensions download through those services and install on the next start.
+2. With Helium closed, run `helium/apply-preferences.sh`. It merges the settings
+   no policy covers into the profile: Helium's layout and zen mode, the
+   profile's name and avatar, the Classic theme, the fonts and page languages,
+   and Google as the search engine.
+3. In KeePassXC: Settings → Browser Integration → Advanced → custom browser
+   location, type Chromium, `~/.config/net.imput.helium/NativeMessagingHosts`.
+   Then connect the extension.
+
+`helium://policy` lists `ExtensionInstallForcelist`, and `helium://extensions`
+shows both extensions.
+
 ---
 
 ## 3. SSH keys
@@ -219,6 +248,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 | Trading working dir | Local SQLite DB plus scratch subdirectories. |
 | `~/.aws/config` | Profile definitions only, no secrets. Copy it, then re-authenticate; the `login/cache` and `cli/cache` dirs are disposable. |
 | `~/.claude/settings.json` | Claude Code prefs, including `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — it comes from the AUR, so the monthly `paru -Syu` handles updates. `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
+| `~/.config/net.imput.helium` | Helium's profile: logins (cookies), history, site data. Copy it whole with Helium closed at both ends. `--password-store=basic` encrypts the cookies with Chromium's built-in key, so the logins work on the new machine. |
 | `~/Music/playlists/` | Plain-text playlists the `music` function reads. Small, easy to forget. |
 | `~/.local/share/nvim/sessions`, shada | Optional editor state. |
 | `~/.zsh_history` | Optional, along with the fzf history dir. |

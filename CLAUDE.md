@@ -31,11 +31,12 @@ Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, 
   (`ggml-large-v3-turbo-q5_0.bin`, 574 MB) plus a Silero VAD model live in
   `~/.local/share/whisper.cpp/`, downloaded by `bootstrap.arch.sh --voice` rather than tracked.
   VAD is not optional: without it Whisper turns room tone into confident filler text
+- `helium/` - Helium browser config, used on Arch (macOS and Windows use Edge). policies.json (Chromium policy format: force-installs KeePassXC-Browser and Aria2 Explorer by extension ID alone, with no update URL, which is how Helium fetches them through its own services; on Arch, `/etc/chromium/policies/managed/helium.json` links to it), helium-browser-flags.conf (read by the AUR package's wrapper: `--force-dark-mode`, `--password-store=basic`; `symlinks.linux` links it), preferences.json (every platform: Helium layout and zen mode, profile name and avatar) + preferences.linux.json (fonts, page languages, the Classic theme, and Google as the search engine, a signed setting that Windows and macOS reset when it's edited) + apply-preferences.sh (merges both into the profile's `Preferences` with Helium closed, and the name and avatar into `Local State`, which the profile menu reads). No policy covers these settings. To record a setting changed in the UI, diff `Preferences` from before and after
 - `cheatsheet.md` - Key bindings reference for macOS/Linux tools (view with `keys` command)
 - `powershell/cheatsheet.md` - Key bindings reference for Windows (PowerShell aliases, git, gitui)
 - `symlinks` - Declarative symlink mappings (all platforms)
 - `symlinks.darwin` - macOS-specific symlink mappings
-- `symlinks.linux` - Linux-specific symlink mappings (the update-reminder systemd user units, `voice-dictate`, makepkg's `~/.config/pacman/makepkg.conf`)
+- `symlinks.linux` - Linux-specific symlink mappings (the update-reminder systemd user units, `voice-dictate`, makepkg's `~/.config/pacman/makepkg.conf`, Helium's flags file)
 - `symlinks.windows` - Windows-specific symlink mappings
 - `Brewfile` - macOS package manifest (formulae, casks, fonts, Go tools). Scoped to what *this repo's* configs need — personal apps and general-purpose CLI live in MIGRATION.md instead, and must not be added back here. `brew bundle dump --file=Brewfile -f` regenerates from the machine and pulls all of that back in, so re-trim after dumping. Never run `brew bundle` with `--cleanup` against it
 - `bootstrap.sh` - macOS new-machine setup: Xcode CLT, Homebrew, `brew bundle`, submodules, `setup_symlinks.sh`, machine-local shell stubs, the update reminder's launch agent. Idempotent, never overwrites existing files. Flags: `--no-brew`, `--rust`

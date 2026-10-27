@@ -61,6 +61,11 @@ python
 # mount path (/Volumes/...), so it needs an edit before it works here.
 keepassxc
 
+# --- helium/apply-preferences.sh ---------------------------------------------
+# Merges the settings no policy covers into Helium's profile. Helium itself is
+# a GUI app, installed by hand (MIGRATION.arch.md).
+jq
+
 # --- git send-email + credential helper (git/gitconfig) ----------------------
 # All four are optdepends of git, so pacman never pulls them in on its own.
 # git send-email needs these two to speak authenticated SMTP — without them it

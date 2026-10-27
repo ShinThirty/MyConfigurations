@@ -1,0 +1,14 @@
+{
+  "helium": {
+    "browser": {
+      "layout": 2,
+      "zen_mode": true
+    }
+  },
+  "profile": {
+    "name": "ShinThirty",
+    "avatar_index": 45,
+    "using_default_name": false,
+    "using_default_avatar": false
+  }
+}
