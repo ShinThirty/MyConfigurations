@@ -128,7 +128,9 @@ Then:
    and Google as the search engine.
 3. In KeePassXC: Settings → Browser Integration → Advanced → custom browser
    location, type Chromium, `~/.config/net.imput.helium/NativeMessagingHosts`.
-   Then connect the extension.
+   Then connect the extension, and in its settings, General → Passkeys, tick
+   **Enable passkeys**. It's off by default, and without it a site's passkey
+   request skips KeePassXC.
 
 `helium://policy` lists `ExtensionInstallForcelist`, and `helium://extensions`
 shows both extensions.

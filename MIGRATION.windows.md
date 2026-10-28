@@ -927,7 +927,10 @@ Then KeePassXC:
    looks for native-messaging hosts (`HKCU\Software\Chromium\NativeMessagingHosts`);
    KeePassXC has no Helium entry. The registration lives in the registry, not the
    config dir, so the restore doesn't bring it back. Then connect
-   KeePassXC-Browser from Helium's toolbar
+   KeePassXC-Browser from Helium's toolbar, and in its settings, General →
+   Passkeys, tick **Enable passkeys**. It's off by default, and without it a
+   site's passkey request skips KeePassXC; a restored Helium profile keeps the
+   setting
 
 ---
 

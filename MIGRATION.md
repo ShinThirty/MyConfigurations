@@ -194,7 +194,10 @@ the first start ([section 4](#4-personal-data-to-bring-over)), then, from
    languages. Then Settings → Search engine → Google, by hand. It's a signed
    setting, which macOS resets if a script writes it.
 4. System Settings → Desktop & Dock → Default web browser → Helium.
-5. KeePassXC: the custom browser location in the table above.
+5. KeePassXC: the custom browser location in the table above. Then, in
+   KeePassXC-Browser's settings, General → Passkeys, tick **Enable passkeys**.
+   It's off by default, and without it a site's passkey request skips
+   KeePassXC; a restored profile keeps the setting.
 
 `helium://policy` lists `ExtensionInstallForcelist` with status OK, and
 `helium://extensions` shows both extensions. The monthly update flags a policy
