@@ -11,7 +11,7 @@ share → personal apps → verify.** After that, [section 15](#15-monthly-updat
 keeps it current.
 
 > Scope note: the Windows side of this repo covers PowerShell, git, gitui, nvim,
-> yazi, Windows Terminal, GlazeWM, aria2 and IdeaVim. Personal
+> yazi, Windows Terminal, GlazeWM, aria2, Helium and IdeaVim. Personal
 > apps and data aren't managed by the repo; [section 12](#12-personal-apps-and-data)
 > lists them so nothing gets lost.
 
@@ -64,9 +64,8 @@ is gone.
 2. Check the OneDrive tray icon says **Up to date**. Desktop, Documents and
    Pictures are redirected into OneDrive, so the cloud copy is the only one that
    survives — and they're deliberately *not* in the backup below
-3. Edge is signed in with sync on, so bookmarks, passwords and extensions come
-   back on sign-in. Nothing to copy
-4. Run the backup, from any PowerShell on the old install:
+3. Close Helium, so its profile copies whole, then run the backup from any
+   PowerShell on the old install:
 
 ```powershell
 $B = 'D:\Migration'
@@ -82,6 +81,8 @@ $items = @(
     '.config\aria2\aria2.session'
     'scoop\persist\keepassxc\config'
     'scoop\persist\sharex'
+    # Helium's profile: history, bookmarks, site data, extensions (section 12.1)
+    'scoop\persist\helium\User Data'
     # Steam's local per-game configs (the games themselves are on D:\SteamLibrary)
     'scoop\persist\steam\userdata'
     'AppData\Roaming\osu\storage.ini', 'AppData\Roaming\osu\framework.ini'
@@ -617,7 +618,7 @@ Set-Service DiagTrack -StartupType Disabled
 ```
 
 What still talks to Microsoft, by design: Windows Update, Defender's cloud
-protection and SmartScreen, and Edge and OneDrive sync. To stop Defender
+protection and SmartScreen, and OneDrive sync. To stop Defender
 uploading suspicious files, turn off **Automatic sample submission** (Windows
 Security → Virus & threat protection → Manage settings) but leave cloud-delivered
 protection on. Windows Security then shows a warning you can dismiss.
@@ -650,9 +651,12 @@ reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "Logitech Dow
 LTSC already leaves out Widgets, Copilot, the Store, Teams, Phone Link and the
 Xbox apps. These are what's left worth turning off.
 
-**Edge Startup Boost.** Edge starts at every logon with no window and keeps
-about nine processes (~700 MB) in the background; turning it off only makes
-Edge's first start after logon a little slower:
+**No Edge in the background.** Edge stays installed, since LTSC has no
+supported way to remove it, but it goes unused: Helium is the browser
+([section 12.1](#helium)). Left on, Startup Boost still starts Edge at every
+logon with no window, about nine processes (~700 MB), and background mode keeps
+it running after its last window closes. The policies stop both, a fresh Edge
+profile included, so if something does open Edge, it quits with its window:
 
 ```powershell
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v StartupBoostEnabled /t REG_DWORD /d 0 /f
@@ -919,9 +923,11 @@ Then KeePassXC:
    `~\scoop\persist\keepassxc\config\` before the first launch. That restores
    its settings and recent-databases list
 2. The database needs only its password — there's no key file
-3. Settings → Browser Integration → tick **Edge** again. The native-messaging
-   registration lives in the registry, not the config dir, so the restore
-   doesn't bring it back
+3. Settings → Browser Integration → tick **Chromium**, which is where Helium
+   looks for native-messaging hosts (`HKCU\Software\Chromium\NativeMessagingHosts`);
+   KeePassXC has no Helium entry. The registration lives in the registry, not the
+   config dir, so the restore doesn't bring it back. Then connect
+   KeePassXC-Browser from Helium's toolbar
 
 ---
 
@@ -996,13 +1002,14 @@ value directly.
 | `ventoy` | Only for rebuilding the install stick |
 | `vortex` (games) | Copy `D:\Migration\home\AppData\Roaming\Vortex\` to `%APPDATA%\Vortex\` before the first launch (profiles, load order, settings) — the scoop package doesn't persist it elsewhere. Its mods and downloads aren't on C:. The package unpacks the vendor setup without running it, so nothing installs the .NET runtime its mod installer (`ModInstallerIPC`) needs: .NET 9 Desktop, any 9.x but not 10. `scoop install versions/windowsdesktop-runtime-9.0` from an **elevated** shell — the manifest refuses to run otherwise, so `scoop import` unelevated skips it |
 | `discord` (extras) | Log in |
+| `helium` (extras) | The browser. Restore its profile before the first start, then the steps [below](#helium) |
 
 **Outside scoop** — vendor installers, since there's no Store or winget:
 
 | App | What to redo after install |
 |---|---|
 | Mental Omega | Installed in `D:\Games\Mental Omega`, so the game survives; only the Start menu shortcut is lost. Recreate it pointing at `MentalOmegaClient.exe` with the game folder as working directory (snippet below the table) |
-| Microsoft Edge | Included in LTSC. Sign in to sync; add the KeePassXC-Browser extension if sync doesn't bring it |
+| Microsoft Edge | Included in LTSC, and unused; its policies are in [section 5](#5-windows-settings) |
 
 ```powershell
 # Mental Omega's Start menu shortcut — the launcher loads its files relative to the working directory
@@ -1025,6 +1032,47 @@ installed. Install the **IdeaVim** and **Which-Key** plugins from the IDE's
 Marketplace: the config's `set which-key` needs the second for its key-binding
 popup. The other plugins it loads (surround, commentary, NERDTree, …) are built
 into IdeaVim.
+
+#### Helium
+
+The browser, configured from `helium/` as on Arch. scoop's package is Helium's
+portable build: its shim and Start-menu shortcut start `chrome.exe` with
+`--user-data-dir`, so the profile lives in `~\scoop\persist\helium\User Data`
+and survives `scoop update`. Helium doesn't update itself in this build; scoop
+does, and skips it while it runs ([section 15](#15-monthly-updates)).
+
+Before the first start, copy `D:\Migration\home\scoop\persist\helium\User Data\`
+back. History, bookmarks, site data, extensions and settings come back with it,
+but not the logins: Helium encrypts its cookies with a key that DPAPI protects
+for the Windows user, and the new install's user can't open it. Sign in to sites
+again. Then, from `~\MyConfigurations`:
+
+1. Policies, elevated: `sudo pwsh -NoProfile -File helium\apply-policies.ps1`.
+   It writes `policies.json` into `HKLM\SOFTWARE\Policies\Helium`, which
+   force-installs KeePassXC-Browser and Aria2 Explorer through Helium's
+   services.
+2. Start Helium from the Start menu. On a fresh profile, accept Helium services
+   on its setup page, then close it and start it again: the extensions install
+   on that second start. Close it.
+3. `helium\fix-handlers.ps1`. Helium registers itself as a browser on its first
+   start, but leaves the profile folder out of the commands, so a link from
+   another app would open a second, empty profile; the script adds
+   `--user-data-dir` to each. If it says Helium hasn't registered yet, use
+   Helium's Settings → Default browser → **Make default** once, close Helium and
+   run it again.
+4. On a fresh profile, with Helium closed, `helium\apply-preferences.ps1`:
+   Helium's layout and zen mode, the profile's name and avatar, and the page
+   languages. Then Settings → Search engine → Google, by hand. It's a signed
+   setting, which Windows resets if a script writes it.
+5. Settings → Apps → Default apps → Helium → **Set default**, and check `.pdf`
+   moved with it. Helium's own default-browser button registers it again,
+   likely without the profile folder, so run `fix-handlers.ps1` after using it.
+6. KeePassXC: [section 10](#10-network-share-and-password-database).
+
+`helium://policy` lists `ExtensionInstallForcelist` with status OK,
+`helium://extensions` shows both extensions, and a link opened from Windows
+Terminal lands in the zen-mode window. The monthly update flags a policy or a
+link handler that has changed.
 
 ### 12.2 Data
 
@@ -1116,6 +1164,9 @@ Then:
 - Settings → Privacy & security → Diagnostics & feedback says some settings are
   managed by your organization, and `Get-Service DiagTrack` shows Stopped
 - Z: opens and KeePassXC unlocks the database
+- Helium: `helium://policy` and `helium://extensions` as in
+  [section 12.1](#helium), KeePassXC-Browser connects, and a link from Windows
+  Terminal opens in it
 - osu! lazer shows your beatmaps
 - Reboot into Arch: Nebula mounts read-write, clock is correct
 
@@ -1153,7 +1204,8 @@ parsers rebuild themselves the next time nvim starts), `ya pkg upgrade` and
 `Update-PSResource`, prints the BIOS and driver versions, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config
 changed), checks that an update
-hasn't reset the section 5 settings, and runs the cleanup below. It ends with
+hasn't reset the section 5 settings or Helium's policies and link handlers, and
+runs the cleanup below. It ends with
 what's left, which is some of:
 
 - **Windows Update** — finish it in Settings, and reboot if it asks (Restarts,
@@ -1181,8 +1233,9 @@ what's left, which is some of:
 - **Drivers and BIOS** — check the versions it printed (below)
 - **aria2** — one of its tasks is gone or disabled
   ([section 11](#11-aria2))
-- **Reset** — a section 5 setting an update turned back, or a Run entry an app
-  put back
+- **Reset** — a section 5 setting an update turned back, a Run entry an app
+  put back, or a Helium policy or link handler that changed (rerun the script
+  it names, [section 12.1](#helium))
 
 **The cleanup.** `update.ps1` ends with it. Without asking, it removes old
 scoop versions and their downloads, runs `uv cache prune`, removes old

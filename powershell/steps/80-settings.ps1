@@ -1,4 +1,5 @@
-# What a Windows update can quietly reset: the section 5 settings, and the Run entries apps put back
+# What a Windows update can quietly reset: the section 5 settings, Helium's policies and link
+# handlers, and the Run entries apps put back
 
 @{
     Update = {
@@ -56,6 +57,10 @@
         if ((Get-Service DiagTrack).StartType -ne 'Disabled') { $drift.Add('the DiagTrack service is no longer disabled (section 5.3)') }
         if ([Environment]::GetEnvironmentVariable('POWERSHELL_TELEMETRY_OPTOUT', 'User') -ne '1') {
             $drift.Add('POWERSHELL_TELEMETRY_OPTOUT is no longer set (section 5.3)')
+        }
+        if (Test-Path "$HOME\scoop\apps\helium") {
+            & "$repo\helium\apply-policies.ps1" -Check | ForEach-Object { $drift.Add("Helium's policy $_ (rerun helium\apply-policies.ps1 elevated, section 12.1)") }
+            & "$repo\helium\fix-handlers.ps1" -Check | ForEach-Object { $drift.Add("$_ opens Helium without its profile folder (rerun helium\fix-handlers.ps1, section 12.1)") }
         }
         $tips = @(Get-ScheduledTask -TaskPath '\SoftLanding\*' -ErrorAction SilentlyContinue | Where-Object State -ne 'Disabled')
         if ($tips) { $drift.Add("$($tips.Count) \SoftLanding\ tip tasks are enabled (section 5.5)") }
