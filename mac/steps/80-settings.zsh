@@ -1,5 +1,5 @@
-# What a macOS update can quietly reset: the login shell's PATH, and the
-# settings MIGRATION.md has you make by hand
+# What a macOS update can quietly reset: the login shell's PATH, the settings
+# MIGRATION.md has you make by hand, and Helium's policies
 
 update() {
   info 'Settings'
@@ -31,10 +31,19 @@ update() {
     [[ $(defaults read $domain $key 2>/dev/null) == $want ]] || drift+=($fix)
   done
 
+  # Helium's policies come from a configuration profile built from
+  # helium/policies.json (MIGRATION.md section 3)
+  if [[ -d /Applications/Helium.app ]]; then
+    local line
+    for line in ${(f)"$($DOTFILES/helium/apply-policies.sh --check)"}; do
+      drift+=("Helium's policy $line (rerun helium/apply-policies.sh, MIGRATION.md section 3)")
+    done
+  fi
+
   if (( $#drift )); then
     warn "$#drift changed, listed below"
     todo+=("Reset: "${^drift})
   else
-    ok "git resolves to $resolved; the settings MIGRATION.md makes are as set"
+    ok "git resolves to $resolved; the settings MIGRATION.md makes, and Helium's policies, are as set"
   fi
 }

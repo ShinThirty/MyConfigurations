@@ -115,7 +115,7 @@ want, skip what you don't.
 | Cask | What to redo after install |
 |---|---|
 | `obsidian` | Vault is in iCloud, see below |
-| `microsoft-edge` | Sign in |
+| `helium-browser` | The browser. Restore its profile before the first start, then the steps below |
 | `discord` | Log in |
 | `clash-verge-rev` | Import the subscription or profile (see below). Install Service Mode in its settings and turn on TUN mode, so terminal tools (brew, `go install`, git) go through it too, not just apps that follow the system proxy. Set it up before a trip to mainland China — fetching it from there is the hard part |
 | `claude-code@latest` | `claude` CLI; re-auth on first run. Restoring `settings.json` from the `~/.claude/` row below brings back `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — the monthly `brew upgrade` handles updates |
@@ -135,7 +135,7 @@ brew install hashicorp/tap/terraform   # needs: brew tap hashicorp/tap
 
 | App | What to redo |
 |---|---|
-| KeePassXC | Open the database (see below). Then Settings → Browser Integration → turn it on and tick **Edge**, which writes Edge's native-messaging manifest, and connect the KeePassXC-Browser extension, which Edge sync brings back |
+| KeePassXC | Open the database (see below). Then Settings → Browser Integration → turn it on, and under Advanced tick **Use a custom browser configuration location**: type Chromium, `~/Library/Application Support/net.imput.helium/NativeMessagingHosts`. KeePassXC has no Helium entry, and ticking Chromium writes to Chromium's own folder, which Helium doesn't read. KeePassXC keeps this in its local config, `~/Library/Caches/KeePassXC/keepassxc.ini`. Restart Helium, then connect the KeePassXC-Browser extension, which Helium's policy installs |
 | AeroSpace, kitty | Grant **Accessibility** permission in System Settings → Privacy & Security |
 | aria2 | Its daemon and tracker updates need an install of their own (below) |
 | findutils (`locate`) | Run `loaddb` once. `locate` searches `~/locatedb`, which only `loaddb` builds (your home folder, minus `/Volumes`), and nothing rebuilds it on a schedule — run it again when results are stale |
@@ -173,6 +173,33 @@ from the IDE's Marketplace: the config's `set which-key` needs the second for
 its key-binding popup. The other plugins it loads (surround, commentary,
 NERDTree, …) are built into IdeaVim.
 
+**Helium**, the browser, configured from `helium/` as on Arch and Windows. It
+updates itself (`helium://settings/help`), and its cask is marked
+`auto_updates`, so `brew upgrade` leaves it alone. Restore its profile before
+the first start ([section 4](#4-personal-data-to-bring-over)), then, from
+`~/MyConfigurations`:
+
+1. Policies: `helium/apply-policies.sh` builds a configuration profile from
+   `policies.json` and opens it. Install it in System Settings → General →
+   Device Management, with your password. Helium reads its policies from its
+   preferences domain, `net.imput.helium`, but `ExtensionInstallForcelist`
+   counts only when forced, which a profile does and `defaults write` doesn't.
+   It works without MDM. The policy force-installs KeePassXC-Browser and Aria2
+   Explorer through Helium's services.
+2. Start Helium. On a fresh profile, accept Helium services on its setup page,
+   then quit it (⌘Q) and start it again: the extensions install on that second
+   start. Quit it.
+3. On a fresh profile, with Helium closed, `helium/apply-preferences.sh`:
+   Helium's layout and zen mode, the profile's name and avatar, and the page
+   languages. Then Settings → Search engine → Google, by hand. It's a signed
+   setting, which macOS resets if a script writes it.
+4. System Settings → Desktop & Dock → Default web browser → Helium.
+5. KeePassXC: the custom browser location in the table above.
+
+`helium://policy` lists `ExtensionInstallForcelist` with status OK, and
+`helium://extensions` shows both extensions. The monthly update flags a policy
+that has changed.
+
 ---
 
 ## 4. Personal data to bring over
@@ -190,6 +217,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 | Broker / API credential file | Plaintext keys. Copy directly, never into this repo. Rotating them as part of the move is the safer play. |
 | Trading working dir | Local SQLite DB plus scratch subdirectories. |
 | `~/.aws/config` | Profile definitions only, no secrets. Copy it, then re-authenticate; the `login/cache` and `cli/cache` dirs are disposable. |
+| `~/Library/Application Support/net.imput.helium` | Helium's profile: history, bookmarks, site data, extensions. Copy it whole with Helium closed at both ends, before its first start. Not the logins: Helium encrypts its cookies with a key from the login Keychain (the "Helium Storage Key" item), not from the profile, so sign in to sites again. |
 | `~/.claude/settings.json` | Claude Code prefs. `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
 | Obsidian vault | Lives in iCloud Drive, so it **syncs on its own** — sign into iCloud and wait. Don't copy it manually. |
 | `~/Documents` | Personal documents, analysis, scripts, tax records. |
@@ -289,6 +317,9 @@ Then:
 - `music` — playlist picker comes up (needs `~/Music/playlists/`)
 - `git commit` on a scratch change, then `git log --show-signature` to confirm SSH signing
 - AeroSpace responds to its keybindings (needs Accessibility permission first)
+- Helium: `helium://policy` and `helium://extensions` as in
+  [section 3](#3-apps-and-tools-not-covered-by-the-brewfile), and
+  KeePassXC-Browser connects
 
 ---
 
@@ -340,8 +371,9 @@ It lists what Software Update has and opens it in System Settings, runs
 themselves the next time nvim starts), and `ya pkg upgrade`, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config
 changed), checks the Brewfile against what's installed and reads `brew doctor`, checks that `git`
-still resolves to Homebrew's in a login shell and that the settings from
-section 1 are still as set, and runs the cleanup below. It ends with what's left, which is
+still resolves to Homebrew's in a login shell, that the settings from
+section 1 are still as set and Helium's policies match `policies.json`, and runs
+the cleanup below. It ends with what's left, which is
 some of:
 
 - **Software Update** — automatic updates are on, but they can sit offered for
@@ -379,8 +411,10 @@ some of:
 - **aria2** — a launch agent that isn't loaded: `launchctl load` it
   ([section 3](#3-apps-and-tools-not-covered-by-the-brewfile))
 - **Reset** — something a macOS update turned back: the PATH order
-  ([section 5](#5-known-gotchas)), or a setting from this runbook, such as
-  natural scrolling ([section 1](#1-clone-and-bootstrap))
+  ([section 5](#5-known-gotchas)), a setting from this runbook, such as
+  natural scrolling ([section 1](#1-clone-and-bootstrap)), or a Helium policy
+  (rerun `helium/apply-policies.sh`,
+  [section 3](#3-apps-and-tools-not-covered-by-the-brewfile))
 
 **The cleanup.** `update.sh` ends with it, and it asks nothing:
 `brew cleanup --prune=all` removes old versions and every cached download,
@@ -391,9 +425,8 @@ cache, so it keeps every version ever downloaded, and each month's
 `go install @latest` adds another set; Go projects download what they need
 again on their next build. Run
 `~/MyConfigurations/mac/cleanup.sh` on its own to free the space sooner. Left
-out because they look after themselves: macOS clears its temp folder, Go trims
-its build cache, and Edge's updater deletes its old installers from
-`~/Library/Application Support/Microsoft/EdgeUpdater`.
+out because they look after themselves: macOS clears its temp folder, and Go
+trims its build cache.
 
 `zsh/zshrc` still offers a sheldon update every 14 days; `update.sh` resets its
 timer.
@@ -404,7 +437,7 @@ timer.
 hand goes in the table in `mac/steps/80-settings.zsh`, so the update notices
 when macOS resets it.
 
-**Not in the script, because they update themselves:** Edge, Discord,
+**Not in the script, because they update themselves:** Helium, Discord,
 Obsidian and Clash Verge Rev (their casks are marked `auto_updates`, which
 `brew upgrade` skips),
 App Store apps, and the firmware, which comes with macOS updates. KeePassXC

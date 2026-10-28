@@ -85,7 +85,7 @@ powershell/       - PowerShell config: profile, git aliases, dirhistory, music (
 aria2/            - aria2 download manager (shared config + per-platform setup)
 aerospace/        - AeroSpace window manager (macOS)
 glazewm/          - GlazeWM tiling window manager (Windows, Hyprland-like)
-helium/           - Helium browser: policies, preferences (Arch, Windows)
+helium/           - Helium browser: policies, preferences (macOS, Arch, Windows)
 wt/               - Windows Terminal settings
 ideavim/          - IdeaVim config for JetBrains IDEs (requires Which-Key plugin)
 vim/              - Vim config (submodule, vim-plug)

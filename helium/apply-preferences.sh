@@ -13,6 +13,8 @@
 #                           attribute; the Classic theme (system_theme 0); and
 #                           Google as the search engine, a signed setting that
 #                           Windows and macOS reset when it's edited
+#   preferences.darwin.json the page languages, Edge's; Edge set no fonts, so
+#                           they stay Chromium's defaults
 #
 set -euo pipefail
 
@@ -22,6 +24,12 @@ case "$OSTYPE" in
   linux*)
     fragment="$here/preferences.linux.json"
     data="${HELIUM_CONFIG_HOME:-${XDG_CONFIG_HOME:-$HOME/.config}}/net.imput.helium"
+    process=helium
+    ;;
+  darwin*)
+    fragment="$here/preferences.darwin.json"
+    data="$HOME/Library/Application Support/net.imput.helium"
+    process=Helium
     ;;
   *)
     echo "No preferences fragment for $OSTYPE yet" >&2
@@ -34,7 +42,7 @@ if [[ ! -f "$prefs" ]]; then
   echo "No profile at $prefs yet: start Helium once, then close it" >&2
   exit 1
 fi
-if pgrep -x helium >/dev/null; then
+if pgrep -x "$process" >/dev/null; then
   echo "Helium is running and would overwrite the merge on exit; close it first" >&2
   exit 1
 fi
