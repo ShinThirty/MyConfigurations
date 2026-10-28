@@ -130,7 +130,10 @@ Then:
    location, type Chromium, `~/.config/net.imput.helium/NativeMessagingHosts`.
    Then connect the extension, and in its settings, General → Passkeys, tick
    **Enable passkeys**. It's off by default, and without it a site's passkey
-   request skips KeePassXC.
+   request skips KeePassXC. The Passkeys card shows only while the extension
+   is connected, since KeePassXC tells it its version then: with KeePassXC
+   closed the settings page leaves the card out, so reload the page once it's
+   connected.
 
 `helium://policy` lists `ExtensionInstallForcelist`, and `helium://extensions`
 shows both extensions.

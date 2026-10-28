@@ -930,7 +930,9 @@ Then KeePassXC:
    KeePassXC-Browser from Helium's toolbar, and in its settings, General →
    Passkeys, tick **Enable passkeys**. It's off by default, and without it a
    site's passkey request skips KeePassXC; a restored Helium profile keeps the
-   setting
+   setting. The Passkeys card shows only while the extension is connected,
+   since KeePassXC tells it its version then: with KeePassXC closed the
+   settings page leaves the card out, so reload the page once it's connected
 
 ---
 
