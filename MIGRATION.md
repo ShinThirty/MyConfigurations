@@ -118,7 +118,7 @@ want, skip what you don't.
 | `helium-browser` | The browser. Restore its profile before the first start, then the steps below |
 | `discord` | Log in |
 | `clash-verge-rev` | Import the subscription or profile (see below). Install Service Mode in its settings and turn on TUN mode, so terminal tools (brew, `go install`, git) go through it too, not just apps that follow the system proxy. Set it up before a trip to mainland China — fetching it from there is the hard part |
-| `claude-code@latest` | `claude` CLI; re-auth on first run. Restoring `settings.json` from the `~/.claude/` row below brings back `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — the monthly `brew upgrade` handles updates |
+| `claude-code@latest` | `claude` CLI; re-auth on first run. Restoring `settings.json` from the `~/.claude/` row below brings back `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — the monthly `brew upgrade` handles updates, and the monthly update puts the key back if it goes missing ([section 8](#8-monthly-updates)) |
 
 **General CLI** — none of it is referenced by the configs in this repo, so pick
 what you actually miss:
@@ -372,8 +372,9 @@ themselves the next time nvim starts), and `ya pkg upgrade`, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config
 changed), checks the Brewfile against what's installed and reads `brew doctor`, checks that `git`
 still resolves to Homebrew's in a login shell, that the settings from
-section 1 are still as set and Helium's policies match `policies.json`, and runs
-the cleanup below. It ends with what's left, which is
+section 1 are still as set and Helium's policies match `policies.json`, turns
+Claude Code's own update checks back off if `~/.claude/settings.json` has lost
+`DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is
 some of:
 
 - **Software Update** — automatic updates are on, but they can sit offered for
@@ -415,6 +416,8 @@ some of:
   natural scrolling ([section 1](#1-clone-and-bootstrap)), or a Helium policy
   (rerun `helium/apply-policies.sh`,
   [section 3](#3-apps-and-tools-not-covered-by-the-brewfile))
+- **Claude Code** — `~/.claude/settings.json` isn't valid JSON, so the script
+  couldn't turn its update checks back off. Fix it and run the update again
 
 **The cleanup.** `update.sh` ends with it, and it asks nothing:
 `brew cleanup --prune=all` removes old versions and every cached download,

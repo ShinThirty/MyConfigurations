@@ -247,7 +247,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 | Broker / API credential file | Plaintext keys. Copy directly, never into this repo. Rotating them as part of the move is the safer play. |
 | Trading working dir | Local SQLite DB plus scratch subdirectories. |
 | `~/.aws/config` | Profile definitions only, no secrets. Copy it, then re-authenticate; the `login/cache` and `cli/cache` dirs are disposable. |
-| `~/.claude/settings.json` | Claude Code prefs, including `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — it comes from the AUR, so the monthly `paru -Syu` handles updates. `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
+| `~/.claude/settings.json` | Claude Code prefs, including `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — it comes from the AUR, so the monthly `paru -Syu` handles updates, and the monthly update puts the key back if it goes missing ([section 10](#10-monthly-updates)). `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
 | `~/.config/net.imput.helium` | Helium's profile: logins (cookies), history, site data. Copy it whole with Helium closed at both ends. `--password-store=basic` encrypts the cookies with Chromium's built-in key, so the logins work on the new machine. |
 | `~/Music/playlists/` | Plain-text playlists the `music` function reads. Small, easy to forget. |
 | `~/.local/share/nvim/sessions`, shada | Optional editor state. |
@@ -445,8 +445,9 @@ it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its
 config or unit changed). Then it checks for a newer GE-Proton, that systemd-boot is still first in the boot order,
-failed units, orphans and AUR packages that were deleted, and runs the cleanup
-below. It ends with what's left, which is some of:
+failed units, orphans and AUR packages that were deleted, turns Claude Code's
+own update checks back off if `~/.claude/settings.json` has lost
+`DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is some of:
 
 - **Reboot** after a kernel or NVIDIA driver upgrade. The running kernel's
   modules are gone, and GPU programs (Steam, `voice-dictate`'s Vulkan backend)
@@ -482,6 +483,8 @@ below. It ends with what's left, which is some of:
 - **An old uv Python a venv still uses.** The cleanup keeps it and names the
   venv. Recreating the venv moves it onto the minor-version link, and next
   month's cleanup removes the old Python
+- **Claude Code**: `~/.claude/settings.json` isn't valid JSON, so the script
+  couldn't turn its update checks back off. Fix it and run the update again
 
 **The cleanup.** `update.sh` ends with it, and it asks nothing.
 `go clean -modcache` empties the Go module cache. Go never prunes it, so it

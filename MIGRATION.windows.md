@@ -994,7 +994,7 @@ value directly.
 | App | What to redo after install |
 |---|---|
 | `keepassxc` | [Section 10](#10-network-share-and-password-database) |
-| `claude-code` | `claude` CLI; re-auth on first run. Its built-in auto-updater treats the scoop install as native and drops a second copy in `~\.local\bin` and `~\.local\share\claude` (off PATH, never run). Restoring `settings.json` from the `~\.claude\` row below brings back `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops it — `scoop update claude-code` handles updates. Delete any copy that appeared before then. `claude doctor` keeps warning that the native copy is missing or off PATH; ignore it, since its suggested `claude install` puts the copy back |
+| `claude-code` | `claude` CLI; re-auth on first run. Its built-in auto-updater treats the scoop install as native and drops a second copy in `~\.local\bin` and `~\.local\share\claude` (off PATH, never run). Restoring `settings.json` from the `~\.claude\` row below brings back `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops it — `scoop update claude-code` handles updates, and the monthly update puts the key back if it goes missing and flags a copy that appeared ([section 15](#15-monthly-updates)). Delete any copy that appeared before then. `claude doctor` keeps warning that the native copy is missing or off PATH; ignore it, since its suggested `claude install` puts the copy back |
 | `osulazer` (games) | Point it back at the SSD — see the data table |
 | `steam` (games) | Settings → Storage → add `D:\SteamLibrary`; the games there are picked up without re-downloading. Steam Cloud restores most configs; the fallback is `D:\Migration\home\scoop\persist\steam\userdata` → `~\scoop\persist\steam\userdata` (scoop junctions `userdata` there). The Home install had the vendor installer, so that backup's copy is `D:\Migration\steam-userdata` |
 | `uv` | The manifest sets `UV_CACHE_DIR` to `~\scoop\persist\uv\cache`, and again on every `scoop update`, so the old `D:\uv-cache` setting doesn't come back on its own. The projects are on D:, and uv hardlinks from the cache into a venv, which can't cross drives, so junction the cache there: `New-Item -ItemType Junction ~\scoop\persist\uv\cache -Target D:\uv-cache`. Pass `--cache-dir D:\uv-cache` to `uv cache clean`/`prune`/`size` — through the junction, `clean` deletes the link (uv then quietly starts a new cache on C:) and `size` reports 0 |
@@ -1204,8 +1204,9 @@ parsers rebuild themselves the next time nvim starts), `ya pkg upgrade` and
 `Update-PSResource`, prints the BIOS and driver versions, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config
 changed), checks that an update
-hasn't reset the section 5 settings or Helium's policies and link handlers, and
-runs the cleanup below. It ends with
+hasn't reset the section 5 settings or Helium's policies and link handlers,
+turns Claude Code's own update checks back off if `~\.claude\settings.json` has
+lost `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with
 what's left, which is some of:
 
 - **Windows Update** — finish it in Settings, and reboot if it asks (Restarts,
@@ -1236,6 +1237,10 @@ what's left, which is some of:
 - **Reset** — a section 5 setting an update turned back, a Run entry an app
   put back, or a Helium policy or link handler that changed (rerun the script
   it names, [section 12.1](#helium))
+- **Claude Code** — a native copy its updater left in `~\.local` to delete
+  ([section 12.1](#121-apps)), or a `~\.claude\settings.json` that isn't valid
+  JSON, so the script couldn't turn its update checks back off. Fix it and run
+  the update again
 
 **The cleanup.** `update.ps1` ends with it. Without asking, it removes old
 scoop versions and their downloads, runs `uv cache prune`, removes old
@@ -1276,7 +1281,7 @@ fix.
 (scoop's manifest is a `nightly` it never updates) and Discord's modules.
 KeePassXC, ShareX and Claude Code have their own update checks off, so scoop
 is the only thing that updates them — keep it that way if a restored config
-turns one back on.
+turns one back on. The script does that for Claude Code itself.
 
 **Now and then:** after `scoop update ventoy`, run **Update** in Ventoy2Disk on
 the install stick, and swap in a current Arch ISO ([section 3.3](#33-write-the-install-usb-ventoy)).
