@@ -30,7 +30,27 @@ Out of scope for this repo, but the decisions that matter downstream:
 | GPU | `nvidia-open-dkms` (Turing or newer) on the current machine — rebuilds on every kernel bump, so headers must stay in sync |
 | Filesystem | Nothing in this repo cares, but `timeshift` snapshots assume Btrfs or an ext4 + rsync setup |
 | User | A normal user in `wheel` with sudo. `bootstrap.arch.sh` refuses to run as root |
+
 Get networking up and `sudo pacman -Syu` clean before going further.
+
+**DNS** goes to Cloudflare over TLS. NetworkManager hands it to
+systemd-resolved, which encrypts every lookup and checks the server's
+certificate, and `/etc/resolv.conf` points at resolved, so the programs that
+read it go through resolved too:
+
+```sh
+sudo systemctl enable --now systemd-resolved
+sudo mkdir -p /etc/systemd/resolved.conf.d /etc/NetworkManager/conf.d
+printf '[Resolve]\nDNS=1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com 2606:4700:4700::1111#cloudflare-dns.com 2606:4700:4700::1001#cloudflare-dns.com\nDNSOverTLS=yes\n' | sudo tee /etc/systemd/resolved.conf.d/dns-over-tls.conf
+printf '[main]\ndns=systemd-resolved\n' | sudo tee /etc/NetworkManager/conf.d/10-dns.conf
+sudo ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+sudo systemctl restart systemd-resolved && sudo systemctl reload NetworkManager
+```
+
+`resolvectl status` then shows `+DNSOverTLS`. With `yes`, a network that
+blocks port 853 has no DNS at all, which suits a desktop that stays home;
+`opportunistic` falls back to plain lookups instead, and anyone in the path
+can force that.
 
 ---
 
@@ -458,7 +478,7 @@ it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its
-config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, that systemd-boot is still first in the boot order,
+config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, turns Claude Code's
 own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is some of:
@@ -480,8 +500,9 @@ own update checks back off if `~/.claude/settings.json` has lost
   or add them to the Brewfile
 - **GE-Proton**: add the new release in ProtonUp-Qt. Games that pin a version
   by name need switching to it in Steam
-- **Security**: ufw is off or not installed
-  ([SECURITY.md section 2](SECURITY.md#2-firewall))
+- **Security**: ufw off or not installed, LLMNR on, or an SMB share in
+  `/etc/fstab` without `sign`
+  ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
 - **aria2**: a unit that isn't enabled: `systemctl --user enable --now` it
   ([section 2](#2-clone-and-bootstrap)); or a config without an RPC secret
   ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret))
