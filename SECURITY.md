@@ -278,8 +278,8 @@ MIGRATION.windows.md section 15); these keep the gaps shorter.
 
 ## 5. SSH keys
 
-`~/.ssh/github` and `signing_key` have no passphrase. Whoever gets a copy of
-the files can push to your repos and sign commits as you: malware, a
+Without a passphrase, whoever gets a copy of `~/.ssh/github` and
+`signing_key` can push to your repos and sign commits as you: malware, a
 compromised package, or whoever ends up with a lost laptop. A passphrase makes
 a copy useless on its own, and an agent keeps it to one prompt per login, or
 none. Adding one keeps the key, so GitHub needs nothing:

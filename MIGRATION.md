@@ -76,7 +76,7 @@ The only secrets this migration covers. Copy these five files from the old Mac
 
 | File | What it's for |
 |---|---|
-| `~/.ssh/github` | GitHub auth (RSA 4096, no passphrase comment) |
+| `~/.ssh/github` | GitHub auth (RSA 4096, no comment) |
 | `~/.ssh/signing_key` | Git commit signing (ed25519) |
 | `~/.ssh/signing_key.pub` | Referenced by `user.signingkey` in `git/gitconfig` |
 | `~/.ssh/config` | Host→key mapping for github.com |
@@ -99,8 +99,9 @@ git -C ~/MyConfigurations log --show-signature -1   # should say "Good git signa
 
 `~/.ssh/known_hosts` is not worth copying — it regenerates on first connect.
 
-The keys have no passphrase. [SECURITY.md section 5](SECURITY.md#5-ssh-keys)
-adds one, with the Keychain holding it, so nothing asks for it day to day.
+The keys have a passphrase. [SECURITY.md section 5](SECURITY.md#5-ssh-keys)
+saves it in the Keychain, so nothing asks for it day to day. Until then, ssh
+and each signed commit ask for it.
 
 **Alternative to copying:** generate a fresh keypair on the new Mac and add it to
 GitHub. If you do that for `signing_key`, you must also append the new

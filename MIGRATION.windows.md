@@ -846,9 +846,11 @@ git -C $HOME\MyConfigurations log --show-signature -1
 the Mac shows *Good signature … No principal matched* (`%G?` = `U`). That's
 expected — the signature is valid, its key just isn't listed here.
 
-The keys have no passphrase. [SECURITY.md section 5](SECURITY.md#5-ssh-keys)
-adds one, with Windows' ssh-agent holding the keys, which takes pointing git at
-Windows' own OpenSSH.
+The keys have a passphrase. [SECURITY.md section 5](SECURITY.md#5-ssh-keys)
+adds them to Windows' ssh-agent, which keeps them through restarts, so nothing
+asks for it day to day; until then, ssh and each signed commit ask for it.
+`git/gitconfig.windows` points git at Windows' own OpenSSH, the one that
+reaches that agent.
 
 `git/gitconfig.windows` sets `useConfigOnly` and no email, so every commit
 fails with *Author identity unknown* until each clone has its own — in the
