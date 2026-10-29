@@ -9,12 +9,21 @@ if (-not (Test-Path -Path $TargetDirectory))
 	New-Item -Path $TargetDirectory -ItemType Directory | Out-Null
 }
 
+$Conf = "$TargetDirectory\aria2.conf"
+# The RPC secret a previous install made, kept over the copy (SECURITY.md section 6)
+$Secret = @(Get-Content $Conf -ErrorAction SilentlyContinue) -match '^rpc-secret='
 Copy-Item -Path ..\aria2.conf -Destination $TargetDirectory
 if ($DownloadDir)
 {
-	$Conf = "$TargetDirectory\aria2.conf"
 	(Get-Content $Conf) -replace '^dir=.*', "dir=$DownloadDir" | Set-Content $Conf
 }
+if (-not $Secret)
+{
+	$Bytes = New-Object byte[] 16
+	[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($Bytes)
+	$Secret = 'rpc-secret=' + -join ($Bytes | ForEach-Object { $_.ToString('x2') })
+}
+Add-Content $Conf @($Secret)[0]
 Copy-Item -Path .\Start-Aria2.vbs -Destination $TargetDirectory
 Copy-Item -Path .\update_trackers.ps1 -Destination $TargetDirectory
 Copy-Item -Path .\Update-Trackers.vbs -Destination $TargetDirectory
@@ -42,3 +51,4 @@ Register-ScheduledTask -TaskName "Aria2 Update Trackers" -Force `
 	-Settings $TrackerSettings | Out-Null
 
 Write-Host "Registered scheduled tasks: Aria2 (at logon), Aria2 Update Trackers (weekly)"
+Write-Host "Aria2 Explorer and AriaNg need the RPC secret, the rpc-secret= line in $Conf"

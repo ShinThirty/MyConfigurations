@@ -1,5 +1,5 @@
 # What a macOS update can quietly reset: the login shell's PATH, the settings
-# MIGRATION.md has you make by hand, and Helium's policies
+# MIGRATION.md and SECURITY.md have you make by hand, and Helium's policies
 
 update() {
   info 'Settings'
@@ -31,6 +31,27 @@ update() {
     [[ $(defaults read $domain $key 2>/dev/null) == $want ]] || drift+=($fix)
   done
 
+  # SECURITY.md's, which take a command each to read. Listed apart from the
+  # drift, since some may never have been set.
+  local insecure=() fw=/usr/libexec/ApplicationFirewall/socketfilterfw
+  # sysadminctl prints its answer as a log line, on stderr
+  [[ $(sysadminctl -screenLock status 2>&1) == *'screenLock delay is immediate'* ]] ||
+    insecure+=('the password isn'\''t required as soon as the screen locks: System Settings → Lock Screen (SECURITY.md section 1)')
+  # State 1 is on, 2 is on and blocking everything
+  [[ $($fw --getglobalstate) == *'(State = '[12]')'* ]] ||
+    insecure+=("the firewall is off: sudo $fw --setglobalstate on (SECURITY.md section 2)")
+  [[ $($fw --getstealthmode) == *' is on'* ]] ||
+    insecure+=("stealth mode is off: sudo $fw --setstealthmode on (SECURITY.md section 2)")
+  # The firewall lets Apple's own services through, so AirPlay Receiver has to
+  # be off itself. ControlCenter listens on 7000 while it's on.
+  lsof -nP -iTCP:7000 -sTCP:LISTEN 2>/dev/null | grep -q '^ControlCe' &&
+    insecure+=('AirPlay Receiver is on: System Settings → General → AirDrop & Handoff (SECURITY.md section 3)')
+  local updates=/Library/Preferences/com.apple.SoftwareUpdate
+  for key in CriticalUpdateInstall ConfigDataInstall; do
+    [[ $(defaults read $updates $key 2>/dev/null) == 1 ]] ||
+      insecure+=("$key is off: turn on Security Responses and system files in System Settings → General → Software Update → Automatic Updates (SECURITY.md section 4)")
+  done
+
   # Helium's policies come from a configuration profile built from
   # helium/policies.json (MIGRATION.md section 3)
   if [[ -d /Applications/Helium.app ]]; then
@@ -45,5 +66,11 @@ update() {
     todo+=("Reset: "${^drift})
   else
     ok "git resolves to $resolved; the settings MIGRATION.md makes, and Helium's policies, are as set"
+  fi
+  if (( $#insecure )); then
+    warn "$#insecure of SECURITY.md's settings not as it says, listed below"
+    todo+=("Security: "${^insecure})
+  else
+    ok "SECURITY.md's settings are as set"
   fi
 }

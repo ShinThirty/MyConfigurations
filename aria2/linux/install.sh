@@ -4,9 +4,12 @@
 echo "Creating directory: $XDG_CONFIG_HOME/aria2"
 mkdir -p "$XDG_CONFIG_HOME/aria2"
 
-# Copy the aria2 configuration file
+# Copy the aria2 configuration file, with its RPC secret: the one a previous
+# install made, or a new one (SECURITY.md section 6)
+secret=$(grep '^rpc-secret=' "$XDG_CONFIG_HOME/aria2/aria2.conf" 2>/dev/null)
 echo "Copying aria2.conf to: $XDG_CONFIG_HOME/aria2/aria2.conf"
 cp ../aria2.conf "$XDG_CONFIG_HOME/aria2/aria2.conf"
+echo "${secret:-rpc-secret=$(openssl rand -hex 16)}" >>"$XDG_CONFIG_HOME/aria2/aria2.conf"
 echo "Copying aria2_update_tracker.sh to: $XDG_CONFIG_HOME/aria2/aria2_update_tracker.sh"
 cp ../aria2_update_tracker.sh "$XDG_CONFIG_HOME/aria2/aria2_update_tracker.sh"
 
@@ -36,4 +39,6 @@ systemctl --user enable aria2_update_tracker.timer
 systemctl --user start aria2_update_tracker.timer
 
 To allow incoming connections from BitTorrent peers, it is recommended to setup on-router port-forwarding rules and firewall rules.
+
+Aria2 Explorer and AriaNg need the RPC secret, the rpc-secret= line in $XDG_CONFIG_HOME/aria2/aria2.conf.
 EOF

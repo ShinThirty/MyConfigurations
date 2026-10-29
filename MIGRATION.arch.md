@@ -7,6 +7,10 @@ it can't be (or shouldn't be) checked into a public repo.
 Rough order: **install Arch → repo → bootstrap → SSH keys → desktop → personal data → verify.**
 After that, [section 10](#10-monthly-updates) keeps it current.
 
+[SECURITY.md](SECURITY.md) has the security settings, by whether the machine
+is a laptop or a desktop. Arch comes with no firewall, so its section 2 applies
+either way.
+
 > Scope note: this repo covers the shell, editors, terminal and CLI tooling.
 > The **desktop** — Hyprland, waybar, rofi, swaync, greetd, fcitx5, theming,
 > GUI apps, drivers — is installed and configured separately; its configs live
@@ -26,7 +30,6 @@ Out of scope for this repo, but the decisions that matter downstream:
 | GPU | `nvidia-open-dkms` (Turing or newer) on the current machine — rebuilds on every kernel bump, so headers must stay in sync |
 | Filesystem | Nothing in this repo cares, but `timeshift` snapshots assume Btrfs or an ext4 + rsync setup |
 | User | A normal user in `wheel` with sudo. `bootstrap.arch.sh` refuses to run as root |
-
 Get networking up and `sudo pacman -Syu` clean before going further.
 
 ---
@@ -80,11 +83,14 @@ By hand, `aria2/linux/install.sh` only works from inside `aria2/linux/` (it
 copies `../aria2.conf`), and from zsh: it writes to `$XDG_CONFIG_HOME/aria2`,
 which only an interactive zsh exports, so from bash it would write to `/aria2`.
 The flag takes care of both. Downloads go to `~/Downloads`; for incoming
-BitTorrent peers, forward 6881–6999 on the router. `arch/update.sh` restarts
+BitTorrent peers, forward 6881–6999 on the router, and allow them in ufw
+([SECURITY.md section 2](SECURITY.md#2-firewall)). `arch/update.sh` restarts
 aria2 when an upgrade replaces its binary. The installed files are copies,
 since the tracker refresh rewrites `aria2.conf`, and the same update brings
-them back in line with the repo, keeping only the tracker line, so a local edit
-to them doesn't last.
+them back in line with the repo, keeping only the tracker and secret lines, so
+a local edit to them doesn't last. The secret is the `rpc-secret=` line
+`install.sh` adds, this machine's own, so that a web page can't drive aria2;
+enter it in Aria2 Explorer ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret)).
 
 **Voice dictation** (`--voice`). Downloads the two models `voice-dictate` needs
 into `~/.local/share/whisper.cpp/`: Whisper large-v3-turbo (574 MB), and the
@@ -110,7 +116,8 @@ into `~/.config/`. It sets `--force-dark-mode`, and `--password-store=basic`,
 which encrypts cookies with Chromium's built-in key instead of a key from
 KeePassXC's Secret Service. `policies.json` force-installs KeePassXC-Browser and
 Aria2 Explorer by extension ID alone, with no update URL, so Helium fetches them
-through its own services. Helium reads policies from
+through its own services, and turns on HTTPS-only browsing and encrypted DNS
+([SECURITY.md section 7](SECURITY.md#7-helium-and-keepassxc)). Helium reads policies from
 `/etc/chromium/policies/managed/`:
 
 ```sh
@@ -171,6 +178,10 @@ git -C ~/MyConfigurations log --show-signature -1   # should say "Good git signa
 ```
 
 `~/.ssh/known_hosts` is not worth copying — it regenerates on first connect.
+
+The keys have no passphrase. [SECURITY.md section 5](SECURITY.md#5-ssh-keys)
+adds one, with an agent that holds the keys from the first terminal after
+login.
 
 **Alternative to copying:** generate a fresh keypair and add it to
 GitHub/sourcehut. If you do that for `signing_key`, you must also append the new
@@ -449,7 +460,7 @@ it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its
-config or unit changed). Then it checks for a newer GE-Proton, that systemd-boot is still first in the boot order,
+config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, turns Claude Code's
 own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is some of:
@@ -471,8 +482,11 @@ own update checks back off if `~/.claude/settings.json` has lost
   or add them to the Brewfile
 - **GE-Proton**: add the new release in ProtonUp-Qt. Games that pin a version
   by name need switching to it in Steam
+- **Security**: ufw is off or not installed
+  ([SECURITY.md section 2](SECURITY.md#2-firewall))
 - **aria2**: a unit that isn't enabled: `systemctl --user enable --now` it
-  ([section 2](#2-clone-and-bootstrap))
+  ([section 2](#2-clone-and-bootstrap)); or a config without an RPC secret
+  ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret))
 - **nvim**: a plugin `Lazy! sync` couldn't update, or a mason package that's
   still behind (`:Mason`, then `U`)
 - **vim**: a plugin `PlugUpdate` couldn't update

@@ -2,5 +2,8 @@
   "ExtensionInstallForcelist": [
     "oboonakemofpalcgghocfoadofidjkkk",
     "mpkodccbngfoacfalldjimigbofkhgjn"
-  ]
+  ],
+  "HttpsOnlyMode": "force_enabled",
+  "DnsOverHttpsMode": "secure",
+  "DnsOverHttpsTemplates": "https://dns.google/dns-query{?dns}"
 }

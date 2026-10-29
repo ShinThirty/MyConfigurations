@@ -1,5 +1,5 @@
 # What a Windows update can quietly reset: the section 5 settings, Helium's policies and link
-# handlers, and the Run entries apps put back
+# handlers, the Run entries apps put back, and the firewall and Defender (SECURITY.md)
 
 @{
     Update = {
@@ -74,6 +74,22 @@
             $drift | ForEach-Object { $todo.Add("Reset: $_") }
         } else {
             Write-Ok 'all as set'
+        }
+
+        # SECURITY.md sections 2 and 4. Defender's status is missing when another antivirus replaced it.
+        $insecure = [System.Collections.Generic.List[string]]::new()
+        Get-NetFirewallProfile | Where-Object Enabled -eq 'False' | ForEach-Object {
+            $insecure.Add("the firewall is off for $($_.Name) networks: Windows Security > Firewall & network protection (SECURITY.md section 2)")
+        }
+        $defender = Get-MpComputerStatus -ErrorAction SilentlyContinue
+        if ($defender -and -not $defender.RealTimeProtectionEnabled) {
+            $insecure.Add("Defender's real-time protection is off: Windows Security > Virus & threat protection (SECURITY.md section 4)")
+        }
+        if ($insecure) {
+            Write-Warn "$($insecure.Count) of SECURITY.md's settings not as it says, listed below"
+            $insecure | ForEach-Object { $todo.Add("Security: $_") }
+        } else {
+            Write-Ok "the firewall and Defender are on"
         }
     }
 }

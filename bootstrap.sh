@@ -181,6 +181,16 @@ else
   warn "registering failed — run mac/update-reminder.sh --register"
 fi
 
+# --- VPN reminder -------------------------------------------------------------
+info "VPN reminder"
+if [[ -e "$HOME/Library/LaunchAgents/local.vpn-reminder.plist" ]]; then
+  skip "launch agent already registered"
+elif "$DOTFILES/mac/vpn-reminder.sh" --register >/dev/null; then
+  ok "launch agent registered (SECURITY.md section 9): run mac/vpn-reminder.sh --trust at home"
+else
+  warn "registering failed — run mac/vpn-reminder.sh --register"
+fi
+
 # --- PATH sanity check --------------------------------------------------------
 # Verify in a real login shell, since that is where /etc/zprofile's path_helper
 # runs and where the ordering can go wrong.

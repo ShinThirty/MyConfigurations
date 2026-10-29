@@ -6,6 +6,9 @@ Runbook for standing this setup up on a fresh macOS machine. Automated parts are
 
 Rough order: **repo → bootstrap → SSH keys → apps → personal data → verify.**
 
+[SECURITY.md](SECURITY.md) has the security settings. A Mac here is a laptop,
+so all of its laptop parts apply: do them before the Mac leaves the house.
+
 ---
 
 ## 1. Clone and bootstrap
@@ -31,7 +34,8 @@ cd ~/MyConfigurations
 4. Runs `setup_symlinks.sh` (`symlinks` + `symlinks.darwin`)
 5. Creates `~/.zprofile`, `~/.zshenv`, `~/.zshrc.local` if missing
 6. Runs `ya pkg install` for yazi plugins
-7. Registers the monthly update reminder ([section 8](#8-monthly-updates))
+7. Registers the monthly update reminder ([section 8](#8-monthly-updates)),
+   and the VPN reminder ([SECURITY.md section 9](SECURITY.md#9-untrusted-networks))
 
 Flags: `--no-brew` to skip package installation, `--rust` to also install rustup.
 
@@ -97,6 +101,9 @@ git -C ~/MyConfigurations log --show-signature -1   # should say "Good git signa
 
 `~/.ssh/known_hosts` is not worth copying — it regenerates on first connect.
 
+The keys have no passphrase. [SECURITY.md section 5](SECURITY.md#5-ssh-keys)
+adds one, with the Keychain holding it, so nothing asks for it day to day.
+
 **Alternative to copying:** generate a fresh keypair on the new Mac and add it to
 GitHub/sourcehut. If you do that for `signing_key`, you must also append the new
 public key to `~/.ssh/allowed_signers` (and keep the old line, or past commits stop
@@ -118,6 +125,7 @@ want, skip what you don't.
 | `helium-browser` | The browser. Restore its profile before the first start, then the steps below |
 | `discord` | Log in |
 | `clash-verge-rev` | Import the subscription or profile (see below). Install Service Mode in its settings and turn on TUN mode, so terminal tools (brew, `go install`, git) go through it too, not just apps that follow the system proxy. Set it up before a trip to mainland China — fetching it from there is the hard part |
+| `protonvpn` | Sign in with a free Proton account, and allow its VPN configuration on the first connection. A laptop needs a VPN for networks you don't control ([SECURITY.md section 9](SECURITY.md#9-untrusted-networks)) |
 | `claude-code@latest` | `claude` CLI; re-auth on first run. Restoring `settings.json` from the `~/.claude/` row below brings back `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — the monthly `brew upgrade` handles updates, and the monthly update puts the key back if it goes missing ([section 8](#8-monthly-updates)) |
 
 **General CLI** — none of it is referenced by the configs in this repo, so pick
@@ -156,16 +164,24 @@ cd ~/MyConfigurations/aria2/darwin && bash install.sh
 launchctl load ~/Library/LaunchAgents/com.aria2.plist
 launchctl load ~/Library/LaunchAgents/com.aria2.regular.tracker.update.plist
 ~/.config/aria2/aria2_update_tracker.sh   # trackers now: the repo's aria2.conf has none
-curl -s localhost:6800/jsonrpc -d '{"jsonrpc":"2.0","id":1,"method":"aria2.getVersion"}'
+secret=$(sed -n 's/^rpc-secret=//p' ~/.config/aria2/aria2.conf)
+curl -s localhost:6800/jsonrpc -d '{"jsonrpc":"2.0","id":1,"method":"aria2.getVersion","params":["token:'$secret'"]}'
 ```
+
+`install.sh` adds an RPC secret of this Mac's own to the installed
+`aria2.conf`, the `rpc-secret=` line, so that a web page can't drive aria2.
+Enter it in Aria2 Explorer ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret)).
 
 The plists hardcode `/Users/shinthirty` and `/opt/homebrew`, so under another
 user name or on an Intel Mac, fix them in the repo first. The installed files
 are copies, since the tracker refresh rewrites `aria2.conf`. The monthly update
 ([section 8](#8-monthly-updates)) brings them back in line with the repo,
-keeping only the tracker line, so a local edit to them doesn't last. Downloads go to
-`~/Downloads`; for incoming BitTorrent peers, forward 6881–6999 on the router.
-`aria2/README.md` covers the AriaNg frontend and the browser extension.
+keeping only the tracker and secret lines, so a local edit to them doesn't
+last. Downloads go to `~/Downloads`. Incoming BitTorrent peers need a router
+forward, which goes to one machine, the desktop
+([SECURITY.md section 8](SECURITY.md#8-the-router)), so the Mac downloads
+from the peers it reaches itself. `aria2/README.md` covers the AriaNg frontend
+and the browser extension.
 
 **IdeaVim.** `bootstrap.sh` links `~/.ideavimrc`, which matters once a
 JetBrains IDE is installed. Install the **IdeaVim** and **Which-Key** plugins
@@ -185,7 +201,8 @@ the first start ([section 4](#4-personal-data-to-bring-over)), then, from
    preferences domain, `net.imput.helium`, but `ExtensionInstallForcelist`
    counts only when forced, which a profile does and `defaults write` doesn't.
    It works without MDM. The policy force-installs KeePassXC-Browser and Aria2
-   Explorer through Helium's services.
+   Explorer through Helium's services, and turns on HTTPS-only browsing and
+   encrypted DNS ([SECURITY.md section 7](SECURITY.md#7-helium-and-keepassxc)).
 2. Start Helium. On a fresh profile, accept Helium services on its setup page,
    then quit it (⌘Q) and start it again: the extensions install on that second
    start. Quit it.
@@ -378,7 +395,7 @@ themselves the next time nvim starts), and `ya pkg upgrade`, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config
 changed), checks the Brewfile against what's installed and reads `brew doctor`, checks that `git`
 still resolves to Homebrew's in a login shell, that the settings from
-section 1 are still as set and Helium's policies match `policies.json`, turns
+section 1 and SECURITY.md are still as set and Helium's policies match `policies.json`, turns
 Claude Code's own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is
 some of:
@@ -416,12 +433,16 @@ some of:
   recorded hashes, so the plugins still deployed here look locally edited.
   Then run `ya pkg upgrade` again
 - **aria2** — a launch agent that isn't loaded: `launchctl load` it
-  ([section 3](#3-apps-and-tools-not-covered-by-the-brewfile))
+  ([section 3](#3-apps-and-tools-not-covered-by-the-brewfile)); or a config
+  without an RPC secret ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret))
 - **Reset** — something a macOS update turned back: the PATH order
   ([section 5](#5-known-gotchas)), a setting from this runbook, such as
   natural scrolling ([section 1](#1-clone-and-bootstrap)), or a Helium policy
   (rerun `helium/apply-policies.sh`,
   [section 3](#3-apps-and-tools-not-covered-by-the-brewfile))
+- **Security** — a setting from SECURITY.md that isn't as it says: the screen
+  lock, the firewall and stealth mode, AirPlay Receiver, or the automatic
+  security updates ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
 - **Claude Code** — `~/.claude/settings.json` isn't valid JSON, so the script
   couldn't turn its update checks back off. Fix it and run the update again
 
@@ -447,7 +468,7 @@ hand goes in the table in `mac/steps/80-settings.zsh`, so the update notices
 when macOS resets it.
 
 **Not in the script, because they update themselves:** Helium, Discord,
-Obsidian and Clash Verge Rev (their casks are marked `auto_updates`, which
+Obsidian, Clash Verge Rev and Proton VPN (their casks are marked `auto_updates`, which
 `brew upgrade` skips),
 App Store apps, and the firmware, which comes with macOS updates. KeePassXC
 has its own update check off, so brew is the only thing that updates it —

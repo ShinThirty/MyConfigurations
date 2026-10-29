@@ -10,6 +10,9 @@ the boot order → Windows settings → scoop → repo → SSH keys → desktop 
 share → personal apps → verify.** After that, [section 15](#15-monthly-updates)
 keeps it current.
 
+[SECURITY.md](SECURITY.md) has the security settings, by whether the machine
+is a laptop or a desktop; this box is the desktop.
+
 > Scope note: the Windows side of this repo covers PowerShell, git, gitui, nvim,
 > yazi, Windows Terminal, GlazeWM, aria2, Helium and IdeaVim. Personal
 > apps and data aren't managed by the repo; [section 12](#12-personal-apps-and-data)
@@ -845,6 +848,10 @@ git -C $HOME\MyConfigurations log --show-signature -1
 the Mac shows *Good signature … No principal matched* (`%G?` = `U`). That's
 expected — the signature is valid, its key just isn't listed here.
 
+The keys have no passphrase. [SECURITY.md section 5](SECURITY.md#5-ssh-keys)
+adds one, with Windows' ssh-agent holding the keys, which takes pointing git at
+Windows' own OpenSSH.
+
 `git/gitconfig.windows` sets `useConfigOnly` and no email, so every commit
 fails with *Author identity unknown* until each clone has its own — in the
 repo and both submodules, kept out of the tracked config:
@@ -947,7 +954,13 @@ cd $HOME\MyConfigurations\aria2\windows   # install.ps1 uses relative paths
 `install.ps1` copies the config and both `.vbs` launchers into
 `~\.config\aria2\`, and creates an empty `aria2.session` only if none exists —
 so copy `D:\Migration\home\.config\aria2\aria2.session` there first to resume
-unfinished downloads.
+unfinished downloads. It adds an RPC secret of this machine's own to the
+installed `aria2.conf`, the `rpc-secret=` line, so that a web page can't drive
+aria2; enter it in Aria2 Explorer
+([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret)).
+`add_firewall_rules.ps1` opens the BitTorrent ports for every network profile,
+which suits the desktop; on a laptop, see
+[SECURITY.md section 2](SECURITY.md#2-firewall).
 
 It also registers two Task Scheduler tasks: **Aria2** (at logon, no time
 limit) and **Aria2 Update Trackers** (weekly). Check they exist with
@@ -962,15 +975,16 @@ fires on the coming Monday, so fill it now with
 
 The installed files are copies, since the weekly task rewrites `aria2.conf`.
 The monthly update ([section 15](#15-monthly-updates)) brings them back in line
-with the repo, keeping only the `dir=` and `bt-tracker=` lines, so a local edit
-to them doesn't last, and a repo change needs no rerun of `install.ps1`, which
-would overwrite `aria2.conf`, trackers and all.
+with the repo, keeping only the `dir=`, `rpc-secret=` and `bt-tracker=` lines,
+so a local edit to them doesn't last, and a repo change needs no rerun of
+`install.ps1`, which would overwrite `aria2.conf`, trackers and all.
 
 Check that `${HOME}` in `aria2.conf` resolved to your profile — aria2 expands
 it itself, but Windows doesn't set `HOME` by default. With aria2 running:
 
 ```powershell
-$body = '{"jsonrpc":"2.0","id":1,"method":"aria2.getGlobalOption"}'
+$secret = (Select-String '^rpc-secret=(.*)' "$HOME\.config\aria2\aria2.conf").Matches.Groups[1].Value
+$body = @{ jsonrpc = '2.0'; id = 1; method = 'aria2.getGlobalOption'; params = @("token:$secret") } | ConvertTo-Json
 (Invoke-RestMethod http://localhost:6800/jsonrpc -Method Post -Body $body).result | Select-Object dir, save-session
 # expect dir D:\Downloads, and save-session C:/Users/<you>/.config/aria2/aria2.session, not a literal ${HOME}
 ```
@@ -1055,7 +1069,8 @@ again. Then, from `~\MyConfigurations`:
 1. Policies, elevated: `sudo pwsh -NoProfile -File helium\apply-policies.ps1`.
    It writes `policies.json` into `HKLM\SOFTWARE\Policies\Helium`, which
    force-installs KeePassXC-Browser and Aria2 Explorer through Helium's
-   services.
+   services, and turns on HTTPS-only browsing and encrypted DNS
+   ([SECURITY.md section 7](SECURITY.md#7-helium-and-keepassxc)).
 2. Start Helium from the Start menu. On a fresh profile, accept Helium services
    on its setup page, then close it and start it again: the extensions install
    on that second start. Close it.
@@ -1210,6 +1225,7 @@ parsers rebuild themselves the next time nvim starts), `ya pkg upgrade` and
 installed copies back in line with the repo (restarting aria2 if its config
 changed), checks that an update
 hasn't reset the section 5 settings or Helium's policies and link handlers,
+that the firewall and Defender are on,
 turns Claude Code's own update checks back off if `~\.claude\settings.json` has
 lost `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with
 what's left, which is some of:
@@ -1238,10 +1254,13 @@ what's left, which is some of:
   Then run `ya pkg upgrade` again
 - **Drivers and BIOS** — check the versions it printed (below)
 - **aria2** — one of its tasks is gone or disabled
-  ([section 11](#11-aria2))
+  ([section 11](#11-aria2)), or its config has no RPC secret
+  ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret))
 - **Reset** — a section 5 setting an update turned back, a Run entry an app
   put back, or a Helium policy or link handler that changed (rerun the script
   it names, [section 12.1](#helium))
+- **Security** — the firewall off for a network profile, or Defender's
+  real-time protection off ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
 - **Claude Code** — a native copy its updater left in `~\.local` to delete
   ([section 12.1](#121-apps)), or a `~\.claude\settings.json` that isn't valid
   JSON, so the script couldn't turn its update checks back off. Fix it and run

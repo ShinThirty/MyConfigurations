@@ -23,14 +23,16 @@ update() {
     cp $DOTFILES/$src $dst && changed+=(${dst:t})
   done
 
-  # The installed aria2.conf has the bt-tracker= line the weekly refresh writes,
-  # which the repo's lacks. The rest should match, so it's rewritten from the
-  # repo's with that line kept.
-  local repo_conf=$DOTFILES/aria2/aria2.conf
-  if [[ "$(grep -v '^bt-tracker=' $repo_conf)" != "$(grep -v '^bt-tracker=' $dir/aria2.conf)" ]]; then
-    local merged=$(grep -v '^bt-tracker=' $repo_conf; grep '^bt-tracker=' $dir/aria2.conf)
+  # The installed aria2.conf has two lines the repo's lacks: the rpc-secret=
+  # install.sh adds, and the bt-tracker= the weekly refresh writes. The rest
+  # should match, so it's rewritten from the repo's with those lines kept.
+  local repo_conf=$DOTFILES/aria2/aria2.conf own='^(rpc-secret|bt-tracker)='
+  if [[ "$(grep -Ev $own $repo_conf)" != "$(grep -Ev $own $dir/aria2.conf)" ]]; then
+    local merged=$(grep -Ev $own $repo_conf; grep -E $own $dir/aria2.conf)
     print -r -- $merged >$dir/aria2.conf && changed+=(aria2.conf)
   fi
+  grep -q '^rpc-secret=.' $dir/aria2.conf ||
+    todo+=('aria2: its RPC has no secret, so a web page can tell it what to download and where: SECURITY.md section 6')
 
   if (( $#changed )); then
     ok "updated from the repo: $changed"

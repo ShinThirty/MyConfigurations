@@ -17,7 +17,7 @@ aria2/
 
 `aria2.conf` is the universal config used by all platforms. Key settings:
 
-- **RPC** enabled on port 6800 (for frontends like AriaNg)
+- **RPC** enabled on port 6800 (for frontends like AriaNg), on loopback only, with a per-machine secret the install scripts add (see [Frontend](#frontend))
 - **16 connections** per server, **32-way split** for parallel downloads
 - **Session persistence** — downloads survive restarts via `aria2.session`
 - **BitTorrent** — DHT, PEX, and seeding up to 1:1 ratio
@@ -97,7 +97,7 @@ aria2 doesn't update BitTorrent trackers automatically. The tracker update scrip
 
 ## Keeping the Copies Current
 
-The install scripts copy these files rather than link them, since the tracker scripts rewrite `aria2.conf`. So a change here reaches a machine through its monthly update (`mac/steps/51-aria2.zsh`, `arch/steps/51-aria2.zsh`, `powershell/steps/51-aria2.ps1`): it copies the repo's scripts, launch agents, units and launchers over the installed ones, rewrites the installed `aria2.conf` from the repo's while keeping its `bt-tracker=` line (and on Windows its `dir=` line), and restarts aria2 if its config changed. Re-running an install script instead overwrites `aria2.conf` and drops the trackers until the next refresh.
+The install scripts copy these files rather than link them, since the tracker scripts rewrite `aria2.conf`. So a change here reaches a machine through its monthly update (`mac/steps/51-aria2.zsh`, `arch/steps/51-aria2.zsh`, `powershell/steps/51-aria2.ps1`): it copies the repo's scripts, launch agents, units and launchers over the installed ones, rewrites the installed `aria2.conf` from the repo's while keeping its `rpc-secret=` and `bt-tracker=` lines (and on Windows its `dir=` line), and restarts aria2 if its config changed. Re-running an install script instead overwrites `aria2.conf`, keeping only the secret, and drops the trackers until the next refresh.
 
 ## Frontend
 
@@ -106,7 +106,9 @@ Use [AriaNg](https://github.com/mayswind/AriaNg) as a web frontend to manage dow
 - **Chrome/Edge/Brave**: [Aria2 Explorer](https://chromewebstore.google.com/detail/aria2-explorer/mpkodccbngfoacfalldjimigbofkhgjn) — built-in AriaNg, smart interception, user-agent spoofing
 - **Firefox**: [Aria2 Integration](https://addons.mozilla.org/en-US/firefox/addon/aria2-integration/) — equivalent feature set for Firefox
 
-Configure the extension with RPC URL `http://localhost:6800/jsonrpc` and enable download capture.
+Configure the extension with RPC URL `http://localhost:6800/jsonrpc` and the RPC secret, and enable download capture.
+
+The secret is the `rpc-secret=` line the install scripts add to the installed `aria2.conf`: a random one, kept on a rerun, and never in this repo, which is public. Without it, any web page could send aria2 requests on loopback, telling it what to download and where to save it. `SECURITY.md` section 6 covers adding one to an older install, and where AriaNg takes it.
 
 ## CLI Cheat Sheet
 

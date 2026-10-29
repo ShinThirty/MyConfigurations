@@ -18,20 +18,24 @@
             }
         }
 
-        # The installed aria2.conf has two lines of its own: dir= from install.ps1 -DownloadDir, and
-        # the bt-tracker= the weekly task writes, which the repo's lacks. The rest should match, so
-        # the installed copy should be the repo's with those two kept, and is rewritten when it isn't.
-        # Compared whole and case-sensitively, so a lost dir= line or a value whose case changed
-        # counts too; a lost dir= comes back as the repo's.
+        # The installed aria2.conf has lines of its own: dir= from install.ps1 -DownloadDir, and two
+        # the repo's lacks, the rpc-secret= install.ps1 adds and the bt-tracker= the weekly task
+        # writes. The rest should match, so the installed copy should be the repo's with those kept,
+        # and is rewritten when it isn't. Compared whole and case-sensitively, so a lost dir= line or
+        # a value whose case changed counts too; a lost dir= comes back as the repo's.
         $repoConf = @(Get-Content "$repo\aria2\aria2.conf")
         $installed = @(Get-Content $conf)
         $dirLine = @($installed -match '^dir=')[0]
-        $merged = @(foreach ($line in ($repoConf -notmatch '^bt-tracker=')) {
+        $own = '^(rpc-secret|bt-tracker)='
+        $merged = @(foreach ($line in ($repoConf -notmatch $own)) {
             if ($dirLine -and $line -match '^dir=') { $dirLine } else { $line }
-        }) + @($installed -match '^bt-tracker=')
+        }) + @($installed -match $own)
         if (($merged -join "`n") -cne ($installed -join "`n")) {
             $merged | Set-Content $conf
             $changed.Add('aria2.conf')
+        }
+        if (-not ($merged -match '^rpc-secret=.')) {
+            $todo.Add('aria2: its RPC has no secret, so a web page can tell it what to download and where: SECURITY.md section 6')
         }
 
         if ($changed.Count) { Write-Ok "updated from the repo: $($changed -join ', ')" } else { Write-Ok 'the installed copies match the repo' }
