@@ -443,11 +443,17 @@ some of:
   lock, the firewall and stealth mode, AirPlay Receiver, the automatic
   security updates, a mounted share's name not in `/etc/hosts`, or a line
   missing from `/etc/nsmb.conf`
-  ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
+  ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks));
+  or Wi-Fi networks the cleanup didn't forget, below
 - **Claude Code** — `~/.claude/settings.json` isn't valid JSON, so the script
   couldn't turn its update checks back off. Fix it and run the update again
 
-**The cleanup.** `update.sh` ends with it, and it asks nothing:
+**The cleanup.** `update.sh` ends with it. It lists the Wi-Fi networks the Mac
+remembers that aren't in `~/.config/wifi/keep`, iCloud's from your other
+Apple devices included, and asks before forgetting them, which takes your
+password ([SECURITY.md section 9](SECURITY.md#9-untrusted-networks)); say no,
+or have no such file, and they're listed under **Security** instead. The rest
+asks nothing:
 `brew cleanup --prune=all` removes old versions and every cached download,
 `go clean -modcache` empties the Go module cache, and `uv cache prune` drops
 unused uv cache entries. Once uv has Pythons of its own, it also uninstalls the

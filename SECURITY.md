@@ -540,7 +540,11 @@ café could have, and they tend to pay for themselves by selling it.
 - When you leave, forget the network (macOS: System Settings → Wi-Fi, ⋯ next to
   it → Forget This Network; Windows: Settings → Network & internet → Wi-Fi →
   Manage known networks). Otherwise the laptop joins any network with that
-  name later, anywhere
+  name later, anywhere. On macOS, the monthly cleanup catches what you miss,
+  and what iCloud syncs in from your other Apple devices: it offers to forget
+  every network not listed in `~/.config/wifi/keep`, one name per line, which
+  stays out of the repo, since it's public. List home and your phone's hotspot
+  there on each Mac
 - On Windows, leave it marked Public
 
 ---
@@ -589,7 +593,9 @@ It lists what isn't as set under **Security** in what's left at the end:
 On all three, two more come up under other headings: a missing `rpc-secret=`
 in aria2's config under **aria2** (`51-aria2`), and a Helium policy that
 doesn't match `policies.json`, the HTTPS and DNS ones included, under
-**Reset**.
+**Reset**. And on macOS, the cleanup (`mac/steps/60-wifi.zsh`) lists the Wi-Fi
+networks not in `~/.config/wifi/keep` under **Security** when you don't let it
+forget them, or when there's no such file (section 9).
 
 Not checked: Find My, the SSH passphrases, KeePassXC's settings, a laptop's
 VPN and the router, its IPv6 firewall included. A security setting you make by hand that a command can read
