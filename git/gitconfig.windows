@@ -5,6 +5,8 @@
 	ignorecase = false
 	longpaths = true
 	pager = delta
+	# Windows' own OpenSSH, not Git's, which can't reach the ssh-agent service (SECURITY.md section 5)
+	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
 [user]
 	name = Lingnan Liu
 	useConfigOnly = true
@@ -29,5 +31,6 @@
 	format = ssh
 [gpg "ssh"]
 	allowedSignersFile = ~/.ssh/allowed_signers
+	program = C:/Windows/System32/OpenSSH/ssh-keygen.exe
 [credential "helperselector"]
 	selected = manager
