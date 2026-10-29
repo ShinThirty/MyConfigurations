@@ -179,6 +179,39 @@ is active, and its RPC on 6800, on loopback only: `rpc-listen-all=false` in
 `aria2.conf` keeps it there. Keep that line, and never forward 6800 on the
 router.
 
+**The network share's name.** The public DNS server the router hands out
+doesn't know the share's name, so to find it, a machine asks the whole network
+and takes the first answer. Any device there can give it: a TV or phone with
+malware, a guest's laptop. The machine then sends that device the share's
+login, as a challenge-response it can try to crack offline: a long password
+keeps it out of reach, a short one doesn't. Windows asks at each sign-in, to
+reconnect Z:, and again every few minutes while Z: is in use. It requires SMB
+signing, so an impostor can't pose as the share itself, only collect the login.
+Put the name in the hosts file, at the share's address (the router's, for its
+USB share), and turn off LLMNR and NetBIOS, which ask the network for any name
+DNS doesn't know.
+
+On Windows, elevated, then restart:
+
+```powershell
+# <share-host> as in \\<share-host>\<share>; the router's address is (Get-NetRoute -DestinationPrefix 0.0.0.0/0).NextHop
+Add-Content "$env:SystemRoot\System32\drivers\etc\hosts" "`n<router-ip>`t<share-host>"
+# LLMNR off, then NetBIOS off on every adapter
+$k = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient'
+if (-not (Test-Path $k)) { New-Item $k | Out-Null }
+Set-ItemProperty $k EnableMulticast 0 -Type DWord
+Get-ChildItem HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters\Interfaces |
+    ForEach-Object { Set-ItemProperty $_.PSPath NetbiosOptions 2 -Type DWord }
+```
+
+If the router's address changes, so must that line. An adapter added later
+starts with NetBIOS on; the monthly update flags it once it's connected, and
+LLMNR on, or a mapped share's name missing from the hosts file.
+
+macOS and Arch ask the network the same way, and the same line in `/etc/hosts`
+covers the share: `echo '<router-ip> <share-host>' | sudo tee -a /etc/hosts`,
+then connect by that name. Untested on both.
+
 ---
 
 ## 4. Updates
@@ -386,6 +419,19 @@ The desktop sits behind it, and so do the laptops when they're home.
   RDP or SSH
 - Turn UPnP off: it lets any device on the network open ports to the internet
   for itself
+- **IPv6**: when the ISP provides it, every machine at home gets addresses the
+  internet can reach directly: the ones starting with 2 or 3 (Windows:
+  `Get-NetIPAddress -AddressFamily IPv6`; macOS: `ifconfig`; Arch: `ip -6
+  addr`). No shared address hides them behind the router, as IPv4's does, so
+  its IPv6 firewall is what drops the connections nobody at home started:
+  check it's on, in the router's IPv6 or security settings. Without it, each
+  machine's own firewall is all that's left, and the desktop's lets in aria2's
+  ports, Windows' update sharing (Delivery Optimization, 7680) and any app it
+  was once told to allow. To test it, run an online IPv6 port scan of the
+  desktop's address while aria2 has a torrent active, on aria2's port in
+  6881–6999 (`Get-NetTCPConnection -State Listen -OwningProcess (Get-Process aria2c).Id`):
+  filtered means the router stops it, open means it doesn't. The forward
+  above is IPv4 only, so IPv6 peers can't connect in; they still connect out
 - Keep its firmware updated, change its admin password, and turn off
   administration from the internet
 - Wi-Fi: WPA3, or WPA2/WPA3 for older devices, with a long passphrase. A guest
@@ -484,7 +530,9 @@ It lists what isn't as set under **Security** in what's left at the end:
   locks, the firewall and stealth mode, AirPlay Receiver off, and *Security
   Responses and system files* on
 - **Windows** (`powershell/steps/80-settings.ps1`): the firewall on for all
-  three profiles, and Defender's real-time protection
+  three profiles, Defender's real-time protection, and section 3's share name:
+  each mapped share's name in the hosts file, LLMNR off, and NetBIOS off on
+  each connected adapter
 - **Arch** (`arch/steps/80-settings.zsh`): ufw enabled and on
 
 On all three, two more come up under other headings: a missing `rpc-secret=`
@@ -493,5 +541,5 @@ doesn't match `policies.json`, the HTTPS and DNS ones included, under
 **Reset**.
 
 Not checked: Find My, the SSH passphrases, KeePassXC's settings, a laptop's
-VPN and the router. A security setting you make by hand that a command can read
+VPN and the router, its IPv6 firewall included. A security setting you make by hand that a command can read
 goes in the platform's `80-settings`, with the others.

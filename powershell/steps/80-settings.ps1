@@ -1,5 +1,5 @@
 # What a Windows update can quietly reset: the section 5 settings, Helium's policies and link
-# handlers, the Run entries apps put back, and the firewall and Defender (SECURITY.md)
+# handlers, the Run entries apps put back, and SECURITY.md's firewall, Defender and share name
 
 @{
     Update = {
@@ -85,11 +85,27 @@
         if ($defender -and -not $defender.RealTimeProtectionEnabled) {
             $insecure.Add("Defender's real-time protection is off: Windows Security > Virus & threat protection (SECURITY.md section 4)")
         }
+        # Section 3: a mapped share's name in the hosts file, and LLMNR and NetBIOS off, so Windows doesn't
+        # ask the whole network for it. A name with a dot, or an address, goes to DNS instead.
+        $hostsNames = Get-Content "$env:SystemRoot\System32\drivers\etc\hosts" | ForEach-Object { ($_ -replace '#.*').Trim() -split '\s+' | Select-Object -Skip 1 }
+        Get-SmbMapping -ErrorAction SilentlyContinue | ForEach-Object { ($_.RemotePath -split '\\')[2] } |
+            Where-Object { $_ -notmatch '[.:]' -and $_ -notin $hostsNames } | Sort-Object -Unique | ForEach-Object {
+                $insecure.Add("$_, a mapped share's host, isn't in the hosts file, so Windows asks the whole network for it (SECURITY.md section 3)")
+            }
+        if ((Get-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient' -ErrorAction SilentlyContinue).EnableMulticast -ne 0) {
+            $insecure.Add("LLMNR is on, asking the whole network for names DNS doesn't know (SECURITY.md section 3)")
+        }
+        Get-NetAdapter | Where-Object Status -eq Up | ForEach-Object {
+            $netbt = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters\Interfaces\Tcpip_$($_.InterfaceGuid)" -ErrorAction SilentlyContinue
+            if ($netbt -and $netbt.NetbiosOptions -ne 2) {
+                $insecure.Add("NetBIOS is on for $($_.Name), asking the whole network for names DNS doesn't know (SECURITY.md section 3)")
+            }
+        }
         if ($insecure) {
             Write-Warn "$($insecure.Count) of SECURITY.md's settings not as it says, listed below"
             $insecure | ForEach-Object { $todo.Add("Security: $_") }
         } else {
-            Write-Ok "the firewall and Defender are on"
+            Write-Ok "the firewall and Defender are on, and LLMNR and NetBIOS off"
         }
     }
 }

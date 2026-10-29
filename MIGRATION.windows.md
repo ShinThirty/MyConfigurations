@@ -922,6 +922,10 @@ cmdkey /add:<share-host> /user:<user> /pass      # prompts for the password — 
 net use Z: \\<share-host>\<share> /persistent:yes
 ```
 
+Then put `<share-host>` in the hosts file and turn off LLMNR and NetBIOS,
+elevated ([SECURITY.md section 3](SECURITY.md#3-what-listens-on-the-network)):
+without that, Windows asks the whole network for the name at every sign-in.
+
 Then KeePassXC:
 
 1. Copy `D:\Migration\home\scoop\persist\keepassxc\config\` into
@@ -1257,8 +1261,9 @@ what's left, which is some of:
 - **Reset** — a section 5 setting an update turned back, a Run entry an app
   put back, or a Helium policy or link handler that changed (rerun the script
   it names, [section 12.1](#helium))
-- **Security** — the firewall off for a network profile, or Defender's
-  real-time protection off ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
+- **Security** — the firewall off for a network profile, Defender's
+  real-time protection off, or the share's name not in the hosts file, or
+  LLMNR or NetBIOS on ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
 - **Claude Code** — a native copy its updater left in `~\.local` to delete
   ([section 12.1](#121-apps)), or a `~\.claude\settings.json` that isn't valid
   JSON, so the script couldn't turn its update checks back off. Fix it and run
