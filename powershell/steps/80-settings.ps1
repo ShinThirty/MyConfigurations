@@ -101,11 +101,23 @@
                 $insecure.Add("NetBIOS is on for $($_.Name), asking the whole network for names DNS doesn't know (SECURITY.md section 3)")
             }
         }
+        # And the SMB client speaks only SMB 2 or later, signed, with no guest logins: Windows 11 24H2's
+        # defaults, which nothing sets here. An SMB 1 driver set to Disabled (Start 4) can't be used.
+        $smb = Get-SmbClientConfiguration -ErrorAction SilentlyContinue
+        if ($smb -and -not $smb.RequireSecuritySignature) {
+            $insecure.Add('the SMB client no longer requires signing, so a device in between can change what''s read from a share: Set-SmbClientConfiguration -RequireSecuritySignature $true, elevated (SECURITY.md section 3)')
+        }
+        if ($smb.EnableInsecureGuestLogons) {
+            $insecure.Add('the SMB client allows guest logins, which can''t be signed: Set-SmbClientConfiguration -EnableInsecureGuestLogons $false, elevated (SECURITY.md section 3)')
+        }
+        if ((Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Services\mrxsmb10' -ErrorAction SilentlyContinue).Start -notin $null, 4) {
+            $insecure.Add('the SMB 1 client is installed: Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol, elevated, then restart (SECURITY.md section 3)')
+        }
         if ($insecure) {
             Write-Warn "$($insecure.Count) of SECURITY.md's settings not as it says, listed below"
             $insecure | ForEach-Object { $todo.Add("Security: $_") }
         } else {
-            Write-Ok "the firewall and Defender are on, and LLMNR and NetBIOS off"
+            Write-Ok "the firewall and Defender are on, LLMNR and NetBIOS off, and SMB signed"
         }
     }
 }

@@ -1262,8 +1262,9 @@ what's left, which is some of:
   put back, or a Helium policy or link handler that changed (rerun the script
   it names, [section 12.1](#helium))
 - **Security** — the firewall off for a network profile, Defender's
-  real-time protection off, or the share's name not in the hosts file, or
-  LLMNR or NetBIOS on ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
+  real-time protection off, the share's name not in the hosts file, LLMNR or
+  NetBIOS on, or SMB signing no longer required, guest logins allowed or SMB 1
+  installed ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
 - **Claude Code** — a native copy its updater left in `~\.local` to delete
   ([section 12.1](#121-apps)), or a `~\.claude\settings.json` that isn't valid
   JSON, so the script couldn't turn its update checks back off. Fix it and run
