@@ -88,13 +88,20 @@ settings.
 
 **Windows.** Defender Firewall is on for all three network profiles by
 default; keep it that way. Windows marks a network you join as Public unless
-you say otherwise, which is right for anywhere but home; mark your home network
-Private (Settings → Network & internet → Wi-Fi → its properties).
-`aria2/windows/add_firewall_rules.ps1` opens 6881–6999 for every profile: right
-for the desktop, but on a laptop limit them to home, elevated:
+you say otherwise. Leave every network so, home included: Private opens Network
+Discovery, Remote Assistance, casting and mDNS to every device on the network,
+and nothing here needs them. The network share works on Public, since the
+machine is the one connecting. `Get-NetConnectionProfile` shows each network's
+profile.
+
+`aria2/windows/add_firewall_rules.ps1` opens 6881–6999 for every profile,
+Public included, which the desktop needs: the router forwards them to it
+([section 8](#8-the-router)). A laptop gets no forward, so on one the rules
+would only let in peers on other networks, a café's among them. Skip the script
+there, or remove its rules, elevated:
 
 ```powershell
-Set-NetFirewallRule -DisplayName Allow-P2P-TCP, Allow-P2P-UDP -Profile Private
+Remove-NetFirewallRule -DisplayName Allow-P2P-TCP, Allow-P2P-UDP
 ```
 
 `Get-NetFirewallProfile | Select-Object Name, Enabled` lists the profiles, and
@@ -449,11 +456,13 @@ In this order:
 
 1. **Lock or erase it**: Find My (icloud.com/find, or another Apple device),
    or account.microsoft.com/devices
-2. **Revoke the SSH keys**: GitHub → Settings → SSH and GPG keys (the
-   authentication key, and the signing key). Every machine has copies of the
-   same files, so this means new keys everywhere. Add the new signing key's
-   line to `~/.ssh/allowed_signers`, keeping the old one, or past commits stop
-   verifying
+2. **Revoke its SSH keys**: GitHub → Settings → SSH and GPG keys, its
+   authentication key and its signing key. Each machine has keys of its own,
+   so the others keep theirs. GitHub lists each key by title and fingerprint,
+   and a commit made on the lost machine shows its signing key's:
+   `git log -1 --format=%GF <commit>`. The machine that replaces it gets new
+   keys: add the new signing key's line to `~/.ssh/allowed_signers` and keep
+   the old one, or the lost machine's past commits stop verifying
 3. **Sign it out**: your Apple Account's device list, Google (Security → Your
    devices), GitHub (Settings → Sessions), Discord, Proton (account.proton.me,
    its sessions), and the brokers
