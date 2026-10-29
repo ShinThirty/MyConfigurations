@@ -1,8 +1,8 @@
 # What an update can quietly reset. pacman never does: it leaves a config you
 # changed alone and writes a .pacnew, which 20-pacman merges. Windows Update can,
 # on this dual-boot machine, by putting Windows Boot Manager first in the
-# firmware's boot order (MIGRATION.windows.md section 4). And the firewall
-# SECURITY.md has you set up, which Arch doesn't come with.
+# firmware's boot order (MIGRATION.windows.md section 4). And the firewall,
+# LLMNR and SMB signing SECURITY.md has you set up, which Arch doesn't come with.
 
 update() {
   info 'Settings'
@@ -14,6 +14,30 @@ update() {
   else
     warn 'no firewall, listed below'
     todo+=('Security: ufw is off or not installed, so every port that listens is open to the network (SECURITY.md section 2)')
+  fi
+
+  # systemd-resolved asks the whole network by LLMNR for a name DNS doesn't
+  # know, and takes the first answer, unless a drop-in turns it off
+  if ! systemctl is-active --quiet systemd-resolved.service ||
+     resolvectl status 2>/dev/null | awk '/^Global/,/^$/' | grep -q -- '-LLMNR'; then
+    ok 'LLMNR is off'
+  else
+    warn 'LLMNR is on, listed below'
+    todo+=("Security: systemd-resolved asks the network by LLMNR for names DNS doesn't know, and any device there can answer (SECURITY.md section 3)")
+  fi
+
+  # Linux's SMB client signs only when the server requires it, and the
+  # router's share doesn't
+  local share opts shares=0 unsigned=()
+  findmnt --fstab -t cifs,smb3 -rno TARGET,OPTIONS | while read -r share opts; do
+    (( shares++ ))
+    [[ ,$opts, == *,sign,* ]] || unsigned+=($share)
+  done
+  if (( $#unsigned )); then
+    warn "${(j:, :)unsigned} mounts unsigned, listed below"
+    todo+=("Security: ${(j:, :)unsigned} mounts without sign in /etc/fstab, so a device on the network can change what's read from it (SECURITY.md section 3)")
+  elif (( shares )); then
+    ok 'SMB shares mount signed'
   fi
 
   [[ -d /sys/firmware/efi ]] || { skip 'not booted with UEFI'; return }

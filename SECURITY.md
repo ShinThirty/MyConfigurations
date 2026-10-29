@@ -210,7 +210,7 @@ LLMNR on, or a mapped share's name missing from the hosts file.
 
 macOS and Arch ask the network the same way, and the same line in `/etc/hosts`
 covers the share: `echo '<router-ip> <share-host>' | sudo tee -a /etc/hosts`,
-then connect by that name. Untested on Arch.
+then connect by that name.
 
 On macOS, the SMB client asks the network only for a name the hosts file and
 DNS don't know, and the Keychain files the share's password under the name, so
@@ -228,6 +228,26 @@ A share already open keeps its connection until it's ejected. `netbiosd` still
 listens on UDP 137 and 138, but with File Sharing off it doesn't answer for the
 Mac. The monthly update flags a mounted share's name missing from `/etc/hosts`,
 or a line above missing from `/etc/nsmb.conf`.
+
+On Arch, systemd-resolved does the asking, by LLMNR, which is on by default.
+A drop-in turns it off:
+
+```sh
+sudo mkdir -p /etc/systemd/resolved.conf.d
+printf '[Resolve]\nLLMNR=no\n' | sudo tee /etc/systemd/resolved.conf.d/llmnr.conf
+sudo systemctl restart systemd-resolved
+```
+
+`resolvectl status` then shows `-LLMNR`. It still asks by mDNS, but only for
+names ending in `.local`. The share's line in `/etc/fstab` mounts it by
+address, `//<router-ip>/<share>`, so the mount looks up no name. Linux's SMB
+client signs only when the server requires it, and the router's share
+doesn't, so add `sign` to that line's options, then
+`sudo systemctl daemon-reload` and `sudo systemctl stop` on its mount point,
+which unmounts it and leaves the automount in place: the next access mounts it
+signed, and `/proc/fs/cifs/DebugData` shows its session as signed.
+The monthly update flags LLMNR on, or an SMB line in `/etc/fstab` without
+`sign`.
 
 ---
 
@@ -551,7 +571,8 @@ It lists what isn't as set under **Security** in what's left at the end:
   three profiles, Defender's real-time protection, and section 3's share name:
   each mapped share's name in the hosts file, LLMNR off, and NetBIOS off on
   each connected adapter
-- **Arch** (`arch/steps/80-settings.zsh`): ufw enabled and on
+- **Arch** (`arch/steps/80-settings.zsh`): ufw enabled and on, and section 3's
+  LLMNR off and `sign` on each SMB share in `/etc/fstab`
 
 On all three, two more come up under other headings: a missing `rpc-secret=`
 in aria2's config under **aria2** (`51-aria2`), and a Helium policy that
