@@ -50,7 +50,9 @@ sudo systemctl restart systemd-resolved && sudo systemctl reload NetworkManager
 `resolvectl status` then shows `+DNSOverTLS`. With `yes`, a network that
 blocks port 853 has no DNS at all, which suits a desktop that stays home;
 `opportunistic` falls back to plain lookups instead, and anyone in the path
-can force that.
+can force that. The monthly update lists under Security systemd-resolved not
+running, DNS over TLS not `yes` for it or for a link with DNS servers, or
+`/etc/resolv.conf` not pointing at it.
 
 ---
 
@@ -478,7 +480,7 @@ it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its
-config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed, that systemd-boot is still first in the boot order,
+config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed, that DNS goes over TLS, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, turns Claude Code's
 own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is some of:
@@ -500,9 +502,10 @@ own update checks back off if `~/.claude/settings.json` has lost
   or add them to the Brewfile
 - **GE-Proton**: add the new release in ProtonUp-Qt. Games that pin a version
   by name need switching to it in Steam
-- **Security**: ufw off or not installed, LLMNR on, or an SMB share in
-  `/etc/fstab` without `sign`
-  ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
+- **Security**: ufw off or not installed, LLMNR on, an SMB share in
+  `/etc/fstab` without `sign`, or DNS that can go out in plain text
+  ([section 1](#1-install-arch),
+  [SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
 - **aria2**: a unit that isn't enabled: `systemctl --user enable --now` it
   ([section 2](#2-clone-and-bootstrap)); or a config without an RPC secret
   ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret))

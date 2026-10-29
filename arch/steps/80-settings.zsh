@@ -2,7 +2,8 @@
 # changed alone and writes a .pacnew, which 20-pacman merges. Windows Update can,
 # on this dual-boot machine, by putting Windows Boot Manager first in the
 # firmware's boot order (MIGRATION.windows.md section 4). And the firewall,
-# LLMNR and SMB signing SECURITY.md has you set up, which Arch doesn't come with.
+# LLMNR and SMB signing SECURITY.md has you set up, and the DNS over TLS
+# MIGRATION.arch.md section 1 does, which Arch doesn't come with.
 
 update() {
   info 'Settings'
@@ -38,6 +39,37 @@ update() {
     todo+=("Security: ${(j:, :)unsigned} mounts without sign in /etc/fstab, so a device on the network can change what's read from it (SECURITY.md section 3)")
   elif (( shares )); then
     ok 'SMB shares mount signed'
+  fi
+
+  # MIGRATION.arch.md section 1: systemd-resolved sends every lookup over TLS,
+  # with no plain fallback, and /etc/resolv.conf points at it, so the programs
+  # that read that file go through it too. A link's mode is the global one
+  # unless NetworkManager's connection sets its own
+  local line scope mode global servers plain=()
+  if ! systemctl is-active --quiet systemd-resolved.service; then
+    plain+=("systemd-resolved isn't running, so lookups go out in plain text: section 1's commands start it")
+  else
+    resolvectl dnsovertls 2>/dev/null | while IFS= read -r line; do
+      scope=${line%: *} mode=${line##*: }
+      if [[ $scope == Global ]]; then
+        global=$mode
+        [[ $mode == yes ]] ||
+          plain+=("systemd-resolved's DNS over TLS is $mode, so lookups can go out in plain text: section 1's drop-in sets yes")
+      elif [[ $global == yes && $mode != yes ]]; then
+        # a link with no DNS servers of its own sends no lookups
+        servers=$(resolvectl dns ${${scope#*\(}%\)} 2>/dev/null)
+        [[ -n ${servers#*:} ]] &&
+          plain+=("$scope has DNS over TLS $mode, so lookups to its DNS servers can go out in plain text: set its NetworkManager connection's connection.dns-over-tls back to default")
+      fi
+    done
+  fi
+  [[ /etc/resolv.conf -ef /run/systemd/resolve/stub-resolv.conf ]] ||
+    plain+=("/etc/resolv.conf doesn't point at systemd-resolved, so the programs that read it look up names in plain text: section 1's ln line links it")
+  if (( $#plain )); then
+    warn 'DNS goes out in plain text, listed below'
+    for line in $plain; do todo+=("Security: $line (MIGRATION.arch.md section 1)"); done
+  else
+    ok 'DNS goes over TLS'
   fi
 
   [[ -d /sys/firmware/efi ]] || { skip 'not booted with UEFI'; return }
