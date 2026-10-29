@@ -210,7 +210,24 @@ LLMNR on, or a mapped share's name missing from the hosts file.
 
 macOS and Arch ask the network the same way, and the same line in `/etc/hosts`
 covers the share: `echo '<router-ip> <share-host>' | sudo tee -a /etc/hosts`,
-then connect by that name. Untested on both.
+then connect by that name. Untested on Arch.
+
+On macOS, the SMB client asks the network only for a name the hosts file and
+DNS don't know, and the Keychain files the share's password under the name, so
+it keeps finding it. The counterpart of NetBIOS off on Windows is
+`/etc/nsmb.conf`, which covers every account on the Mac and doesn't exist by
+default: `port445=no_netbios` stops the asking, and port 139 with it,
+`protocol_vers_map=6` leaves SMB 2 and 3, and `signing_required=yes` lets no
+device in between change what's read from a share.
+
+```sh
+printf '[default]\nport445=no_netbios\nprotocol_vers_map=6\nsigning_required=yes\n' | sudo tee /etc/nsmb.conf
+```
+
+A share already open keeps its connection until it's ejected. `netbiosd` still
+listens on UDP 137 and 138, but with File Sharing off it doesn't answer for the
+Mac. The monthly update flags a mounted share's name missing from `/etc/hosts`,
+or a line above missing from `/etc/nsmb.conf`.
 
 ---
 
@@ -527,8 +544,9 @@ In this order:
 It lists what isn't as set under **Security** in what's left at the end:
 
 - **macOS** (`mac/steps/80-settings.zsh`): the password as soon as the screen
-  locks, the firewall and stealth mode, AirPlay Receiver off, and *Security
-  Responses and system files* on
+  locks, the firewall and stealth mode, AirPlay Receiver off, *Security
+  Responses and system files* on, and section 3's share name: each mounted
+  share's name in `/etc/hosts`, and `/etc/nsmb.conf`'s three lines
 - **Windows** (`powershell/steps/80-settings.ps1`): the firewall on for all
   three profiles, Defender's real-time protection, and section 3's share name:
   each mapped share's name in the hosts file, LLMNR off, and NetBIOS off on

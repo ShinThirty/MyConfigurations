@@ -51,6 +51,24 @@ update() {
     [[ $(defaults read $updates $key 2>/dev/null) == 1 ]] ||
       insecure+=("$key is off: turn on Security Responses and system files in System Settings → General → Software Update → Automatic Updates (SECURITY.md section 4)")
   done
+  # Section 3: a mounted share's host in /etc/hosts, so the Mac doesn't ask the
+  # whole network for it. A name with a dot, or an address, goes to DNS instead.
+  local host
+  for host in $(mount -t smbfs | awk '{ sub("^//([^@/]*@)?", "", $1); sub("/.*", "", $1); print tolower($1) }' | sort -u); do
+    [[ $host == *[.:]* ]] ||
+      awk -v h=$host '{ sub("#.*", ""); for (i = 2; i <= NF; i++) if (tolower($i) == h) found = 1 } END { exit !found }' /etc/hosts ||
+      insecure+=("$host, a mounted share's host, isn't in /etc/hosts, so the Mac asks the whole network for it (SECURITY.md section 3)")
+  done
+  # And the SMB client asks the network for no name at all, and speaks only SMB 2
+  # or later, signed: each line, and what's left without it
+  local nsmb=(
+    port445=no_netbios 'the SMB client asks the whole network for a name DNS and /etc/hosts don'\''t know'
+    protocol_vers_map=6 'the SMB client still offers SMB 1'
+    signing_required=yes 'the SMB client accepts a connection a device in between can change'
+  )
+  for key fix in $nsmb; do
+    grep -qsx $key /etc/nsmb.conf || insecure+=("$fix: add $key to /etc/nsmb.conf (SECURITY.md section 3)")
+  done
 
   # Helium's policies come from a configuration profile built from
   # helium/policies.json (MIGRATION.md section 3)

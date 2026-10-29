@@ -439,8 +439,10 @@ some of:
   (rerun `helium/apply-policies.sh`,
   [section 3](#3-apps-and-tools-not-covered-by-the-brewfile))
 - **Security** — a setting from SECURITY.md that isn't as it says: the screen
-  lock, the firewall and stealth mode, AirPlay Receiver, or the automatic
-  security updates ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
+  lock, the firewall and stealth mode, AirPlay Receiver, the automatic
+  security updates, a mounted share's name not in `/etc/hosts`, or a line
+  missing from `/etc/nsmb.conf`
+  ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
 - **Claude Code** — `~/.claude/settings.json` isn't valid JSON, so the script
   couldn't turn its update checks back off. Fix it and run the update again
 
