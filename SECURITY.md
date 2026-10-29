@@ -326,16 +326,28 @@ connection* means none. Arch's openssh has a user unit for one:
 systemctl --user enable --now ssh-agent.service
 ```
 
-Then, in `~/.zshrc.local`, point at it, and add the signing key in the first
-terminal after login, which asks for its passphrase once:
+Then, in `~/.zshrc.local`, point at it, and add both keys in the first
+terminal after login. It asks once: `ssh-add` tries the passphrase you type
+for the first key on the next. Powerlevel10k's instant prompt points stdin
+away from the terminal while `.zshrc` runs, so `ssh-add` would look for a
+graphical askpass program, which Arch doesn't install, and fail with
+*ssh_askpass: exec(/usr/lib/ssh/ssh-askpass)*. Reading the passphrase from
+`/dev/tty` avoids it, in a shell that has one:
 
 ```sh
 export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
-ssh-add -T ~/.ssh/signing_key.pub 2>/dev/null || ssh-add ~/.ssh/signing_key
+if ! ssh-add -T ~/.ssh/signing_key.pub 2>/dev/null && { : </dev/tty } 2>/dev/null; then
+  ssh-add -q ~/.ssh/signing_key ~/.ssh/github </dev/tty
+fi
 ```
 
-The other keys go into the agent the first time ssh uses them, asking once,
-since `~/.ssh/config` has `AddKeysToAgent yes`.
+Any other key goes into the agent the first time ssh uses it, asking once,
+with this at the top of `~/.ssh/config`:
+
+```
+Host *
+    AddKeysToAgent yes
+```
 
 **Windows.** The OpenSSH agent service is off by default. Keys added to it stay
 through restarts, stored encrypted for your account, so each one is added once:
