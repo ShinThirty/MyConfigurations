@@ -8,11 +8,15 @@
 #   mac/vpn-reminder.sh --register    install the launch agent (bootstrap.sh does this)
 #   mac/vpn-reminder.sh --trust       trust the network the Mac is on now
 #
-# The agent runs it at login and whenever the network changes. A network is
-# known by its router's hardware address, since macOS hides the Wi-Fi name from
-# a script without Location Services. The trusted ones are listed one per line
-# in ~/.config/vpn-reminder/trusted, not in this repo, which is public: a
-# router's address can be looked up to where it is.
+# The agent keeps --watch running from login: a check then, and again after
+# each change of network. A watcher rather than launchd's LaunchEvents, which
+# starts a job again every 10 seconds until it takes the event through XPC,
+# and a script can't.
+#
+# A network is known by its router's hardware address, since macOS hides the
+# Wi-Fi name from a script without Location Services. The trusted ones are
+# listed one per line in ~/.config/vpn-reminder/trusted, not in this repo,
+# which is public: a router's address can be looked up to where it is.
 
 label=local.vpn-reminder
 trusted=$HOME/.config/vpn-reminder/trusted
@@ -32,26 +36,28 @@ if [[ $1 == --register ]]; then
     <array>
         <string>/bin/zsh</string>
         <string>${0:A}</string>
+        <string>--watch</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
-    <key>LaunchEvents</key>
-    <dict>
-        <key>com.apple.notifyd.matching</key>
-        <dict>
-            <key>network-change</key>
-            <dict>
-                <key>Notification</key>
-                <string>com.apple.system.config.network_change</string>
-            </dict>
-        </dict>
-    </dict>
+    <key>KeepAlive</key>
+    <true/>
 </dict>
 </plist>
 EOF
   launchctl bootout gui/$UID/$label 2>/dev/null
   launchctl bootstrap gui/$UID $plist || exit
   print "Registered launch agent: $label (at login and on every network change)"
+  exit
+fi
+
+if [[ $1 == --watch ]]; then
+  zsh ${0:A}
+  notifyutil -w com.apple.system.config.network_change | while read -r _; do
+    # Joining a network posts several in a row: check once they stop
+    while read -r -t 2 _; do :; done
+    zsh ${0:A}
+  done
   exit
 fi
 
@@ -96,18 +102,21 @@ exposed() {
 }
 
 # Once each time the Mac becomes exposed. An event while it stays so, like
-# another from the same network, changes nothing.
+# another from the same network, changes nothing. The mark holds this boot's ID
+# as well, since the run at login can come after the Wi-Fi is already back on
+# the network of a reminder from before the restart.
 if ! exposed; then
   command rm -f $state/reminded
   exit 0
 fi
-[[ $now == "$(cat $state/reminded 2>/dev/null)" ]] && exit 0
+boot=$(sysctl -n kern.bootsessionuuid)
+[[ $boot$'\n'$now == "$(cat $state/reminded 2>/dev/null)" ]] && exit 0
 # A VPN reconnecting after sleep, or changing servers, is back by then
 sleep 10
 now=$(routers)
 exposed || exit 0
 mkdir -p $state
-print -r -- $now >$state/reminded
+print -r -- $boot$'\n'$now >$state/reminded
 
 # With macOS's open padlock, or its caution sign if a release drops that
 icon=/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/UnlockedIcon.icns
