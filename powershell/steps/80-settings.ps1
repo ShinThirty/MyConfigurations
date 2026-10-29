@@ -95,7 +95,8 @@
         if ((Get-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient' -ErrorAction SilentlyContinue).EnableMulticast -ne 0) {
             $insecure.Add("LLMNR is on, asking the whole network for names DNS doesn't know (SECURITY.md section 3)")
         }
-        Get-NetAdapter | Where-Object Status -eq Up | ForEach-Object {
+        $up = @(Get-NetAdapter | Where-Object Status -eq Up)
+        $up | ForEach-Object {
             $netbt = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters\Interfaces\Tcpip_$($_.InterfaceGuid)" -ErrorAction SilentlyContinue
             if ($netbt -and $netbt.NetbiosOptions -ne 2) {
                 $insecure.Add("NetBIOS is on for $($_.Name), asking the whole network for names DNS doesn't know (SECURITY.md section 3)")
@@ -113,11 +114,29 @@
         if ((Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Services\mrxsmb10' -ErrorAction SilentlyContinue).Start -notin $null, 4) {
             $insecure.Add('the SMB 1 client is installed: Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol, elevated, then restart (SECURITY.md section 3)')
         }
+        # MIGRATION.windows.md section 5.6: every lookup over TLS, with no plain fallback, to each DNS server a
+        # connected adapter has. DotFlags 4 is what its netsh line writes; fec0:0:0:ffff:: are Windows' placeholders.
+        $dnscache = 'HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters'
+        $dnsParams = Get-ItemProperty $dnscache
+        if ($dnsParams.EnableDot -ne 1 -or $dnsParams.EnableAutoDoh -ne 0) {
+            $insecure.Add('DNS over TLS is off, or DNS over HTTPS back on: rerun section 5.6''s netsh lines, elevated (MIGRATION.windows.md section 5.6)')
+        }
+        if ($up) {
+            Get-DnsClientServerAddress -InterfaceIndex $up.ifIndex -ErrorAction SilentlyContinue | ForEach-Object {
+                $alias = $_.InterfaceAlias
+                $_.ServerAddresses | Where-Object { $_ -notlike 'fec0:0:0:ffff::*' } | ForEach-Object {
+                    $server = Get-ItemProperty -LiteralPath "$dnscache\DohWellKnownServers\$_" -ErrorAction SilentlyContinue
+                    if (-not $server.DotHost -or $server.DotFlags -ne 4) {
+                        $insecure.Add("$_, a DNS server on $alias, gets lookups in plain text: give it a TLS host as section 5.6 does, elevated (MIGRATION.windows.md section 5.6)")
+                    }
+                }
+            }
+        }
         if ($insecure) {
             Write-Warn "$($insecure.Count) of SECURITY.md's settings not as it says, listed below"
             $insecure | ForEach-Object { $todo.Add("Security: $_") }
         } else {
-            Write-Ok "the firewall and Defender are on, LLMNR and NetBIOS off, and SMB signed"
+            Write-Ok "the firewall and Defender are on, LLMNR and NetBIOS off, SMB signed, and DNS over TLS"
         }
     }
 }

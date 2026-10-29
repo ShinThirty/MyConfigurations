@@ -694,6 +694,34 @@ Set-ItemProperty $k -Name ScoobeSystemSettingEnabled -Value 0 -Type DWord
 Get-ScheduledTask -TaskPath '\SoftLanding\*' -ErrorAction SilentlyContinue | Disable-ScheduledTask | Out-Null
 ```
 
+### 5.6 DNS over TLS
+
+DNS goes to Cloudflare over TLS, as on Arch. The router hands out Cloudflare's
+servers by DHCP, so the adapter keeps them, and each gets a TLS host name:
+Windows then encrypts every lookup to it and checks its certificate against
+that name. `udpfallback=no` sends nothing in plain text when TLS fails, as
+Arch's `DNSOverTLS=yes`. Windows lists DNS over HTTPS templates for these
+servers too, and doesn't document which it picks when a server has both, so
+`doh=no` leaves TLS; Helium's own DNS over HTTPS ([section 12.1](#helium)) isn't
+affected. It needs a build whose `netsh dns add encryption /?` lists `dothost`,
+which LTSC 2024 does:
+
+```powershell
+netsh dns set global doh=no dot=yes
+foreach ($s in '1.1.1.1', '1.0.0.1', '2606:4700:4700::1111', '2606:4700:4700::1001') {
+    netsh dns set encryption server=$s dothost=cloudflare-dns.com:853 autoupgrade=yes udpfallback=no
+}
+ipconfig /flushdns
+```
+
+`netsh dns show encryption server=1.1.1.1` then lists the TLS host, and after
+a lookup, `Get-NetTCPConnection -RemotePort 853` shows the DNS client (svchost)
+connected to each server. A server the router hands out later that isn't in the
+list gets plain lookups: add it the same way. With fallback off, a network that
+blocks port 853 has no DNS at all, which suits a desktop that stays home. The
+monthly update lists under Security a connected adapter's DNS server without
+TLS only, or the global settings changed.
+
 ---
 
 ## 6. Packages (scoop)
@@ -1265,8 +1293,9 @@ what's left, which is some of:
   it names, [section 12.1](#helium))
 - **Security** — the firewall off for a network profile, Defender's
   real-time protection off, the share's name not in the hosts file, LLMNR or
-  NetBIOS on, or SMB signing no longer required, guest logins allowed or SMB 1
-  installed ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
+  NetBIOS on, SMB signing no longer required, guest logins allowed or SMB 1
+  installed, or a DNS server without TLS only ([section 5.6](#56-dns-over-tls),
+  [SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
 - **Claude Code** — a native copy its updater left in `~\.local` to delete
   ([section 12.1](#121-apps)), or a `~\.claude\settings.json` that isn't valid
   JSON, so the script couldn't turn its update checks back off. Fix it and run
