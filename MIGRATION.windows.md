@@ -815,13 +815,12 @@ Terminal-Icons and PSFzf from PSGallery.
 
 ## 8. SSH keys
 
-Same six files as the other platforms, from `D:\Migration\home\.ssh\` into
+Same five files as the other platforms, from `D:\Migration\home\.ssh\` into
 `$HOME\.ssh\`:
 
 | File | What it's for |
 |---|---|
 | `github` | GitHub auth |
-| `sourcehut` | git.sr.ht auth |
 | `signing_key` | Git commit signing |
 | `signing_key.pub` | `user.signingkey` in `git/gitconfig.windows` |
 | `config` | Host→key mapping |
@@ -833,14 +832,13 @@ Windows OpenSSH also refuses keys other users can read. Strip inherited ACLs:
 
 ```powershell
 # icacls takes one file per call
-foreach ($k in 'github', 'sourcehut', 'signing_key') { icacls "$HOME\.ssh\$k" /inheritance:r /grant:r "${env:USERNAME}:F" }
+foreach ($k in 'github', 'signing_key') { icacls "$HOME\.ssh\$k" /inheritance:r /grant:r "${env:USERNAME}:F" }
 ```
 
 Verify:
 
 ```powershell
 ssh -T git@github.com
-ssh -T git@git.sr.ht
 git -C $HOME\MyConfigurations log --show-signature -1
 ```
 

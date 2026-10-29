@@ -201,15 +201,14 @@ MIGRATION.windows.md section 15); these keep the gaps shorter.
 
 ## 5. SSH keys
 
-`~/.ssh/github`, `sourcehut` and `signing_key` have no passphrase. Whoever
-gets a copy of the files can push to your repos and sign commits as you:
-malware, a compromised package, or whoever ends up with a lost laptop.
-A passphrase makes a copy useless on its own, and an agent keeps it to one
-prompt per login, or none. Adding one keeps the key, so GitHub and sourcehut
-need nothing:
+`~/.ssh/github` and `signing_key` have no passphrase. Whoever gets a copy of
+the files can push to your repos and sign commits as you: malware, a
+compromised package, or whoever ends up with a lost laptop. A passphrase makes
+a copy useless on its own, and an agent keeps it to one prompt per login, or
+none. Adding one keeps the key, so GitHub needs nothing:
 
 ```sh
-ssh-keygen -p -f ~/.ssh/github      # then sourcehut, signing_key, and any other private key there
+ssh-keygen -p -f ~/.ssh/github      # then signing_key, and any other private key there
 ```
 
 Commit signing needs the agent. git signs with `ssh-keygen -Y sign`, which uses
@@ -231,7 +230,7 @@ Host *
 Then, once, which asks for each passphrase and saves it in the Keychain:
 
 ```sh
-ssh-add --apple-use-keychain ~/.ssh/github ~/.ssh/sourcehut ~/.ssh/signing_key
+ssh-add --apple-use-keychain ~/.ssh/github ~/.ssh/signing_key
 ```
 
 The agent starts empty after a restart. This line in `~/.zshrc.local` loads
@@ -266,7 +265,7 @@ through restarts, stored encrypted for your account, so each one is added once:
 
 ```powershell
 sudo pwsh -NoProfile -Command 'Set-Service ssh-agent -StartupType Automatic; Start-Service ssh-agent'
-ssh-add $HOME\.ssh\github $HOME\.ssh\sourcehut $HOME\.ssh\signing_key
+ssh-add $HOME\.ssh\github $HOME\.ssh\signing_key
 ```
 
 Git for Windows runs its own ssh and ssh-keygen, which can't reach that
@@ -451,10 +450,10 @@ In this order:
 1. **Lock or erase it**: Find My (icloud.com/find, or another Apple device),
    or account.microsoft.com/devices
 2. **Revoke the SSH keys**: GitHub → Settings → SSH and GPG keys (the
-   authentication key, and the signing key), and sourcehut's keys page. Every
-   machine has copies of the same files, so this means new keys everywhere. Add
-   the new signing key's line to `~/.ssh/allowed_signers`, keeping the old one,
-   or past commits stop verifying
+   authentication key, and the signing key). Every machine has copies of the
+   same files, so this means new keys everywhere. Add the new signing key's
+   line to `~/.ssh/allowed_signers`, keeping the old one, or past commits stop
+   verifying
 3. **Sign it out**: your Apple Account's device list, Google (Security → Your
    devices), GitHub (Settings → Sessions), Discord, Proton (account.proton.me,
    its sessions), and the brokers

@@ -225,7 +225,7 @@ fi
 info "Done — remaining manual steps"
 cat <<'EOF'
   1. SSH keys — copy from the old machine (see MIGRATION.arch.md "SSH keys"):
-       ~/.ssh/github  ~/.ssh/sourcehut  ~/.ssh/signing_key{,.pub}
+       ~/.ssh/github  ~/.ssh/signing_key{,.pub}
        ~/.ssh/config  ~/.ssh/allowed_signers
      then:  chmod 700 ~/.ssh && chmod 600 ~/.ssh/* && chmod 644 ~/.ssh/*.pub
   2. exec zsh          # sheldon fetches all plugins on first run

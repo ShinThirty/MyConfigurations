@@ -149,23 +149,22 @@ shows both extensions.
 
 ## 3. SSH keys
 
-The only secrets this migration covers. Copy these six files from the old
+The only secrets this migration covers. Copy these five files from the old
 machine (USB or `scp` — **not** email or chat):
 
 | File | What it's for |
 |---|---|
 | `~/.ssh/github` | GitHub auth (RSA 4096, no passphrase comment) |
-| `~/.ssh/sourcehut` | git.sr.ht auth (ed25519) |
 | `~/.ssh/signing_key` | Git commit signing (ed25519) |
 | `~/.ssh/signing_key.pub` | Referenced by `user.signingkey` in `git/gitconfig` |
-| `~/.ssh/config` | Host→key mapping for github.com and git.sr.ht |
+| `~/.ssh/config` | Host→key mapping for github.com |
 | `~/.ssh/allowed_signers` | Referenced by `gpg.ssh.allowedSignersFile` |
 
 Fix permissions after copying — SSH refuses to use world-readable keys:
 
 ```sh
 chmod 700 ~/.ssh
-chmod 600 ~/.ssh/github ~/.ssh/sourcehut ~/.ssh/signing_key ~/.ssh/allowed_signers ~/.ssh/config
+chmod 600 ~/.ssh/github ~/.ssh/signing_key ~/.ssh/allowed_signers ~/.ssh/config
 chmod 644 ~/.ssh/signing_key.pub
 ```
 
@@ -173,7 +172,6 @@ Verify:
 
 ```sh
 ssh -T git@github.com                  # "Hi ShinThirty! You've successfully authenticated"
-ssh -T git@git.sr.ht
 git -C ~/MyConfigurations log --show-signature -1   # should say "Good git signature"
 ```
 
@@ -183,10 +181,10 @@ The keys have no passphrase. [SECURITY.md section 5](SECURITY.md#5-ssh-keys)
 adds one, with an agent that holds the keys from the first terminal after
 login.
 
-**Alternative to copying:** generate a fresh keypair and add it to
-GitHub/sourcehut. If you do that for `signing_key`, you must also append the new
-public key to `~/.ssh/allowed_signers` (and keep the old line, or past commits
-stop verifying).
+**Alternative to copying:** generate a fresh keypair and add it to GitHub. If
+you do that for `signing_key`, you must also append the new public key to
+`~/.ssh/allowed_signers` (and keep the old line, or past commits stop
+verifying).
 
 ---
 
@@ -421,7 +419,7 @@ Then:
 
 1. Confirm the `~/.dotfiles.git` bare repo made it across — it has no remote
 2. Push or copy any unpushed work in local git repos
-3. Remove the old SSH keys from GitHub and sourcehut **if** you rotated instead of copying
+3. Remove the old SSH keys from GitHub **if** you rotated instead of copying
 4. Rotate the broker/API keys if the old disk isn't being wiped immediately
 5. Wipe the disk (`shred`/`blkdiscard`, or a full-disk encryption key destroy)
 
