@@ -67,6 +67,12 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 All but the last are in System Settings → Desktop & Dock. The monthly update
 checks these too.
 
+**DNS over HTTPS**, so lookups go encrypted to Cloudflare on any network
+([SECURITY.md section 9](SECURITY.md#9-untrusted-networks)):
+`mac/dns-over-https.sh` builds a configuration profile and opens it. Install
+it in System Settings → General → Device Management, with your password. The
+monthly update checks that it's installed and switched on.
+
 ---
 
 ## 2. SSH keys
@@ -441,8 +447,9 @@ some of:
   [section 3](#3-apps-and-tools-not-covered-by-the-brewfile))
 - **Security** — a setting from SECURITY.md that isn't as it says: the screen
   lock, the firewall and stealth mode, AirPlay Receiver, the automatic
-  security updates, a mounted share's name not in `/etc/hosts`, or a line
-  missing from `/etc/nsmb.conf`
+  security updates, a mounted share's name not in `/etc/hosts`, a line
+  missing from `/etc/nsmb.conf`, or the DNS over HTTPS profile missing or
+  switched off
   ([SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks));
   or Wi-Fi networks the cleanup didn't forget, below
 - **Claude Code** — `~/.claude/settings.json` isn't valid JSON, so the script

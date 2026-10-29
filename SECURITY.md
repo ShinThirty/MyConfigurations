@@ -526,6 +526,26 @@ Linux laptop has no reminder yet.
 Avoid free VPN apps from companies you don't know: a VPN sees everything the
 café could have, and they tend to pay for themselves by selling it.
 
+**Encrypted DNS.** A network hands out its own DNS server, and the laptop asks
+it in plain text, so whoever runs the network reads every name the laptop looks
+up and can answer falsely. Helium encrypts its own lookups (section 7). For the
+rest, on macOS, `mac/dns-over-https.sh` builds a configuration profile that
+sends every lookup to Cloudflare over HTTPS, whatever server the network hands
+out, and opens it: install it in System Settings → General → Device
+Management. The desktop uses TLS instead (MIGRATION.arch.md section 1,
+MIGRATION.windows.md section 5.6), but a network can block TLS's port, 853,
+and not HTTPS's, which the web uses. While Proton VPN is on, macOS asks
+Proton's server, through the tunnel, instead. At home the profile changes
+little: Cloudflare's servers, which the router hands out, tell macOS how to
+reach them encrypted, and it does so by itself.
+
+A network's sign-in page still loads: macOS asks the network's own server for
+the names its sign-in window needs, and only those. Otherwise the profile never
+falls back to plain DNS, so where nothing resolves, as in mainland China, where
+Clash Verge Rev's TUN mode takes the lookups instead, set **Cloudflare** to
+Disabled in System Settings → Network → VPN & Filters, and back to Enabled
+when you leave. The monthly update lists it until you do.
+
 **Habits.**
 
 - Check the network's name with the staff: anyone can broadcast a copy of an
@@ -581,8 +601,10 @@ It lists what isn't as set under **Security** in what's left at the end:
 
 - **macOS** (`mac/steps/80-settings.zsh`): the password as soon as the screen
   locks, the firewall and stealth mode, AirPlay Receiver off, *Security
-  Responses and system files* on, and section 3's share name: each mounted
-  share's name in `/etc/hosts`, and `/etc/nsmb.conf`'s three lines
+  Responses and system files* on, section 3's share name: each mounted
+  share's name in `/etc/hosts` and `/etc/nsmb.conf`'s three lines; and
+  section 9's DNS over HTTPS profile: installed, matching
+  `mac/dns-over-https.sh`, and Enabled
 - **Windows** (`powershell/steps/80-settings.ps1`): the firewall on for all
   three profiles, Defender's real-time protection, and section 3's share name:
   each mapped share's name in the hosts file, LLMNR off, and NetBIOS off on

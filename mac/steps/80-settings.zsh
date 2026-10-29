@@ -69,11 +69,16 @@ update() {
   for key fix in $nsmb; do
     grep -qsx $key /etc/nsmb.conf || insecure+=("$fix: add $key to /etc/nsmb.conf (SECURITY.md section 3)")
   done
+  # Section 9: lookups go to Cloudflare over HTTPS on any network, from a
+  # configuration profile mac/dns-over-https.sh builds
+  local line
+  for line in ${(f)"$($DOTFILES/mac/dns-over-https.sh --check)"}; do
+    insecure+=("the DNS over HTTPS profile $line (SECURITY.md section 9)")
+  done
 
   # Helium's policies come from a configuration profile built from
   # helium/policies.json (MIGRATION.md section 3)
   if [[ -d /Applications/Helium.app ]]; then
-    local line
     for line in ${(f)"$($DOTFILES/helium/apply-policies.sh --check)"}; do
       drift+=("Helium's policy $line (rerun helium/apply-policies.sh, MIGRATION.md section 3)")
     done
