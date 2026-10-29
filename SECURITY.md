@@ -606,11 +606,16 @@ It lists what isn't as set under **Security** in what's left at the end:
   section 9's DNS over HTTPS profile: installed, matching
   `mac/dns-over-https.sh`, and Enabled
 - **Windows** (`powershell/steps/80-settings.ps1`): the firewall on for all
-  three profiles, Defender's real-time protection, and section 3's share name:
-  each mapped share's name in the hosts file, LLMNR off, and NetBIOS off on
-  each connected adapter
-- **Arch** (`arch/steps/80-settings.zsh`): ufw enabled and on, and section 3's
-  LLMNR off and `sign` on each SMB share in `/etc/fstab`
+  three profiles, Defender's real-time protection, section 3's share name:
+  each mapped share's name in the hosts file, LLMNR off, NetBIOS off on each
+  connected adapter, and an SMB client that requires signing, refuses guest
+  logins and has no SMB 1; and DNS over TLS on, DNS over HTTPS off, and a TLS
+  host with no plain fallback for each DNS server a connected adapter has
+  (MIGRATION.windows.md section 5.6)
+- **Arch** (`arch/steps/80-settings.zsh`): ufw enabled and on, section 3's
+  LLMNR off and `sign` on each SMB share in `/etc/fstab`, and DNS over TLS:
+  systemd-resolved running, in strict mode globally and on each link with DNS
+  servers, and `/etc/resolv.conf` pointing at it (MIGRATION.arch.md section 1)
 
 On all three, two more come up under other headings: a missing `rpc-secret=`
 in aria2's config under **aria2** (`51-aria2`), and a Helium policy that
