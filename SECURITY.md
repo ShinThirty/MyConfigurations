@@ -469,7 +469,9 @@ it has access to.
 
 - Settings → Security: keep *Lock databases when session is locked or lid is
   closed* on, the default. *Lock databases after inactivity of*, off by
-  default, is on everywhere, at KeePassXC's default time: it's in
+  default, is on everywhere, at an hour: KeePassXC counts only what you do in
+  its own window, and on Arch it locks the Login database too, the keychain,
+  which takes the SSH keys out of the agent. It's in
   `keepassxc/keepassxc.ini`, the settings `keepassxc/apply-settings.sh` and
   `apply-settings.ps1` merge in on every machine
 - The master password protects every copy: this machine's, the one on

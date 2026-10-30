@@ -151,9 +151,10 @@ folder (section 6), or make it:
 4. Quit KeePassXC, run `keepassxc/apply-settings.sh`, and start it again. It
    merges `keepassxc/keepassxc.ini`, the settings every machine shares, into
    `~/.config/keepassxc/keepassxc.ini`: the tray icon, minimizing to it instead
-   of quitting, no databases reopened or remembered, the inactivity lock, and
-   browser integration, searching every open database for a login, so
-   KeePassXC-Browser fills from the main database whichever tab is active.
+   of quitting, no databases reopened or remembered, the lock after an hour
+   unused, and browser integration, searching every open database for a
+   login, so KeePassXC-Browser fills from the main database whichever tab is
+   active.
 5. The SSH keys' passphrases: SSH Agent integration and an entry per key in
    the `SSH` group ([SECURITY.md section 5](SECURITY.md#5-ssh-keys)).
 
