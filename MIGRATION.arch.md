@@ -526,7 +526,7 @@ it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its
-config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed, that DNS goes over TLS, that KeePassXC's Secret Service is on and gh's token isn't in plain text, that systemd-boot is still first in the boot order,
+config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on and gh's token isn't in plain text, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, turns Claude Code's
 own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is some of:
@@ -549,7 +549,8 @@ own update checks back off if `~/.claude/settings.json` has lost
 - **GE-Proton**: add the new release in ProtonUp-Qt. Games that pin a version
   by name need switching to it in Steam
 - **Security**: ufw off or not installed, LLMNR on, an SMB share in
-  `/etc/fstab` without `sign`, or DNS that can go out in plain text
+  `/etc/fstab` without `sign` or with a login you can read without root, or
+  DNS that can go out in plain text
   ([section 1](#1-install-arch),
   [SECURITY.md section 11](SECURITY.md#11-what-the-monthly-update-checks))
 - **aria2**: a unit that isn't enabled: `systemctl --user enable --now` it

@@ -2,9 +2,9 @@
 # changed alone and writes a .pacnew, which 20-pacman merges. Windows Update can,
 # on this dual-boot machine, by putting Windows Boot Manager first in the
 # firmware's boot order (MIGRATION.windows.md section 4). And the firewall,
-# LLMNR, SMB signing and KeePassXC's Secret Service SECURITY.md has you set up,
-# and the DNS over TLS MIGRATION.arch.md section 1 does, which Arch doesn't
-# come with.
+# LLMNR, SMB signing and logins, and KeePassXC's Secret Service SECURITY.md has
+# you set up, and the DNS over TLS MIGRATION.arch.md section 1 does, which Arch
+# doesn't come with.
 
 update() {
   info 'Settings'
@@ -29,17 +29,29 @@ update() {
   fi
 
   # Linux's SMB client signs only when the server requires it, and the
-  # router's share doesn't
-  local share opts shares=0 unsigned=()
+  # router's share doesn't. Root does the mount, so a login in /etc/fstab,
+  # which every account can read, or in a credentials file you can read, is
+  # one any program running as you can read too
+  local share opts cred shares=0 unsigned=() exposed=() o=()
   findmnt --fstab -t cifs,smb3 -rno TARGET,OPTIONS | while read -r share opts; do
     (( shares++ ))
     [[ ,$opts, == *,sign,* ]] || unsigned+=($share)
+    o=(${(s:,:)opts})
+    cred=${${(M)o:#(cred|credentials)=*}#*=}
+    [[ -n ${(M)o:#(pass|password|password2)=*} || ( -n $cred && -r $cred ) ]] &&
+      exposed+=($share)
   done
   if (( $#unsigned )); then
     warn "${(j:, :)unsigned} mounts unsigned, listed below"
     todo+=("Security: ${(j:, :)unsigned} mounts without sign in /etc/fstab, so a device on the network can change what's read from it (SECURITY.md section 3)")
   elif (( shares )); then
     ok 'SMB shares mount signed'
+  fi
+  if (( $#exposed )); then
+    warn "${(j:, :)exposed}'s login is readable without root, listed below"
+    todo+=("Security: ${(j:, :)exposed}'s login is in /etc/fstab or a credentials file you can read, so any program running as you can read it too; move it to a file only root can read (SECURITY.md section 3)")
+  elif (( shares )); then
+    ok "SMB shares' logins are readable only by root"
   fi
 
   # MIGRATION.arch.md section 1: systemd-resolved sends every lookup over TLS,

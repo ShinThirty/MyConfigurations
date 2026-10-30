@@ -246,8 +246,19 @@ doesn't, so add `sign` to that line's options, then
 `sudo systemctl daemon-reload` and `sudo systemctl stop` on its mount point,
 which unmounts it and leaves the automount in place: the next access mounts it
 signed, and `/proc/fs/cifs/DebugData` shows its session as signed.
-The monthly update flags LLMNR on, or an SMB line in `/etc/fstab` without
-`sign`.
+
+The share's login goes in a file only root can read, which the line's
+`credentials=` option names. Root does the mount, so nothing running as you
+needs to read it:
+
+```sh
+sudo install -d -m 700 /etc/samba/credentials
+sudoedit /etc/samba/credentials/tp-share    # username=, password= and domain= lines
+sudo chmod 600 /etc/samba/credentials/tp-share
+```
+
+The monthly update flags LLMNR on, an SMB line in `/etc/fstab` without
+`sign`, or a share whose login you can read without root.
 
 ---
 
@@ -633,7 +644,8 @@ It lists what isn't as set under **Security** in what's left at the end:
   host with no plain fallback for each DNS server a connected adapter has
   (MIGRATION.windows.md section 5.6)
 - **Arch** (`arch/steps/80-settings.zsh`): ufw enabled and on, section 3's
-  LLMNR off and `sign` on each SMB share in `/etc/fstab`, and DNS over TLS:
+  LLMNR off, and `sign` on each SMB share in `/etc/fstab` with its login
+  readable only by root, and DNS over TLS:
   systemd-resolved running, in strict mode globally and on each link with DNS
   servers, and `/etc/resolv.conf` pointing at it (MIGRATION.arch.md section 1);
   and section 7's KeePassXC Secret Service on, and no gh token in plain text
