@@ -13,7 +13,8 @@ A machine plays one of two roles, and the role decides what applies:
   Arch/Windows dual-boot box.
 
 Each section has the steps for macOS, Windows and Arch, so a laptop running
-Windows or Linux later follows the laptop parts for its OS.
+Windows or Linux later follows the laptop parts for its OS. The iPhone has a
+runbook of its own, IPHONE.md, since little of this applies to it as written.
 
 | Section | Laptop | Desktop |
 |---|---|---|
@@ -565,7 +566,8 @@ up and can answer falsely. Helium encrypts its own lookups (section 7). For the
 rest, on macOS, `mac/dns-over-https.sh` builds a configuration profile that
 sends every lookup to Cloudflare over HTTPS, whatever server the network hands
 out, and opens it: install it in System Settings → General → Device
-Management. The desktop uses TLS instead (MIGRATION.arch.md section 1,
+Management. With `--iphone`, it sends the same profile to the iPhone
+(IPHONE.md section 1.4). The desktop uses TLS instead (MIGRATION.arch.md section 1,
 MIGRATION.windows.md section 5.6), but a network can block TLS's port, 853,
 and not HTTPS's, which the web uses. While Proton VPN is on, macOS asks
 Proton's server, through the tunnel, instead. At home the profile changes

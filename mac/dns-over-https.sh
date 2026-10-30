@@ -17,6 +17,9 @@
 # profile instead, and whether its switch is off. mac/steps/80-settings.zsh
 # runs it.
 #
+# --iphone sends the profile to the iPhone connected to this Mac instead, to be
+# installed there (IPHONE.md section 1.4).
+#
 set -euo pipefail
 
 id=local.dns-over-https
@@ -85,6 +88,12 @@ jq --arg id "$id" '{
   }]
 }' <<<"$settings" | plutil -convert xml1 -o "$out" -
 plutil -lint "$out" >/dev/null
+if [[ ${1-} == --iphone ]]; then
+  # pymobiledevice3, as iphone/check.py uses, over USB
+  uvx --from 'pymobiledevice3~=11.48' pymobiledevice3 profile install "$out"
+  echo 'Sent to the iPhone: install it in Settings → General → VPN & Device Management'
+  exit 0
+fi
 open "$out"
 open 'x-apple.systempreferences:com.apple.Profiles-Settings.extension'
 echo "Opened ${out/#$HOME/~}: install it in System Settings → General → Device Management"
