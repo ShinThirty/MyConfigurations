@@ -4,11 +4,12 @@
 echo "Creating directory: $XDG_CONFIG_HOME/aria2"
 mkdir -p "$XDG_CONFIG_HOME/aria2"
 
-# Copy the aria2 configuration file, with its RPC secret: the one a previous
-# install made, or a new one (SECURITY.md section 6)
+# Copy the aria2 configuration file, readable only by you, with its RPC
+# secret: the one a previous install made, or a new one (SECURITY.md section 6)
 secret=$(grep '^rpc-secret=' "$XDG_CONFIG_HOME/aria2/aria2.conf" 2>/dev/null)
 echo "Copying aria2.conf to: $XDG_CONFIG_HOME/aria2/aria2.conf"
 cp ../aria2.conf "$XDG_CONFIG_HOME/aria2/aria2.conf"
+chmod 600 "$XDG_CONFIG_HOME/aria2/aria2.conf"
 echo "${secret:-rpc-secret=$(openssl rand -hex 16)}" >>"$XDG_CONFIG_HOME/aria2/aria2.conf"
 echo "Copying aria2_update_tracker.sh to: $XDG_CONFIG_HOME/aria2/aria2_update_tracker.sh"
 cp ../aria2_update_tracker.sh "$XDG_CONFIG_HOME/aria2/aria2_update_tracker.sh"

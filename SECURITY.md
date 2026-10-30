@@ -406,13 +406,15 @@ stops it everywhere.
 
 Each machine has its own secret, the `rpc-secret=` line in the installed
 `aria2.conf`; the repo's can't hold one, since the repo is public. The install
-scripts add a random one, and keep the one there on a rerun. The monthly update
+scripts add a random one, keep the one there on a rerun, and leave the file
+readable only by you. The monthly update
 keeps the line when it rewrites the file, as it keeps the trackers, and flags a
 config without one. For an install from before the scripts did this, on macOS
 and Arch:
 
 ```sh
 conf=~/.config/aria2/aria2.conf
+chmod 600 $conf
 grep -q '^rpc-secret=' $conf || echo "rpc-secret=$(openssl rand -hex 16)" >>$conf
 launchctl kickstart -k gui/$UID/com.aria2     # macOS
 systemctl --user restart aria2.service        # Arch
