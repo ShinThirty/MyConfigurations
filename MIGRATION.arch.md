@@ -159,20 +159,26 @@ folder (section 6), or make it:
    the `SSH` group ([SECURITY.md section 5](SECURITY.md#5-ssh-keys)).
 
 `UserConfigs/user_startup.lua`, from the bare repo ([section 5](#5-the-hyprland-bare-repo)),
-runs `keepassxc --minimized` with the Login database at login, once waybar's
-tray is up: Qt looks for a tray only when it starts. It stays locked in the
-tray until an app asks for a secret, then asks for its password. Its tray icon
-is Flat-Remix's green KeePassXC icon, and grey while locked, from
+runs `keepassxc --minimized` with the main database and the Login one at
+login, once waybar's tray is up: Qt looks for a tray only when it starts.
+Login opens last, so it's the active tab, whose database the Secret Service
+gives apps as the default for new secrets. Both stay locked in the tray, and
+Login asks for its password when an app asks for a secret. KeePassXC can't
+read a locked database's settings, so until the main database is first
+unlocked, apps see it as exposed too, and an app looking for a secret can ask
+you to unlock it as well. Unlocked, it's out of their reach, and while its tab
+is the active one apps have no default database, so switch back to Login's
+tab before an app saves a new secret. When tp-share can't be reached at
+login, KeePassXC opens Login alone; open the main database later with
+Database → Open Database, since KeePassXC remembers none. Its tray icon is
+Flat-Remix's green KeePassXC icon, and grey while locked, from
 `~/.local/share/icons/Flat-Remix-Blue-Dark/panel/keepassxc-locked.svg` in the
 bare repo: the theme's own locked icon is a thin white outline that vanishes
-over a light wallpaper. Open the main database with Database → Open Database,
-since KeePassXC remembers none. It doesn't reopen at startup because KeePassXC can't read a locked
-database's settings, so apps see it as exposed until it's first unlocked, and
-an app looking for a secret could ask you to unlock it. A new Login database
-starts empty, so each app asks for its secret again.
+over a light wallpaper. A new Login database starts empty, so each app asks
+for its secret again.
 gh keeps its token in plain text when it finds no keychain, so run
-`gh auth login` with the Login database unlocked; `gh auth status` then says
-`(keyring)`.
+`gh auth login` with the Login database unlocked and its tab active;
+`gh auth status` then says `(keyring)`.
 
 **Helium**, the browser. It's a GUI app: `paru -S helium-browser-bin`. Its
 configuration is in `helium/`. `symlinks.linux` links `helium-browser-flags.conf`
