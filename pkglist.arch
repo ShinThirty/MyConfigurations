@@ -74,9 +74,10 @@ perl-authen-sasl
 perl-io-socket-ssl
 # Lets the SMTP password prompt read without echoing.
 perl-term-readkey
-# Backs `credential.helper = libsecret`. The Secret Service it talks to comes
-# from keepassxc above — enable Settings -> Secret Service Integration, which
-# is off by default, or the helper has no daemon to store into.
+# Backs `credential.helper = libsecret`, which keeps git's passwords in the
+# keychain: keepassxc above, through its Secret Service and Login database
+# (MIGRATION.arch.md section 2). Its Secret Service Integration is off by
+# default, and without it the helper has no daemon to store into.
 libsecret
 
 # --- yazi preview helpers ----------------------------------------------------

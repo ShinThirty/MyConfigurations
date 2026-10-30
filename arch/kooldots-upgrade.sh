@@ -247,6 +247,13 @@ EOF
       added+=("${cmd%% *}")
     fi
   done
+  # SECURITY.md section 7's Login database. Qt looks for a tray only once, at
+  # start, so KeePassXC waits for waybar's; $HOME stays literal, for the shell
+  # exec_once runs it in
+  if ! grep -q 'keepassxc --minimized' "$U/user_startup.lua"; then
+    sed -i '/local startup_commands = {/a \  "gdbus wait --session --timeout 30 org.kde.StatusNotifierWatcher; keepassxc --minimized $HOME/.local/share/keepassxc/login.kdbx",' "$U/user_startup.lua"
+    added+=(keepassxc)
+  fi
   if ! grep -q '"DP-4"' "$U/monitors.lua"; then
     cat >> "$U/monitors.lua" <<'EOF'
 

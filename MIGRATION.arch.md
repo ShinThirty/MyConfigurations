@@ -132,11 +132,55 @@ IDE's Marketplace: the config's `set which-key` needs the second for its
 key-binding popup. The other plugins it loads (surround, commentary, NERDTree,
 …) are built into IdeaVim.
 
+**KeePassXC**, from `pkglist.arch`, doubles as the keychain, the Mac's
+Keychain and Windows' Credential Manager, which Arch doesn't come with
+([SECURITY.md section 7](SECURITY.md#7-helium-and-keepassxc)). It opens your
+main database from tp-share, `/mnt/tp-share/Password/shinthirty.kdbx`, and
+serves apps a second one, on the machine, through its Secret Service, where
+they keep their secrets. Copy that database from the old machine with its
+folder (section 6), or make it:
+
+1. `mkdir -m 700 ~/.local/share/keepassxc`, then Database → New Database,
+   with its own password, saved there as `login.kdbx`. KeePassXC names the
+   database apps see after its file, and gh asks for `login` first.
+2. Settings → Secret Service Integration: turn it on; it's off by default.
+3. In the Login database, add two groups, `Secret Service` and `SSH`. Its
+   Database Settings → Secret Service Integration: expose the `Secret Service`
+   group, where apps keep their secrets; an entry outside it is out of their
+   reach. The main database's: *Don't expose this database*.
+4. Settings → General: turn on *Show a system tray icon*, *Hide window to
+   system tray when minimized* and *Minimize instead of app exit*, and turn off
+   *Load previously open databases on startup*. Browser Integration →
+   Advanced: turn on *Search in all opened databases for matching
+   credentials*, so KeePassXC-Browser fills from the main database whichever
+   tab is active.
+5. The SSH keys' passphrases: SSH Agent integration and an entry per key in
+   the `SSH` group ([SECURITY.md section 5](SECURITY.md#5-ssh-keys)).
+
+`UserConfigs/user_startup.lua`, from the bare repo ([section 5](#5-the-hyprland-bare-repo)),
+runs `keepassxc --minimized` with the Login database at login, once waybar's
+tray is up: Qt looks for a tray only when it starts. It stays locked in the
+tray until an app asks for a secret, then asks for its password. Its tray icon
+is Flat-Remix's green KeePassXC icon, and grey while locked, from
+`~/.local/share/icons/Flat-Remix-Blue-Dark/panel/keepassxc-locked.svg` in the
+bare repo: the theme's own locked icon is a thin white outline that vanishes
+over a light wallpaper. Open the main database from Database → Recent
+Databases. It doesn't reopen at startup because KeePassXC can't read a locked
+database's settings, so apps see it as exposed until it's first unlocked, and
+an app looking for a secret could ask you to unlock it. A new Login database
+starts empty, so each app asks for its secret again.
+gh keeps its token in plain text when it finds no keychain, so run
+`gh auth login` with the Login database unlocked; `gh auth status` then says
+`(keyring)`.
+
 **Helium**, the browser. It's a GUI app: `paru -S helium-browser-bin`. Its
 configuration is in `helium/`. `symlinks.linux` links `helium-browser-flags.conf`
-into `~/.config/`. It sets `--force-dark-mode`, and `--password-store=basic`,
-which encrypts cookies with Chromium's built-in key instead of a key from
-KeePassXC's Secret Service. `policies.json` force-installs KeePassXC-Browser and
+into `~/.config/`. It sets `--force-dark-mode`, and
+`--password-store=gnome-libsecret`, so Helium encrypts its cookies with a key
+it keeps in the Login database (KeePassXC above). Helium reads the key when it
+starts, so KeePassXC asks to unlock Login then. Cancel that, and Helium can't
+read its cookies, which signs you out of sites: quit it, and start it again
+with Login unlocked. `policies.json` force-installs KeePassXC-Browser and
 Aria2 Explorer by extension ID alone, with no update URL, so Helium fetches them
 through its own services, and turns on HTTPS-only browsing and encrypted DNS
 ([SECURITY.md section 7](SECURITY.md#7-helium-and-keepassxc)). Helium reads policies from
@@ -200,8 +244,9 @@ git -C ~/MyConfigurations log --show-signature -1   # should say "Good git signa
 `~/.ssh/known_hosts` is not worth copying — it regenerates on first connect.
 
 The keys have a passphrase. [SECURITY.md section 5](SECURITY.md#5-ssh-keys)
-sets up an agent, and the first terminal after login asks for it once.
-Until then, ssh and each signed commit ask for it.
+sets up an agent, which KeePassXC fills from its Login database when that
+unlocks ([section 2](#2-clone-and-bootstrap)). Until then, ssh asks for the
+passphrase, and a signed commit fails.
 
 **Alternative to copying:** generate a fresh keypair and add it to GitHub. If
 you do that for `signing_key`, you must also append the new public key to
@@ -278,13 +323,14 @@ None of this is in the repo. Decide case by case what you actually still need.
 
 | What | Notes |
 |---|---|
-| Password manager database | `~/.local/share/keepass/*.kdbx`. A second copy lives on the network share; `keepassxc/sync.sh` merges both ways, but it hardcodes the macOS `/Volumes/...` mount path — fix that before running it here. Its `backups/` dir is disposable. |
+| Password manager database | KeePassXC opens it from the network share, `/mnt/tp-share/Password/shinthirty.kdbx`, so there's nothing to copy. `keepassxc/sync.sh` merges a local copy in `~/.local/share/keepass/` with it both ways, but it hardcodes the macOS `/Volumes/...` mount path — fix that before running it here. Its `backups/` dir is disposable. |
+| KeePassXC's Login database | `~/.local/share/keepassxc/login.kdbx`, with its folder: the keychain ([section 2](#2-clone-and-bootstrap)). Copy it, or make a new one, and each app asks for its secret again. |
 | Encryption identity | The age key under `~/.config/age`. Anything encrypted to it is **unrecoverable** without this file — copy it or lose access. |
 | Broker / API credential file | Plaintext keys. Copy directly, never into this repo. Rotating them as part of the move is the safer play. |
 | Trading working dir | Local SQLite DB plus scratch subdirectories. |
 | `~/.aws/config` | Profile definitions only, no secrets. Copy it, then re-authenticate; the `login/cache` and `cli/cache` dirs are disposable. |
 | `~/.claude/settings.json` | Claude Code prefs, including `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — it comes from the AUR, so the monthly `paru -Syu` handles updates, and the monthly update puts the key back if it goes missing ([section 10](#10-monthly-updates)). `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
-| `~/.config/net.imput.helium` | Helium's profile: logins (cookies), history, site data. Copy it whole with Helium closed at both ends. `--password-store=basic` encrypts the cookies with Chromium's built-in key, so the logins work on the new machine. |
+| `~/.config/net.imput.helium` | Helium's profile: logins (cookies), history, site data. Copy it whole with Helium closed at both ends. The logins come back only with the Login database above: Helium encrypts its cookies with a key it keeps there, the `Chromium Safe Storage` entry ([section 2](#2-clone-and-bootstrap)). |
 | `~/Music/playlists/` | Plain-text playlists the `music` function reads. Small, easy to forget. |
 | `~/.local/share/nvim/sessions`, shada | Optional editor state. |
 | `~/.zsh_history` | Optional, along with the fzf history dir. |
@@ -480,7 +526,7 @@ it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its
-config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed, that DNS goes over TLS, that systemd-boot is still first in the boot order,
+config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed, that DNS goes over TLS, that KeePassXC's Secret Service is on and gh's token isn't in plain text, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, turns Claude Code's
 own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is some of:

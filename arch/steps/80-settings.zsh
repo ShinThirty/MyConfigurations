@@ -2,8 +2,9 @@
 # changed alone and writes a .pacnew, which 20-pacman merges. Windows Update can,
 # on this dual-boot machine, by putting Windows Boot Manager first in the
 # firmware's boot order (MIGRATION.windows.md section 4). And the firewall,
-# LLMNR and SMB signing SECURITY.md has you set up, and the DNS over TLS
-# MIGRATION.arch.md section 1 does, which Arch doesn't come with.
+# LLMNR, SMB signing and KeePassXC's Secret Service SECURITY.md has you set up,
+# and the DNS over TLS MIGRATION.arch.md section 1 does, which Arch doesn't
+# come with.
 
 update() {
   info 'Settings'
@@ -70,6 +71,26 @@ update() {
     for line in $plain; do todo+=("Security: $line (MIGRATION.arch.md section 1)"); done
   else
     ok 'DNS goes over TLS'
+  fi
+
+  # SECURITY.md section 7: KeePassXC doubles as the keychain. Apps keep their
+  # secrets in its Login database, through its Secret Service, which is off by
+  # default. Without one, gh logs in with its token in plain text in hosts.yml
+  local ini=${XDG_CONFIG_HOME:-$HOME/.config}/keepassxc/keepassxc.ini
+  if (( $+commands[keepassxc] )); then
+    if [[ $(awk -F= '/^\[/ { s = $0; next } s == "[FdoSecrets]" && $1 == "Enabled" { print $2 }' $ini 2>/dev/null) == true ]]; then
+      ok "KeePassXC's Secret Service is on"
+    else
+      warn "KeePassXC's Secret Service is off, listed below"
+      todo+=("Security: KeePassXC's Secret Service is off, so apps have no keychain to keep their secrets in: Settings → Secret Service Integration (SECURITY.md section 7)")
+    fi
+  fi
+  local hosts=${GH_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/gh}/hosts.yml
+  if grep -q 'oauth_token:' $hosts 2>/dev/null; then
+    warn "gh's token is in plain text, listed below"
+    todo+=("Security: gh's GitHub token is in plain text in $hosts; with KeePassXC's Login database unlocked, gh auth logout, then gh auth login, moves it there (SECURITY.md section 7)")
+  elif [[ -f $hosts ]]; then
+    ok "gh's token isn't in plain text"
   fi
 
   [[ -d /sys/firmware/efi ]] || { skip 'not booted with UEFI'; return }

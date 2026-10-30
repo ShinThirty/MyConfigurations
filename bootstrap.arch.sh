@@ -231,7 +231,8 @@ cat <<'EOF'
   2. exec zsh          # sheldon fetches all plugins on first run
   3. Open nvim         # lazy.nvim installs plugins automatically
   4. vim +PlugInstall +qa
-  5. gh auth login     # if you use the GitHub CLI (pacman -S github-cli)
+  5. gh auth login     # if you use the GitHub CLI (pacman -S github-cli), with
+                       # KeePassXC's Login database unlocked (MIGRATION.arch.md "KeePassXC")
   6. The desktop (Hyprland, waybar, fcitx5, GUI apps) is set up separately —
      its configs live in the ~/.dotfiles.git bare repo. See MIGRATION.arch.md.
 EOF

@@ -326,20 +326,27 @@ connection* means none. Arch's openssh has a user unit for one:
 systemctl --user enable --now ssh-agent.service
 ```
 
-Then, in `~/.zshrc.local`, point at it, and add both keys in the first
-terminal after login. It asks once: `ssh-add` tries the passphrase you type
-for the first key on the next. Powerlevel10k's instant prompt points stdin
-away from the terminal while `.zshrc` runs, so `ssh-add` would look for a
-graphical askpass program, which Arch doesn't install, and fail with
-*ssh_askpass: exec(/usr/lib/ssh/ssh-askpass)*. Reading the passphrase from
-`/dev/tty` avoids it, in a shell that has one:
+Then, in `~/.zshrc.local`, point at it:
 
 ```sh
 export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
-if ! ssh-add -T ~/.ssh/signing_key.pub 2>/dev/null && { : </dev/tty } 2>/dev/null; then
-  ssh-add -q ~/.ssh/signing_key ~/.ssh/github </dev/tty
-fi
 ```
+
+The passphrases are in KeePassXC's Login database, the keychain (section 7),
+which adds both keys to the agent when it unlocks, as the Mac's Keychain does.
+In KeePassXC:
+
+- Settings → SSH Agent: turn on *Enable SSH Agent integration*, and set
+  *SSH_AUTH_SOCK override* to `/run/user/1000/ssh-agent.socket`. KeePassXC
+  starts from Hyprland, which doesn't set the variable
+- In Login, an entry per key in its `SSH` group, outside the group apps can
+  ask for: the passphrase as its password, and on its SSH Agent tab, the key
+  as an external file, *Add key to agent when database is opened/unlocked*
+  on, and *Remove key from agent when database is closed/locked* off, so the
+  keys stay through a screen lock
+
+Until Login is unlocked the agent is empty: a signed commit fails, and ssh
+asks for the passphrase itself.
 
 Any other key goes into the agent the first time ssh uses it, asking once,
 with this at the top of `~/.ssh/config`:
@@ -455,6 +462,19 @@ it has access to.
 - KeePassXC-Browser fills a login only on the site it was saved for. When it
   doesn't offer one where it normally would, check the address bar before
   typing anything: you may be on a copy of the site
+- **Arch**: KeePassXC doubles as the keychain, the Mac's Keychain and
+  Windows' Credential Manager, which Arch doesn't come with. It's a database
+  of its own on the machine, Login, `~/.local/share/keepassxc/login.kdbx`,
+  with its own password. Apps keep their secrets in its `Secret Service`
+  group, through KeePassXC's Secret Service, and the SSH keys' passphrases are
+  in its `SSH` group (section 5), so make its password as strong as theirs.
+  Any program you run can ask the Secret Service for what it holds, so that
+  group is the only one exposed there: Login's Database Settings → Secret
+  Service Integration exposes it alone, and the main database's is *Don't
+  expose this database*. KeePassXC starts at login with Login locked in the
+  tray, and asks for its password when an app first needs a secret; a
+  fingerprint login gives it nothing to unlock with (MIGRATION.arch.md
+  section 2)
 
 ---
 
@@ -615,7 +635,9 @@ It lists what isn't as set under **Security** in what's left at the end:
 - **Arch** (`arch/steps/80-settings.zsh`): ufw enabled and on, section 3's
   LLMNR off and `sign` on each SMB share in `/etc/fstab`, and DNS over TLS:
   systemd-resolved running, in strict mode globally and on each link with DNS
-  servers, and `/etc/resolv.conf` pointing at it (MIGRATION.arch.md section 1)
+  servers, and `/etc/resolv.conf` pointing at it (MIGRATION.arch.md section 1);
+  and section 7's KeePassXC Secret Service on, and no gh token in plain text
+  in `~/.config/gh/hosts.yml`
 
 On all three, two more come up under other headings: a missing `rpc-secret=`
 in aria2's config under **aria2** (`51-aria2`), and a Helium policy that
@@ -624,6 +646,6 @@ doesn't match `policies.json`, the HTTPS and DNS ones included, under
 networks not in `~/.config/wifi/keep` under **Security** when you don't let it
 forget them, or when there's no such file (section 9).
 
-Not checked: Find My, the SSH passphrases, KeePassXC's settings, a laptop's
+Not checked: Find My, the SSH passphrases, KeePassXC's settings beyond Arch's Secret Service, a laptop's
 VPN and the router, its IPv6 firewall included. A security setting you make by hand that a command can read
 goes in the platform's `80-settings`, with the others.
