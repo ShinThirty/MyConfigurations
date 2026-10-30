@@ -468,8 +468,10 @@ it has access to.
 **KeePassXC.**
 
 - Settings → Security: keep *Lock databases when session is locked or lid is
-  closed* on, the default. On a laptop, also turn on *Lock databases after
-  inactivity of*, say 900 seconds; it's off by default
+  closed* on, the default. *Lock databases after inactivity of*, off by
+  default, is on everywhere, at KeePassXC's default time: it's in
+  `keepassxc/keepassxc.ini`, the settings `keepassxc/apply-settings.sh` and
+  `apply-settings.ps1` merge in on every machine
 - The master password protects every copy: this machine's, the one on
   tp-share, and the backups. Make it long. A key file or a hardware key adds a
   second factor, if you want one
@@ -655,13 +657,14 @@ It lists what isn't as set under **Security** in what's left at the end:
   and section 7's KeePassXC Secret Service on, and no gh token in plain text
   in `~/.config/gh/hosts.yml`
 
-On all three, two more come up under other headings: a missing `rpc-secret=`
-in aria2's config under **aria2** (`51-aria2`), and a Helium policy that
-doesn't match `policies.json`, the HTTPS and DNS ones included, under
-**Reset**. And on macOS, the cleanup (`mac/steps/60-wifi.zsh`) lists the Wi-Fi
+On all three, more come up under other headings: a missing `rpc-secret=`
+in aria2's config under **aria2** (`51-aria2`), and under **Reset**, a Helium
+policy that doesn't match `policies.json`, the HTTPS and DNS ones included,
+and a KeePassXC setting that isn't `keepassxc/keepassxc.ini`'s, the inactivity
+lock included. And on macOS, the cleanup (`mac/steps/60-wifi.zsh`) lists the Wi-Fi
 networks not in `~/.config/wifi/keep` under **Security** when you don't let it
 forget them, or when there's no such file (section 9).
 
-Not checked: Find My, the SSH passphrases, KeePassXC's settings beyond Arch's Secret Service, a laptop's
+Not checked: Find My, the SSH passphrases, KeePassXC's settings beyond `keepassxc.ini` and Arch's Secret Service, a laptop's
 VPN and the router, its IPv6 firewall included. A security setting you make by hand that a command can read
 goes in the platform's `80-settings`, with the others.

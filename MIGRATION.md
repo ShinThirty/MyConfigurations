@@ -148,7 +148,7 @@ brew install hashicorp/tap/terraform   # needs: brew tap hashicorp/tap
 
 | App | What to redo |
 |---|---|
-| KeePassXC | Open the database (see below). Then Settings → Browser Integration → turn it on, and under Advanced tick **Use a custom browser configuration location**: type Chromium, `~/Library/Application Support/net.imput.helium/NativeMessagingHosts`. KeePassXC has no Helium entry, and ticking Chromium writes to Chromium's own folder, which Helium doesn't read. KeePassXC keeps this in its local config, `~/Library/Caches/KeePassXC/keepassxc.ini`. Restart Helium, then connect the KeePassXC-Browser extension, which Helium's policy installs |
+| KeePassXC | Before its first start, or with it quit, `keepassxc/apply-settings.sh`. It merges `keepassxc/keepassxc.ini`, the settings every machine shares, browser integration among them, into `~/Library/Application Support/KeePassXC/keepassxc.ini`, and loads a launch agent, `local.keepassxc`, which opens KeePassXC at login, minimized to the menu bar, and opens it now; leave KeePassXC's own *Automatically launch KeePassXC at system startup* off. It remembers no databases, so open the database (see below) with Database → Open Database. Then Settings → Browser Integration → Advanced: tick **Use a custom browser configuration location**: type Chromium, `~/Library/Application Support/net.imput.helium/NativeMessagingHosts`. KeePassXC has no Helium entry, and ticking Chromium writes to Chromium's own folder, which Helium doesn't read. KeePassXC keeps this in its local config, `~/Library/Caches/KeePassXC/keepassxc.ini`, which the script leaves alone. Restart Helium, then connect the KeePassXC-Browser extension, which Helium's policy installs |
 | AeroSpace, kitty | Grant **Accessibility** permission in System Settings → Privacy & Security |
 | aria2 | Its daemon and tracker updates need an install of their own (below) |
 | findutils (`locate`) | Run `loaddb` once. `locate` searches `~/locatedb`, which only `loaddb` builds (your home folder, minus `/Volumes`), and nothing rebuilds it on a schedule — run it again when results are stale |
@@ -400,7 +400,8 @@ themselves the next time nvim starts), and `ya pkg upgrade`, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config
 changed), checks the Brewfile against what's installed and reads `brew doctor`, checks that `git`
 still resolves to Homebrew's in a login shell, that the settings from
-section 1 and SECURITY.md are still as set and Helium's policies match `policies.json`, turns
+section 1 and SECURITY.md are still as set, Helium's policies match `policies.json`, and
+KeePassXC's match `keepassxc/keepassxc.ini`, with its launch agent loaded, turns
 Claude Code's own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is
 some of:
@@ -442,9 +443,10 @@ some of:
   without an RPC secret ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret))
 - **Reset** — something a macOS update turned back: the PATH order
   ([section 5](#5-known-gotchas)), a setting from this runbook, such as
-  natural scrolling ([section 1](#1-clone-and-bootstrap)), or a Helium policy
-  (rerun `helium/apply-policies.sh`,
-  [section 3](#3-apps-and-tools-not-covered-by-the-brewfile))
+  natural scrolling ([section 1](#1-clone-and-bootstrap)), a Helium policy
+  (rerun `helium/apply-policies.sh`), or a KeePassXC setting or its launch
+  agent (rerun `keepassxc/apply-settings.sh`), both in
+  [section 3](#3-apps-and-tools-not-covered-by-the-brewfile)
 - **Security** — a setting from SECURITY.md that isn't as it says: the screen
   lock, the firewall and stealth mode, AirPlay Receiver, the automatic
   security updates, a mounted share's name not in `/etc/hosts`, a line

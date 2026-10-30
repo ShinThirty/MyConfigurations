@@ -960,8 +960,19 @@ Then KeePassXC:
 
 1. Copy `D:\Migration\home\scoop\persist\keepassxc\config\` into
    `~\scoop\persist\keepassxc\config\` before the first launch. That restores
-   its settings and recent-databases list
-2. The database needs only its password — there's no key file
+   what stays on the machine: the window layout, and KeeShare's own key
+2. With KeePassXC not running, run
+   `~\MyConfigurations\keepassxc\apply-settings.ps1 -Database Z:\<folder>\<database>.kdbx`.
+   It merges `keepassxc\keepassxc.ini`, the settings every machine shares,
+   into KeePassXC's own file, and adds a Run entry, `KeePassXC database`, that
+   starts KeePassXC at sign-in with that database open, locked in the tray.
+   It needs only its password; there's no key file. Leave Settings → General
+   → *Automatically launch KeePassXC at system startup* off: KeePassXC writes
+   that checkbox's entry again, as the bare program, each time its settings
+   are saved, so it can't carry the database, and the script removes it. If
+   Z: isn't reachable at sign-in, KeePassXC starts with nothing open and says
+   nothing; KeePassXC-Browser then finds no open database. Open it with
+   Database → Open Database, since KeePassXC remembers none
 3. Settings → Browser Integration → tick **Chromium**, which is where Helium
    looks for native-messaging hosts (`HKCU\Software\Chromium\NativeMessagingHosts`);
    KeePassXC has no Helium entry. The registration lives in the registry, not the
@@ -1257,7 +1268,8 @@ parsers rebuild themselves the next time nvim starts), `ya pkg upgrade` and
 installed copies back in line with the repo (restarting aria2 if its config
 changed), checks that an update
 hasn't reset the section 5 settings or Helium's policies and link handlers,
-that the firewall and Defender are on,
+that KeePassXC's settings are still `keepassxc\keepassxc.ini`'s and it still
+starts at sign-in with the database, that the firewall and Defender are on,
 turns Claude Code's own update checks back off if `~\.claude\settings.json` has
 lost `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with
 what's left, which is some of:
@@ -1289,8 +1301,9 @@ what's left, which is some of:
   ([section 11](#11-aria2)), or its config has no RPC secret
   ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret))
 - **Reset** — a section 5 setting an update turned back, a Run entry an app
-  put back, or a Helium policy or link handler that changed (rerun the script
-  it names, [section 12.1](#helium))
+  put back, a Helium policy or link handler that changed (rerun the script
+  it names, [section 12.1](#helium)), or a KeePassXC setting or its Run entry
+  (rerun `keepassxc\apply-settings.ps1`, [section 10](#10-network-share-and-password-database))
 - **Security** — the firewall off for a network profile, Defender's
   real-time protection off, the share's name not in the hosts file, LLMNR or
   NetBIOS on, SMB signing no longer required, guest logins allowed or SMB 1

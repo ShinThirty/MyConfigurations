@@ -4,7 +4,7 @@
 # firmware's boot order (MIGRATION.windows.md section 4). And the firewall,
 # LLMNR, SMB signing and logins, and KeePassXC's Secret Service SECURITY.md has
 # you set up, and the DNS over TLS MIGRATION.arch.md section 1 does, which Arch
-# doesn't come with.
+# doesn't come with. And KeePassXC's settings from keepassxc/keepassxc.ini.
 
 update() {
   info 'Settings'
@@ -95,6 +95,13 @@ update() {
     else
       warn "KeePassXC's Secret Service is off, listed below"
       todo+=("Security: KeePassXC's Secret Service is off, so apps have no keychain to keep their secrets in: Settings → Secret Service Integration (SECURITY.md section 7)")
+    fi
+    local changed=(${(f)"$($DOTFILES/keepassxc/apply-settings.sh --check)"})
+    if (( $#changed )); then
+      warn "KeePassXC's settings changed, listed below"
+      todo+=("Reset: KeePassXC's "${^changed}" (rerun keepassxc/apply-settings.sh, MIGRATION.arch.md section 2)")
+    else
+      ok "KeePassXC's settings are keepassxc.ini's"
     fi
   fi
   local hosts=${GH_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/gh}/hosts.yml

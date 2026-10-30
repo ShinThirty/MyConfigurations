@@ -1,5 +1,6 @@
 # What a macOS update can quietly reset: the login shell's PATH, the settings
-# MIGRATION.md and SECURITY.md have you make by hand, and Helium's policies
+# MIGRATION.md and SECURITY.md have you make by hand, Helium's policies, and
+# KeePassXC's settings and launch agent
 
 update() {
   info 'Settings'
@@ -83,12 +84,18 @@ update() {
       drift+=("Helium's policy $line (rerun helium/apply-policies.sh, MIGRATION.md section 3)")
     done
   fi
+  # keepassxc/keepassxc.ini's settings, and the launch agent that opens it at login
+  if [[ -d /Applications/KeePassXC.app ]]; then
+    for line in ${(f)"$($DOTFILES/keepassxc/apply-settings.sh --check)"}; do
+      drift+=("KeePassXC's $line (rerun keepassxc/apply-settings.sh, MIGRATION.md section 3)")
+    done
+  fi
 
   if (( $#drift )); then
     warn "$#drift changed, listed below"
     todo+=("Reset: "${^drift})
   else
-    ok "git resolves to $resolved; the settings MIGRATION.md makes, and Helium's policies, are as set"
+    ok "git resolves to $resolved; the settings MIGRATION.md makes, Helium's policies and KeePassXC's settings are as set"
   fi
   if (( $#insecure )); then
     warn "$#insecure of SECURITY.md's settings not as it says, listed below"

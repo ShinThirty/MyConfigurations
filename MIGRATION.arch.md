@@ -148,12 +148,12 @@ folder (section 6), or make it:
    Database Settings → Secret Service Integration: expose the `Secret Service`
    group, where apps keep their secrets; an entry outside it is out of their
    reach. The main database's: *Don't expose this database*.
-4. Settings → General: turn on *Show a system tray icon*, *Hide window to
-   system tray when minimized* and *Minimize instead of app exit*, and turn off
-   *Load previously open databases on startup*. Browser Integration →
-   Advanced: turn on *Search in all opened databases for matching
-   credentials*, so KeePassXC-Browser fills from the main database whichever
-   tab is active.
+4. Quit KeePassXC, run `keepassxc/apply-settings.sh`, and start it again. It
+   merges `keepassxc/keepassxc.ini`, the settings every machine shares, into
+   `~/.config/keepassxc/keepassxc.ini`: the tray icon, minimizing to it instead
+   of quitting, no databases reopened or remembered, the inactivity lock, and
+   browser integration, searching every open database for a login, so
+   KeePassXC-Browser fills from the main database whichever tab is active.
 5. The SSH keys' passphrases: SSH Agent integration and an entry per key in
    the `SSH` group ([SECURITY.md section 5](SECURITY.md#5-ssh-keys)).
 
@@ -164,8 +164,8 @@ tray until an app asks for a secret, then asks for its password. Its tray icon
 is Flat-Remix's green KeePassXC icon, and grey while locked, from
 `~/.local/share/icons/Flat-Remix-Blue-Dark/panel/keepassxc-locked.svg` in the
 bare repo: the theme's own locked icon is a thin white outline that vanishes
-over a light wallpaper. Open the main database from Database → Recent
-Databases. It doesn't reopen at startup because KeePassXC can't read a locked
+over a light wallpaper. Open the main database with Database → Open Database,
+since KeePassXC remembers none. It doesn't reopen at startup because KeePassXC can't read a locked
 database's settings, so apps see it as exposed until it's first unlocked, and
 an app looking for a secret could ask you to unlock it. A new Login database
 starts empty, so each app asks for its secret again.
@@ -526,7 +526,7 @@ it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its
-config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on and gh's token isn't in plain text, that systemd-boot is still first in the boot order,
+config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on and its other settings are `keepassxc/keepassxc.ini`'s, that gh's token isn't in plain text, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, turns Claude Code's
 own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is some of:
@@ -542,7 +542,9 @@ own update checks back off if `~/.claude/settings.json` has lost
   `sudo bootctl install` puts systemd-boot back
   ([MIGRATION.windows.md section 4](MIGRATION.windows.md#4-restoring-arch-boot)).
   pacman resets nothing itself, since it writes a `.pacnew` rather than
-  replace a config you changed
+  replace a config you changed. Or a KeePassXC setting that's no longer
+  `keepassxc/keepassxc.ini`'s: quit KeePassXC and rerun
+  `keepassxc/apply-settings.sh` ([section 2](#2-clone-and-bootstrap))
 - **Go tools the Brewfile doesn't list.** `go install` never removes anything,
   so binaries from older lists sit in `~/go/bin` and never update. Delete them
   or add them to the Brewfile
