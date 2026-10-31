@@ -16,11 +16,11 @@
 #   preferences.darwin.json the page languages, Edge's; Edge set no fonts, so
 #                           they stay Chromium's defaults
 #
-# It also makes a new tab open newtab.html, at the link the symlink map makes
-# in ~/.config/helium-newtab, through Helium's custom-ntp flag in Local State.
-# The path is this machine's, so it's not in a fragment. The NewTabPageLocation
-# policy would do the same, but Chromium ignores it on a Mac or Windows PC that
-# no organization manages.
+# It also makes a new tab open newtab.html, from the repo, through Helium's
+# custom-ntp flag in Local State, giving it ~/.config/helium-newtab, where
+# links.js is, as ?dir=. The paths are this machine's, so they're not in a
+# fragment. The NewTabPageLocation policy would do the same, but Chromium
+# ignores it on a Mac or Windows PC that no organization manages.
 #
 # To record a setting changed in Helium's settings, diff Preferences from
 # before the change and after Helium closes.
@@ -69,7 +69,7 @@ state="$data/Local State"
 cp -p "$state" "$state.bak"
 tmp="$(mktemp "$state.XXXXXX")"
 jq -c --slurpfile f "$here/preferences.json" \
-  --arg ntp "file://$HOME/.config/helium-newtab/newtab.html" '
+  --arg ntp "file://$here/newtab.html?dir=file://$HOME/.config/helium-newtab/" '
   .browser.enabled_labs_experiments |= (. // []) - ["custom-ntp"] + ["custom-ntp"]
   | .browser.enabled_labs_experiments_origin_lists["custom-ntp"] = $ntp
   | ($f[0].profile // {}) as $p

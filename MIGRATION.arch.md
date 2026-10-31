@@ -234,9 +234,8 @@ Then:
    no policy covers into the profile: Helium's layout and zen mode, the
    profile's name and avatar, the Classic theme, the fonts and page languages,
    and Google as the search engine. It also makes a new tab open
-   `helium/newtab.html`, from the link `symlinks` makes in
-   `~/.config/helium-newtab`: a clock, your links, notes and a fortune. The
-   page's links are in `links.js` next to that link
+   `helium/newtab.html`, from the repo: a clock, your links, notes and a
+   fortune. The page's links are in `links.js` in `~/.config/helium-newtab`
    ([section 6](#6-personal-data-to-bring-over)); `newtab.html`'s header has the
    format, and the monthly update lists links to add and drop
    ([section 10](#10-monthly-updates)). `helium/newtab-fortunes.sh` gives the

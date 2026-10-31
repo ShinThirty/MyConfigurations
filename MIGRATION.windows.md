@@ -1125,9 +1125,8 @@ again. Then, from `~\MyConfigurations`:
    run it again.
 4. With Helium closed, `helium\apply-preferences.ps1`: Helium's layout and zen
    mode, the profile's name and avatar, and the page languages. It also makes a
-   new tab open `helium\newtab.html`, from the link `setup_symlinks.ps1` makes
-   in `~\.config\helium-newtab`: a clock, your links and notes. The page's
-   links are in `links.js` next to that link
+   new tab open `helium\newtab.html`, from the repo: a clock, your links and
+   notes. The page's links are in `links.js` in `~\.config\helium-newtab`
    ([section 12.2](#122-data)); `newtab.html`'s header has the format. Then,
    on a fresh profile, Settings → Search engine → Google, by hand. It's a
    signed setting, which Windows resets if a script writes it.

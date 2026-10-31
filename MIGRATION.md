@@ -213,10 +213,10 @@ the first start ([section 4](#4-personal-data-to-bring-over)), then, from
    start. Quit it.
 3. With Helium closed, `helium/apply-preferences.sh`: Helium's layout and zen
    mode, the profile's name and avatar, and the page languages. It also makes a
-   new tab open `helium/newtab.html`, from the link `setup_symlinks.sh` makes
-   in `~/.config/helium-newtab`: a clock, your links, notes and a fortune. The
-   page's links are in `links.js` next to that link
-   ([section 4](#4-personal-data-to-bring-over)); `newtab.html`'s header has
+   new tab open `helium/newtab.html`, from the repo: a clock, your links, notes
+   and a fortune. The page's links are in `links.js` in
+   `~/.config/helium-newtab` ([section 4](#4-personal-data-to-bring-over));
+   `newtab.html`'s header has
    the format, and the monthly update lists links to add and drop
    ([section 8](#8-monthly-updates)). `helium/newtab-fortunes.sh` gives the
    page's cow its fortunes.

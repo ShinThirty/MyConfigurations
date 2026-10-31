@@ -2,14 +2,15 @@
 <!--
 Helium's new tab page, in place of Chromium's, whose tiles show the sites you
 visit most to anyone who sees the screen. Helium's custom-ntp flag, which
-apply-preferences.sh and .ps1 set, opens it from
-~/.config/helium-newtab/newtab.html, a link the symlink maps make. The address
-bar still has the focus on a new tab, so typing goes there as before. The flag
-applies in private windows too, whose notes start empty and aren't kept.
+apply-preferences.sh and .ps1 set, opens it from the repo, so a pull updates
+it. The address bar still has the focus on a new tab, so typing goes there as
+before. The flag applies in private windows too, whose notes start empty and
+aren't kept.
 
-The links are personal, so they're not in the repo but in links.js, next to the
-link, which the page loads. A group is a heading and its links, and a link is
-a name and a URL, with an optional key:
+The links are personal, so they're not in the repo but in links.js in
+~/.config/helium-newtab, the folder the flag's address gives the page as ?dir=.
+Without one, the page looks next to itself. A group is a heading and its links,
+and a link is a name and a URL, with an optional key:
 
   const links = {
     Dev: [
@@ -154,6 +155,8 @@ links.js; without it there's no cow.
   // Gruvbox's bright colours, one per group in turn
   const accents = ['#fabd2f', '#8ec07c', '#fe8019', '#83a598', '#d3869b', '#b8bb26', '#fb4934'];
   const $ = id => document.getElementById(id);
+  // links.js and fortunes.js are in the folder ?dir= names, or else next to the page
+  const dir = new URLSearchParams(location.search).get('dir') ?? '';
   const byKey = new Map();
   const notes = $('notes');
   const hint = $('hint');
@@ -218,10 +221,10 @@ links.js; without it there's no cow.
     document.head.append(script);
   }
 
-  load('links.js', () => typeof links === 'object'
+  load(dir + 'links.js', () => typeof links === 'object'
     ? render(links)
     : explain("links.js doesn't define links, or has an error the console shows. It looks like:"),
-  () => explain('No links yet: put them in ~/.config/helium-newtab/links.js, next to this page, like this:'));
+  () => explain('No links yet: put them in ~/.config/helium-newtab/links.js, like this:'));
 
   const cow = [
     '       o',
@@ -261,7 +264,7 @@ links.js; without it there's no cow.
   function think() {
     fortune.replaceChildren(...cowthink(fortunes[Math.floor(Math.random() * fortunes.length)]));
   }
-  load('fortunes.js', () => {
+  load(dir + 'fortunes.js', () => {
     if (typeof fortunes !== 'object' || !fortunes.length) return;
     think();
     fortune.hidden = false;
