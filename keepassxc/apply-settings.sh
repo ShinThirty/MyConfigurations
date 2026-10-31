@@ -134,8 +134,15 @@ if [[ ${1-} == --check ]]; then
   else
     echo "settings file, ${ini/#$HOME/~}, isn't there yet"
   fi
-  if [[ $OSTYPE == darwin* ]] && ! loaded; then
-    echo "launch agent, $label, isn't loaded, so it doesn't start at login"
+  if [[ $OSTYPE == darwin* ]]; then
+    # Login loads the file, so a stale one counts even with the job loaded
+    if [[ ! -f $plist ]]; then
+      echo "launch agent, $label, isn't there, so it doesn't start at login"
+    elif [[ "$(cat "$plist")" != "$(agent)" ]]; then
+      echo "launch agent, $label, isn't the one apply-settings.sh writes, so login may not run start.sh"
+    elif ! loaded; then
+      echo "launch agent, $label, isn't loaded, so it doesn't start at login"
+    fi
   fi
   exit 0
 fi

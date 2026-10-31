@@ -401,7 +401,7 @@ installed copies back in line with the repo (restarting aria2 if its config
 changed), checks the Brewfile against what's installed and reads `brew doctor`, checks that `git`
 still resolves to Homebrew's in a login shell, that the settings from
 section 1 and SECURITY.md are still as set, Helium's policies match `policies.json`, and
-KeePassXC's match `keepassxc/keepassxc.ini`, with its launch agent loaded and
+KeePassXC's match `keepassxc/keepassxc.ini`, with its launch agent current and loaded and
 the local copy of the database read-only and current, turns
 Claude Code's own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is
