@@ -60,8 +60,9 @@ brew "yt-dlp"
 # Play, record, convert, and stream select audio and video codecs
 brew "ffmpeg"
 
-# --- keepassxc/sync.sh ---
-# Provides keepassxc-cli, which sync.sh uses to merge the local and SMB copies
+# --- keepassxc/apply-settings.sh, start.sh ---
+# KeePassXC itself, whose settings apply-settings.sh merges in and which
+# start.sh opens at login
 cask "keepassxc"
 
 # --- helium/newtab-fortunes.sh ---

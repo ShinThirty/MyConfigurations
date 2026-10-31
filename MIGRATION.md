@@ -248,7 +248,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 
 | What | Notes |
 |---|---|
-| Password manager database | Nothing to copy: the one in use is on the network share, which KeePassXC opens at home (section 3). Away from home it opens a copy in `~/.local/share/keepass/`, which `keepassxc/sync.sh` makes from the share's and keeps read-only, so nothing is saved where the share never sees it. KeePassXC's login start runs it at each login at home; run it by hand before you leave after a long time logged in. The read-only is the file's mode and macOS's immutable flag (`chflags nouchg` lifts it); the monthly update flags a copy that's writable, or behind the share's. |
+| Password manager database | Nothing to copy: the one in use is on the network share, which KeePassXC opens at home (section 3). Away from home it opens a copy in `~/.local/share/keepass/`, which `keepassxc/sync.sh` makes from the share's and keeps read-only, so nothing is saved where the share never sees it. Run it by hand at home before you leave; KeePassXC's start at login can't, since macOS won't let a script launchd starts read files on the share. The read-only is the file's mode and macOS's immutable flag (`chflags nouchg` lifts it); the monthly update flags a copy that's writable, or behind the share's. |
 | Encryption identity | The age key. Anything encrypted to it is **unrecoverable** without this file — copy it or lose access. |
 | Broker / API credential file | Plaintext keys. Copy directly, never into this repo. Rotating them as part of the move is the safer play. |
 | Trading working dir | Local SQLite DB plus scratch subdirectories. |

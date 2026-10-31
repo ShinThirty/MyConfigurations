@@ -56,9 +56,9 @@ ffmpeg
 # The mpv IPC helper in music.zsh shells out to python3
 python
 
-# --- keepassxc/sync.sh -------------------------------------------------------
-# Provides keepassxc-cli. Note that sync.sh currently hardcodes the macOS SMB
-# mount path (/Volumes/...), so it needs an edit before it works here.
+# --- keepassxc/apply-settings.sh ---------------------------------------------
+# KeePassXC itself, whose settings apply-settings.sh merges in. sync.sh is the
+# Mac's alone.
 keepassxc
 
 # --- helium/apply-preferences.sh ---------------------------------------------

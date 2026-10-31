@@ -2,16 +2,20 @@
 #
 # Starts KeePassXC at login on macOS with the database for where the Mac is:
 # tp-share's at home, mounting the share if it isn't, and the local copy,
-# which is read-only, anywhere else. At home it first brings the local copy up
-# to date with sync.sh. The launch agent
-# apply-settings.sh writes, local.keepassxc, runs this. Home is a network
-# mac/vpn-reminder.sh trusts: on any other, whoever answers for the share's
-# name gets the login attempt (SECURITY.md section 9). KeePassXC starts in the
-# menu bar with the database locked, as MinimizeOnStartup has it.
+# which is read-only, anywhere else. The launch agent apply-settings.sh writes,
+# local.keepassxc, runs this. Home is a network mac/vpn-reminder.sh trusts: on
+# any other, whoever answers for the share's name gets the login attempt
+# (SECURITY.md section 9). KeePassXC starts in the menu bar with the database
+# locked, as MinimizeOnStartup has it.
+#
+# It leaves the local copy as it is: macOS won't let a script launchd starts
+# read files on a network volume, only see that they're there, so sync.sh
+# fails here. Run sync.sh by hand; the monthly update lists a copy that's
+# behind the share's.
 #
 
 here="$(cd "$(dirname "$0")" && pwd)"
-# sync.sh's two copies
+# The share's database, and sync.sh's local copy of it
 remote=/Volumes/tp-share/Password/shinthirty.kdbx
 backup="$HOME/.local/share/keepass/shinthirty.kdbx"
 
@@ -31,10 +35,7 @@ if [[ $trusted == 0 ]]; then
   if [[ ! -f $remote ]] && nc -z -G 3 tp-share 445 2>/dev/null; then
     osascript -e 'mount volume "smb://tp-share/G"' >/dev/null 2>&1
   fi
-  if [[ -f $remote ]]; then
-    db=$remote
-    /bin/bash "$here/sync.sh" >/dev/null 2>&1
-  fi
+  [[ -f $remote ]] && db=$remote
 fi
 
 # -g leaves KeePassXC in the background. Already running, it gets nothing

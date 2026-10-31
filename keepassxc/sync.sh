@@ -7,8 +7,9 @@
 # the share. Mode 444 alone doesn't stop KeePassXC, which saves by replacing
 # the file, a change to the folder rather than the file; macOS's user
 # immutable flag does, and you can lift it without sudo (chflags nouchg).
-# start.sh runs this at each login at home, so run it by hand when the Mac has
-# been logged in for a while and you're about to leave. It only copies, so it
+# Run it by hand at home, from a terminal, before you leave; the monthly update
+# lists a copy that's behind. start.sh can't run it at login: macOS won't let a
+# script launchd starts read files on a network volume. It only copies, so it
 # needs no password.
 #
 # --check writes nothing; it lists a local copy that's missing, writable, or
