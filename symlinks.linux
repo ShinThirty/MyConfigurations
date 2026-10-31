@@ -1,6 +1,8 @@
 # format: source:target
 $DOTFILES/arch/update-reminder.service:$HOME/.config/systemd/user/update-reminder.service
 $DOTFILES/arch/update-reminder.timer:$HOME/.config/systemd/user/update-reminder.timer
+$DOTFILES/arch/nightlight.service:$HOME/.config/systemd/user/nightlight.service
+$DOTFILES/arch/nightlight.timer:$HOME/.config/systemd/user/nightlight.timer
 $DOTFILES/voice/voice-dictate:$HOME/.local/bin/voice-dictate
 $DOTFILES/arch/makepkg.conf:$HOME/.config/pacman/makepkg.conf
 $DOTFILES/helium/helium-browser-flags.conf:$HOME/.config/helium-browser-flags.conf

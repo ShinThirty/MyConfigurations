@@ -1,0 +1,16 @@
+[Unit]
+Description=Night light at sunset, off at sunrise (arch/nightlight.sh)
+# Without a location, the lock screen weather's or its override, there's no
+# telling when the sun sets, and without KooL's script there's nothing to
+# switch: skipped quietly, and the monthly update's 80-settings lists either
+ConditionFileNotEmpty=|%E/nightlight/location
+ConditionFileNotEmpty=|%h/.cache/open_meteo_cache.json
+ConditionFileIsExecutable=%E/hypr/scripts/Hyprsunset.sh
+
+[Service]
+Type=oneshot
+ExecStart=%h/MyConfigurations/arch/nightlight.sh
+# It runs every 15 minutes: systemd's start and finish lines stay out of the
+# journal, and the script's errors go in
+LogLevelMax=notice
+SyslogLevel=warning

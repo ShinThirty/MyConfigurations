@@ -122,6 +122,16 @@ else
   warn "couldn't enable it, so once logged in: systemctl --user enable --now update-reminder.timer"
 fi
 
+# --- Night light --------------------------------------------------------------
+# On at sunset, off at sunrise, where the lock screen's weather says the
+# machine is. See MIGRATION.arch.md section 2.
+info "Night light"
+if systemctl --user enable --now nightlight.timer 2>/dev/null; then
+  ok "nightlight.timer enabled"
+else
+  warn "couldn't enable it, so once logged in: systemctl --user enable --now nightlight.timer"
+fi
+
 # --- Shell stubs (machine-local, deliberately not tracked in the repo) --------
 # No PATH gymnastics needed here: /usr/bin is the only bin dir that matters on
 # Arch, so unlike macOS there is no ~/.zprofile ordering problem to work around.

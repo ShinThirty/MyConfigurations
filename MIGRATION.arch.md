@@ -75,7 +75,8 @@ cd ~/MyConfigurations
    paru if the list has grown an `aur/` entry)
 2. Checks out the `vim/` and `nvim/` submodules
 3. Runs `setup_symlinks.sh` (`symlinks`, then `symlinks.linux`)
-4. Enables the monthly update reminder ([section 10](#10-monthly-updates))
+4. Enables the monthly update reminder ([section 10](#10-monthly-updates)) and
+   the night light's timer (below)
 5. Creates `~/.zshenv` and `~/.zshrc.local` if missing
 6. Sets the login shell to `/usr/bin/zsh` via `chsh`
 7. Runs `ya pkg install` for yazi plugins
@@ -125,6 +126,31 @@ bare repo ([section 5](#5-the-hyprland-bare-repo)). Then:
 ```sh
 voice-dictate doctor   # dependencies, models, mic and GPU backend
 ```
+
+**Night light.** KooL's waybar button and SUPER+N switch it by hand, through
+`~/.config/hypr/scripts/Hyprsunset.sh`, at 4500K. `arch/nightlight.sh` switches
+it through the same script, on at sunset and off at sunrise, so the button
+shows what it did, and a click in between holds until the next sunrise or
+sunset. `nightlight.timer`, linked in by `symlinks.linux`, runs it a minute
+after login and every 15 minutes, so it switches within 15 minutes of sunset
+or sunrise; `bootstrap.arch.sh` enables it, or by hand:
+`systemctl --user enable --now nightlight.timer`. It goes by the lock
+screen's weather location: KooL's `~/.config/hypr/UserScripts/Weather.py`
+finds it from the IP address and keeps it in `~/.cache/open_meteo_cache.json`,
+so the timer skips quietly until the weather first shows, and its first run
+after that sets the night light for the time of day. Where the IP address puts
+the machine somewhere else, as behind a VPN, write the location yourself, which
+takes the weather's place: one line, latitude, then longitude, in decimal
+degrees, north and east positive. One decimal place is plenty. It stays out
+of this repo, since it's public:
+
+```sh
+mkdir -p ~/.config/nightlight
+echo '51.5 -0.1' > ~/.config/nightlight/location   # your own
+```
+
+The monthly update checks the timer, the location and KooL's script
+([section 10](#10-monthly-updates)).
 
 **IdeaVim.** `symlinks` links `~/.ideavimrc`, which matters once a JetBrains
 IDE is installed. Install the **IdeaVim** and **Which-Key** plugins from the
@@ -536,7 +562,7 @@ it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its
-config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on, its other settings are `keepassxc/keepassxc.ini`'s, and Hyprland starts it at login with both databases, that gh's token isn't in plain text, that systemd-boot is still first in the boot order,
+config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on, its other settings are `keepassxc/keepassxc.ini`'s, and Hyprland starts it at login with both databases, that gh's token isn't in plain text, that the night light follows the sun, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, turns Claude Code's
 own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is some of:
@@ -585,6 +611,10 @@ own update checks back off if `~/.claude/settings.json` has lost
 - **An old uv Python a venv still uses.** The cleanup keeps it and names the
   venv. Recreating the venv moves it onto the minor-version link, and next
   month's cleanup removes the old Python
+- **Night light**: no location from the weather or the file,
+  `nightlight.timer` not running, or KooL's `Hyprsunset.sh` gone after an
+  upgrade; each says what to do
+  ([section 2](#2-clone-and-bootstrap))
 - **Claude Code**: `~/.claude/settings.json` isn't valid JSON, so the script
   couldn't turn its update checks back off. Fix it and run the update again
 

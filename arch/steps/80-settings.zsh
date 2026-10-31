@@ -5,7 +5,7 @@
 # LLMNR, SMB signing and logins, and KeePassXC's Secret Service SECURITY.md has
 # you set up, and the DNS over TLS MIGRATION.arch.md section 1 does, which Arch
 # doesn't come with. And KeePassXC's settings from keepassxc/keepassxc.ini, and
-# its start at login.
+# its start at login, and the night light's timer.
 
 update() {
   info 'Settings'
@@ -126,6 +126,16 @@ update() {
     todo+=("Security: gh's GitHub token is in plain text in $hosts; with KeePassXC's Login database unlocked, gh auth logout, then gh auth login, moves it there (SECURITY.md section 7)")
   elif [[ -f $hosts ]]; then
     ok "gh's token isn't in plain text"
+  fi
+
+  # arch/nightlight.sh turns the night light on at sunset through KooL's
+  # Hyprsunset.sh, which a KooL upgrade can rename or drop
+  local night=(${(f)"$($DOTFILES/arch/nightlight.sh --check)"})
+  if (( $#night )); then
+    warn "the night light doesn't follow the sun, listed below"
+    todo+=("Night light: "${^night}" (MIGRATION.arch.md section 2)")
+  else
+    ok 'the night light follows the sun'
   fi
 
   [[ -d /sys/firmware/efi ]] || { skip 'not booted with UEFI'; return }
