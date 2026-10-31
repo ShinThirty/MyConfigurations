@@ -1,6 +1,6 @@
-# What a Windows update can quietly reset: the section 5 settings, Helium's policies and link
-# handlers, KeePassXC's settings and Run entry, the Run entries apps put back, and SECURITY.md's
-# firewall, Defender and share name
+# What a Windows update can quietly reset: the section 5 settings, Helium's policies, link handlers
+# and new tab page, KeePassXC's settings and Run entry, the Run entries apps put back, and
+# SECURITY.md's firewall, Defender and share name
 
 @{
     Update = {
@@ -62,6 +62,7 @@
         if (Test-Path "$HOME\scoop\apps\helium") {
             & "$repo\helium\apply-policies.ps1" -Check | ForEach-Object { $drift.Add("Helium's policy $_ (rerun helium\apply-policies.ps1 elevated, section 12.1)") }
             & "$repo\helium\fix-handlers.ps1" -Check | ForEach-Object { $drift.Add("$_ opens Helium without its profile folder (rerun helium\fix-handlers.ps1, section 12.1)") }
+            & "$repo\helium\apply-preferences.ps1" -Check | ForEach-Object { $drift.Add("Helium's $_ (rerun helium\apply-preferences.ps1 with Helium closed, section 12.1)") }
         }
         if (Test-Path "$HOME\scoop\apps\keepassxc") {
             & "$repo\keepassxc\apply-settings.ps1" -Check | ForEach-Object { $drift.Add("KeePassXC's $_ (rerun keepassxc\apply-settings.ps1, section 10)") }

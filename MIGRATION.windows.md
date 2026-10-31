@@ -753,6 +753,8 @@ scoop install extras/glazewm extras/zebar extras/sharex extras/oculante
 scoop install mpv yt-dlp python
 # Downloads
 scoop install aria2
+# The monthly update reads Helium's history
+scoop install sqlite
 
 # yazi detects file types with Git for Windows' file(1)
 [Environment]::SetEnvironmentVariable('YAZI_FILE_ONE', "$HOME\scoop\apps\git\current\usr\bin\file.exe", 'User')
@@ -790,6 +792,7 @@ What needs what:
 | `mpv`, `yt-dlp` | `music` function |
 | `sharex` | Screenshots and screen recording in place of Snipping Tool, which LTSC only ships in its old form (`glazewm/README.md`) |
 | `oculante` | Image viewer in place of Photos, which LTSC doesn't ship ([section 9](#9-desktop)) |
+| `sqlite` | `helium\newtab-links.ps1` reads Helium's history with `sqlite3`, for the new tab links the monthly update suggests ([section 15](#15-monthly-updates)) |
 
 ---
 
@@ -1127,8 +1130,10 @@ again. Then, from `~\MyConfigurations`:
    mode, the profile's name and avatar, and the page languages. It also makes a
    new tab open `helium\newtab.html`, from the repo: a clock, your links and
    notes. The page's links are in `links.js` in `~\.config\helium-newtab`
-   ([section 12.2](#122-data)); `newtab.html`'s header has the format. Then,
-   on a fresh profile, Settings → Search engine → Google, by hand. It's a
+   ([section 12.2](#122-data)); `newtab.html`'s header has the format, and
+   the monthly update lists links to add and drop
+   ([section 15](#15-monthly-updates)). Then, on a fresh profile, Settings →
+   Search engine → Google, by hand. It's a
    signed setting, which Windows resets if a script writes it.
 5. The theme, kitty's Gruvbox dark hard: in `helium://extensions`, turn on
    Developer mode, **Load unpacked** `helium\theme`, and turn Developer mode
@@ -1152,7 +1157,7 @@ link handler that has changed.
 | Encryption identity / encrypted files | `~\.config\age\`. Anything encrypted to the age key is **unrecoverable** without it |
 | Broker / API credential files, trading working dir | Dotfiles and a dot-directory in `~`. Copy directly, never into this repo |
 | `~\.aws\` | Profile config; re-authenticate |
-| `~\.config\helium-newtab\links.js` | The links on Helium's new tab page ([below](#helium)). The page's notes are in Helium's profile, so they come with it |
+| `~\.config\helium-newtab\links.js`, `ignore` | The links on Helium's new tab page ([below](#helium)), and the sites the monthly update never suggests one for. The page's notes are in Helium's profile, so they come with it |
 | `~\.claude\` | Copy back `CLAUDE.md` (global instructions), `settings.json` and `projects\*\memory\` (per-project memory — valid only under the same account name). `sessions\`, `history.jsonl`, `.credentials.json` and `~\.claude.json` are per-machine; re-login instead |
 | `~\Documents` (local) | Notes written by tools that hardcode `~\Documents`, *not* the OneDrive-redirected one. Copy back, or into OneDrive's Documents if you'd rather have them synced |
 | `~\Downloads` | Kept for its few personal exports |
@@ -1275,12 +1280,12 @@ parsers rebuild themselves the next time nvim starts), `ya pkg upgrade` and
 `Update-PSResource`, prints the BIOS and driver versions, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config
 changed), checks that an update
-hasn't reset the section 5 settings or Helium's policies and link handlers,
-that KeePassXC's settings are still `keepassxc\keepassxc.ini`'s and it still
+hasn't reset the section 5 settings or Helium's policies, link handlers and
+new tab page, that KeePassXC's settings are still `keepassxc\keepassxc.ini`'s and it still
 starts at sign-in with the database, that the firewall and Defender are on,
 turns Claude Code's own update checks back off if `~\.claude\settings.json` has
-lost `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with
-what's left, which is some of:
+lost `DISABLE_AUTOUPDATER`, compares Helium's new tab links with the sites you
+open, and runs the cleanup below. It ends with what's left, which is some of:
 
 - **Windows Update** — finish it in Settings, and reboot if it asks (Restarts,
   below)
@@ -1309,7 +1314,7 @@ what's left, which is some of:
   ([section 11](#11-aria2)), or its config has no RPC secret
   ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret))
 - **Reset** — a section 5 setting an update turned back, a Run entry an app
-  put back, a Helium policy or link handler that changed (rerun the script
+  put back, a Helium policy, link handler or new tab page that changed (rerun the script
   it names, [section 12.1](#helium)), or a KeePassXC setting or its Run entry
   (rerun `keepassxc\apply-settings.ps1`, [section 10](#10-network-share-and-password-database))
 - **Security** — the firewall off for a network profile, Defender's
@@ -1321,6 +1326,11 @@ what's left, which is some of:
   ([section 12.1](#121-apps)), or a `~\.claude\settings.json` that isn't valid
   JSON, so the script couldn't turn its update checks back off. Fix it and run
   the update again
+- **Helium's new tab** — sites you opened on 4 or more days of the last 30
+  that no link goes to, and links you haven't opened in 90 days. Edit
+  `~\.config\helium-newtab\links.js`, or put a site you never want suggested
+  in `ignore` next to it, one a line; its subdomains go with it
+  ([section 12.1](#helium))
 
 **The cleanup.** `update.ps1` ends with it. Without asking, it removes old
 scoop versions and their downloads, runs `uv cache prune`, removes old

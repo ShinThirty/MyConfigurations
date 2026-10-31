@@ -22,12 +22,17 @@
 # fragment. The NewTabPageLocation policy would do the same, but Chromium
 # ignores it on a Mac or Windows PC that no organization manages.
 #
+# --check writes nothing; it lists what keeps a new tab from opening
+# newtab.html instead, and the platform's steps/80-settings.zsh runs it. It
+# doesn't check the fragments' settings.
+#
 # To record a setting changed in Helium's settings, diff Preferences from
 # before the change and after Helium closes.
 #
 set -euo pipefail
 
-here="$(cd "$(dirname "$0")" && pwd)"
+# -P, so the page's address is the same however the script was reached
+here="$(cd "$(dirname "$0")" && pwd -P)"
 
 case "$OSTYPE" in
   linux*)
@@ -46,6 +51,23 @@ case "$OSTYPE" in
     ;;
 esac
 prefs="$data/Default/Preferences"
+state="$data/Local State"
+ntp="file://$here/newtab.html?dir=file://$HOME/.config/helium-newtab/"
+
+if [[ ${1-} == --check ]]; then
+  if [[ ! -f $state ]]; then
+    echo "Local State, ${state/#$HOME/~}, isn't there yet"
+    exit 0
+  fi
+  on="$(jq '.browser.enabled_labs_experiments // [] | any(. == "custom-ntp")' "$state")"
+  url="$(jq -r '.browser.enabled_labs_experiments_origin_lists["custom-ntp"] // ""' "$state")"
+  if [[ $on != true ]]; then
+    echo "new tab page flag, custom-ntp, is off, so a new tab opens Chromium's page of the sites visited most"
+  elif [[ $url != "$ntp" ]]; then
+    echo "new tab page flag, custom-ntp, opens ${url:-nothing}, not $ntp"
+  fi
+  exit 0
+fi
 
 if [[ ! -f "$prefs" ]]; then
   echo "No profile at $prefs yet: start Helium once, then close it" >&2
@@ -65,11 +87,9 @@ echo "Merged preferences.json and ${fragment##*/} into ${prefs/#$HOME/~}"
 # The profile menu shows the name and avatar from Local State's profile cache,
 # which Helium doesn't refresh from Preferences on its own. The flags are there
 # too, so the new tab page's is.
-state="$data/Local State"
 cp -p "$state" "$state.bak"
 tmp="$(mktemp "$state.XXXXXX")"
-jq -c --slurpfile f "$here/preferences.json" \
-  --arg ntp "file://$here/newtab.html?dir=file://$HOME/.config/helium-newtab/" '
+jq -c --slurpfile f "$here/preferences.json" --arg ntp "$ntp" '
   .browser.enabled_labs_experiments |= (. // []) - ["custom-ntp"] + ["custom-ntp"]
   | .browser.enabled_labs_experiments_origin_lists["custom-ntp"] = $ntp
   | ($f[0].profile // {}) as $p

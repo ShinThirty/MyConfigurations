@@ -1,6 +1,7 @@
 # What a macOS update can quietly reset: the login shell's PATH, the settings
-# MIGRATION.md and SECURITY.md have you make by hand, Helium's policies, and
-# KeePassXC's settings, launch agent and read-only copy of the database
+# MIGRATION.md and SECURITY.md have you make by hand, Helium's policies and new
+# tab page, and KeePassXC's settings, launch agent and read-only copy of the
+# database
 
 update() {
   info 'Settings'
@@ -78,10 +79,14 @@ update() {
   done
 
   # Helium's policies come from a configuration profile built from
-  # helium/policies.json (MIGRATION.md section 3)
+  # helium/policies.json, and its new tab page from the custom-ntp flag
+  # apply-preferences.sh sets (MIGRATION.md section 3)
   if [[ -d /Applications/Helium.app ]]; then
     for line in ${(f)"$($DOTFILES/helium/apply-policies.sh --check)"}; do
       drift+=("Helium's policy $line (rerun helium/apply-policies.sh, MIGRATION.md section 3)")
+    done
+    for line in ${(f)"$($DOTFILES/helium/apply-preferences.sh --check)"}; do
+      drift+=("Helium's $line (rerun helium/apply-preferences.sh with Helium quit, MIGRATION.md section 3)")
     done
   fi
   # keepassxc/keepassxc.ini's settings, the launch agent that opens it at login,
@@ -99,7 +104,7 @@ update() {
     warn "$#drift changed, listed below"
     todo+=("Reset: "${^drift})
   else
-    ok "git resolves to $resolved; the settings MIGRATION.md makes, Helium's policies and KeePassXC's settings are as set"
+    ok "git resolves to $resolved; the settings MIGRATION.md makes, Helium's policies and new tab page, and KeePassXC's settings are as set"
   fi
   if (( $#insecure )); then
     warn "$#insecure of SECURITY.md's settings not as it says, listed below"

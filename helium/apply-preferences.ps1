@@ -15,16 +15,31 @@ State, giving it ~\.config\helium-newtab, where links.js is, as ?dir=. The paths
 so they're not in a fragment. The NewTabPageLocation policy would do the same, but Chromium ignores
 it on a PC that no organization manages.
 
+-Check writes nothing; it lists what keeps a new tab from opening newtab.html instead, and
+steps\80-settings.ps1 runs it. It doesn't check the fragments' settings.
+
 scoop's Helium keeps its profile in ~\scoop\persist\helium\User Data; -UserData points the script at
 a copy.
 
 To record a setting changed in Helium's settings, diff Preferences from before the change and after
 Helium closes.
 #>
-param([string]$UserData = "$HOME\scoop\persist\helium\User Data")
+param([switch]$Check, [string]$UserData = "$HOME\scoop\persist\helium\User Data")
 $ErrorActionPreference = 'Stop'
 
 $prefs = "$UserData\Default\Preferences"
+$state = "$UserData\Local State"
+$ntp = ([Uri]"$PSScriptRoot\newtab.html").AbsoluteUri + '?dir=' + ([Uri]"$HOME\.config\helium-newtab\").AbsoluteUri
+
+if ($Check) {
+    if (-not (Test-Path $state)) { "Local State, $($state.Replace($HOME, '~')), isn't there yet"; return }
+    $on, $url = jq -r '.browser | (.enabled_labs_experiments // [] | any(. == "custom-ntp")), (.enabled_labs_experiments_origin_lists["custom-ntp"] // "")' $state
+    if ($LASTEXITCODE) { throw "jq couldn't read $state" }
+    if ($on -ne 'true') { "new tab page flag, custom-ntp, is off, so a new tab opens Chromium's page of the sites visited most" }
+    elseif ($url -ne $ntp) { "new tab page flag, custom-ntp, opens $($url ? $url : 'nothing'), not $ntp" }
+    return
+}
+
 if (-not (Test-Path $prefs)) { throw "No profile at $prefs yet: start Helium once, then close it" }
 # The process is chrome.exe, so it's Helium only when it runs from scoop's helium folder
 if (Get-Process chrome -ErrorAction SilentlyContinue | Where-Object Path -like '*\scoop\apps\helium\*') {
@@ -45,8 +60,6 @@ Write-Host "Merged preferences.json and preferences.windows.json into $($prefs.R
 
 # The profile menu shows the name and avatar from Local State's profile cache, which Helium doesn't
 # refresh from Preferences on its own. The flags are there too, so the new tab page's is.
-$state = "$UserData\Local State"
-$ntp = ([Uri]"$PSScriptRoot\newtab.html").AbsoluteUri + '?dir=' + ([Uri]"$HOME\.config\helium-newtab\").AbsoluteUri
 Set-Json $state '--slurpfile', 'f', "$PSScriptRoot\preferences.json", '--arg', 'ntp', $ntp, @'
   .browser.enabled_labs_experiments |= (. // []) - ["custom-ntp"] + ["custom-ntp"]
   | .browser.enabled_labs_experiments_origin_lists["custom-ntp"] = $ntp

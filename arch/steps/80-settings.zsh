@@ -5,7 +5,7 @@
 # LLMNR, SMB signing and logins, and KeePassXC's Secret Service SECURITY.md has
 # you set up, and the DNS over TLS MIGRATION.arch.md section 1 does, which Arch
 # doesn't come with. And KeePassXC's settings from keepassxc/keepassxc.ini, and
-# its start at login, and the night light's timer.
+# its start at login, Helium's new tab page, and the night light's timer.
 
 update() {
   info 'Settings'
@@ -126,6 +126,18 @@ update() {
     todo+=("Security: gh's GitHub token is in plain text in $hosts; with KeePassXC's Login database unlocked, gh auth logout, then gh auth login, moves it there (SECURITY.md section 7)")
   elif [[ -f $hosts ]]; then
     ok "gh's token isn't in plain text"
+  fi
+
+  # A new tab opens helium/newtab.html through the custom-ntp flag
+  # helium/apply-preferences.sh sets
+  if (( $+commands[helium-browser] )); then
+    local ntp=(${(f)"$($DOTFILES/helium/apply-preferences.sh --check)"})
+    if (( $#ntp )); then
+      warn "Helium's new tab isn't newtab.html, listed below"
+      todo+=("Reset: Helium's "${^ntp}" (rerun helium/apply-preferences.sh with Helium closed, MIGRATION.arch.md section 2)")
+    else
+      ok "Helium's new tab opens newtab.html"
+    fi
   fi
 
   # arch/nightlight.sh turns the night light on at sunset through KooL's

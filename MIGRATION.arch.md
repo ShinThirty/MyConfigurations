@@ -573,7 +573,7 @@ it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its
-config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on, its other settings are `keepassxc/keepassxc.ini`'s, and Hyprland starts it at login with both databases, that gh's token isn't in plain text, that the night light follows the sun, that systemd-boot is still first in the boot order,
+config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on, its other settings are `keepassxc/keepassxc.ini`'s, and Hyprland starts it at login with both databases, that gh's token isn't in plain text, that a new tab in Helium opens `newtab.html`, that the night light follows the sun, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, turns Claude Code's
 own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, compares Helium's new tab links with the sites you
@@ -594,7 +594,9 @@ open, and runs the cleanup below. It ends with what's left, which is some of:
   `keepassxc/keepassxc.ini`'s: quit KeePassXC and rerun
   `keepassxc/apply-settings.sh` ([section 2](#2-clone-and-bootstrap)). Or
   KeePassXC's start at login missing from `user_startup.lua`, or different:
-  `arch/kooldots-upgrade.sh --post-only` puts it back
+  `arch/kooldots-upgrade.sh --post-only` puts it back. Or a new tab in Helium
+  that doesn't open `newtab.html`: close Helium and rerun
+  `helium/apply-preferences.sh` ([section 2](#2-clone-and-bootstrap))
 - **Go tools the Brewfile doesn't list.** `go install` never removes anything,
   so binaries from older lists sit in `~/go/bin` and never update. Delete them
   or add them to the Brewfile

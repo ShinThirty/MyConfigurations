@@ -412,7 +412,8 @@ themselves the next time nvim starts), and `ya pkg upgrade`, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config
 changed), checks the Brewfile against what's installed and reads `brew doctor`, checks that `git`
 still resolves to Homebrew's in a login shell, that the settings from
-section 1 and SECURITY.md are still as set, Helium's policies match `policies.json`, and
+section 1 and SECURITY.md are still as set, Helium's policies match `policies.json` and a
+new tab still opens `newtab.html`, and
 KeePassXC's match `keepassxc/keepassxc.ini`, with its launch agent current and loaded and
 the local copy of the database read-only and current, turns
 Claude Code's own update checks back off if `~/.claude/settings.json` has lost
@@ -457,8 +458,9 @@ and runs the cleanup below. It ends with what's left, which is some of:
 - **Reset** — something a macOS update turned back: the PATH order
   ([section 5](#5-known-gotchas)), a setting from this runbook, such as
   natural scrolling ([section 1](#1-clone-and-bootstrap)), a Helium policy
-  (rerun `helium/apply-policies.sh`), or a KeePassXC setting or its launch
-  agent (rerun `keepassxc/apply-settings.sh`), both in
+  (rerun `helium/apply-policies.sh`) or its new tab page (rerun
+  `helium/apply-preferences.sh`), or a KeePassXC setting or its launch
+  agent (rerun `keepassxc/apply-settings.sh`), all in
   [section 3](#3-apps-and-tools-not-covered-by-the-brewfile), or the local
   copy of the database writable or behind (run `keepassxc/sync.sh`,
   [section 4](#4-personal-data-to-bring-over))
