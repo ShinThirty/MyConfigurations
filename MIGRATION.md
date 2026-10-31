@@ -217,7 +217,9 @@ the first start ([section 4](#4-personal-data-to-bring-over)), then, from
    in `~/.config/helium-newtab`: a clock, your links, notes and a fortune. The
    page's links are in `links.js` next to that link
    ([section 4](#4-personal-data-to-bring-over)); `newtab.html`'s header has
-   the format. `helium/newtab-fortunes.sh` gives the page's cow its fortunes.
+   the format, and the monthly update lists links to add and drop
+   ([section 8](#8-monthly-updates)). `helium/newtab-fortunes.sh` gives the
+   page's cow its fortunes.
    Then, on a fresh profile, Settings → Search engine → Google, by hand. It's
    a signed setting, which macOS resets if a script writes it.
 4. The theme, kitty's Gruvbox dark hard: in `helium://extensions`, turn on
@@ -255,7 +257,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 | Trading working dir | Local SQLite DB plus scratch subdirectories. |
 | `~/.aws/config` | Profile definitions only, no secrets. Copy it, then re-authenticate; the `login/cache` and `cli/cache` dirs are disposable. |
 | `~/Library/Application Support/net.imput.helium` | Helium's profile: history, bookmarks, site data, extensions. Copy it whole with Helium closed at both ends, before its first start. Not the logins: Helium encrypts its cookies with a key from the login Keychain (the "Helium Storage Key" item), not from the profile, so sign in to sites again. |
-| `~/.config/helium-newtab/links.js` | The links on Helium's new tab page (section 3). The page's notes are in Helium's profile, so they come with it. |
+| `~/.config/helium-newtab/links.js`, `ignore` | The links on Helium's new tab page (section 3), and the sites the monthly update never suggests one for. The page's notes are in Helium's profile, so they come with it. |
 | `~/.claude/settings.json` | Claude Code prefs. `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
 | Obsidian vault | Lives in iCloud Drive, so it **syncs on its own** — sign into iCloud and wait. Don't copy it manually. |
 | `~/Documents` | Personal documents, analysis, scripts, tax records. |
@@ -414,8 +416,8 @@ section 1 and SECURITY.md are still as set, Helium's policies match `policies.js
 KeePassXC's match `keepassxc/keepassxc.ini`, with its launch agent current and loaded and
 the local copy of the database read-only and current, turns
 Claude Code's own update checks back off if `~/.claude/settings.json` has lost
-`DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is
-some of:
+`DISABLE_AUTOUPDATER`, compares Helium's new tab links with the sites you open,
+and runs the cleanup below. It ends with what's left, which is some of:
 
 - **Software Update** — automatic updates are on, but they can sit offered for
   weeks. Installing takes your password and usually a restart, so it stays in
@@ -469,6 +471,11 @@ some of:
   or Wi-Fi networks the cleanup didn't forget, below
 - **Claude Code** — `~/.claude/settings.json` isn't valid JSON, so the script
   couldn't turn its update checks back off. Fix it and run the update again
+- **Helium's new tab** — sites you opened on 4 or more days of the last 30
+  that no link goes to, and links you haven't opened in 90 days. Edit
+  `~/.config/helium-newtab/links.js`, or put a site you never want suggested
+  in `ignore` next to it, one a line; its subdomains go with it
+  ([section 3](#3-apps-and-tools-not-covered-by-the-brewfile))
 
 **The cleanup.** `update.sh` ends with it. It lists the Wi-Fi networks the Mac
 remembers that aren't in `~/.config/wifi/keep`, iCloud's from your other

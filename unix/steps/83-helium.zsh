@@ -4,7 +4,8 @@
 
 update() {
   info "Helium's new tab"
-  (( $+commands[helium-browser] )) || { skip 'not installed'; return }
+  [[ -d /Applications/Helium.app ]] || (( $+commands[helium-browser] )) ||
+    { skip 'not installed'; return }
   local out
   if ! out=$($DOTFILES/helium/newtab-links.sh); then
     warn "couldn't read Helium's history"

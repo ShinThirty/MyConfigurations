@@ -6,7 +6,7 @@
 # 90 days. A link goes to a site with the same host, www. aside, and it's
 # opened when a page at or under its address is. A day counts only with a
 # visit Helium would count toward its own most visited tiles. It writes
-# nothing; arch/steps/83-helium.zsh runs it in the monthly update.
+# nothing; unix/steps/83-helium.zsh runs it in the monthly update.
 #
 # Sites in ignore, next to links.js, are never suggested, nor their
 # subdomains: one a line, such as example.com, and # starts a comment. Helium
@@ -21,6 +21,7 @@ links_file=$dir/links.js
 ignore_file=$dir/ignore
 case $OSTYPE in
   linux*) history_db=${HELIUM_CONFIG_HOME:-${XDG_CONFIG_HOME:-$HOME/.config}}/net.imput.helium/Default/History ;;
+  darwin*) history_db="$HOME/Library/Application Support/net.imput.helium/Default/History" ;;
   *) print -u2 "No Helium history path for $OSTYPE yet"; exit 1 ;;
 esac
 
