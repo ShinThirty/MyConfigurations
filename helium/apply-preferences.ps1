@@ -12,6 +12,9 @@ don't name are left alone, so rerunning is harmless. The previous file is kept a
 
 scoop's Helium keeps its profile in ~\scoop\persist\helium\User Data; -UserData points the script at
 a copy.
+
+To record a setting changed in Helium's settings, diff Preferences from before the change and after
+Helium closes.
 #>
 param([string]$UserData = "$HOME\scoop\persist\helium\User Data")
 $ErrorActionPreference = 'Stop'

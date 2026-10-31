@@ -16,6 +16,9 @@
 #   preferences.darwin.json the page languages, Edge's; Edge set no fonts, so
 #                           they stay Chromium's defaults
 #
+# To record a setting changed in Helium's settings, diff Preferences from
+# before the change and after Helium closes.
+#
 set -euo pipefail
 
 here="$(cd "$(dirname "$0")" && pwd)"

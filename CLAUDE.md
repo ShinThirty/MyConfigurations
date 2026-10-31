@@ -1,96 +1,96 @@
 # CLAUDE.md
 
-## Project overview
+Personal dotfiles for macOS, Arch Linux and Windows: shell, editor, terminal and tool configs, and
+each platform's setup, monthly update and settings checks.
 
-Personal dotfiles repository for macOS, Arch Linux, and Windows. Manages shell, editor, terminal, and tool configurations.
+This file is the layout and the conventions. What a script does, and what a check covers, is in the
+script's header comment; the steps done by hand are in the runbooks. So a new script, step or check
+doesn't change this file: a new top-level entry, convention or workflow does.
 
-## Repository structure
+## Layout
 
-- `lib/core/` - Zsh config loaded early (env vars, shell options, key bindings)
-- `lib/after/` - Zsh config loaded last (fzf, tool integrations like eza, zoxide, bat, yazi, music)
-- `sheldon/plugins.toml` - Sheldon plugin manager config (manages oh-my-zsh plugins, powerlevel10k, zsh-autosuggestions, zsh-syntax-highlighting, fzf-git)
-- `zsh/zshrc` - Main zshrc, kept minimal — delegates to sheldon and lib/
-- `zsh/rfv` - Ripgrep fuzzy viewer script
-- `git/` - Git config (platform-specific gitconfig files) and global ignore
-- `tmux/` - Tmux config with gruvbox-dark hard theme
-- `kitty/` - Kitty terminal config with vim-like key bindings
-- `gitui/` - Gitui theme (gruvbox-dark hard) and vim-like key bindings
-- `yazi/` - Yazi file manager config with gruvbox theme
-- `aerospace/` - AeroSpace tiling window manager config (macOS only)
-- `aria2/` - aria2 download manager config, per-platform install scripts (darwin/, linux/, windows/)
-- `powershell/` - PowerShell config (Windows, loaded via a stub at `$PROFILE` that `install_modules.ps1` writes into `Documents\PowerShell\`, OneDrive-redirected or not): profile.ps1, git.ps1 (oh-my-zsh-style aliases), dirhistory.ps1, music.ps1, install_modules.ps1 (pwsh only — refuses to run under Windows PowerShell 5.1), update.ps1 (attended monthly update, pwsh only — every step's update, then every cleanup, then what's left for you), cleanup.ps1 (the cleanups alone), runner.ps1 (dot-sourced by both: the helpers, `$todo`, `Invoke-Steps`; the counterpart of `unix/runner.zsh`), steps/ (`NN-tool.ps1`, numbered as the same tool is on macOS and Arch, each returning `@{ Update = {…}; Cleanup = {…} }`: 10-windows-update, 20-scoop, 31-rust, 32-uv (the cache junction to D:, `uv cache prune`), 42-nvim (the same headless commands as `unix/steps/42-nvim.zsh`), 43-yazi, 44-ps-modules (cleanup: old versions not loaded in the session), 50-drivers (driver and BIOS report; cleanup deletes the unused driver packages you approve from one elevated window, by starting itself as admin with `-Remove`), 51-aria2 (the same as on macOS and Arch for `~\.config\aria2`, keeping the `dir=` line `install.ps1 -DownloadDir` wrote as well, and flagging a config without an `rpc-secret=`; flags a missing or disabled task), 60-temp (week-old TEMP files), 80-settings (registry and service drift, plus Helium's policies and link handlers through the `-Check` of `helium/apply-policies.ps1` and `helium/fix-handlers.ps1`, and KeePassXC's settings and Run entry through `keepassxc/apply-settings.ps1 -Check`; and, listed as Security, a firewall profile or Defender's real-time protection off, a mapped share's host missing from the hosts file, LLMNR or NetBIOS on, an SMB client that no longer requires signing, allows guest logins or has SMB 1 installed, or DNS over TLS off, DoH back on, or a connected adapter's DNS server without a TLS host or with plain fallback (MIGRATION.windows.md section 5.6)), 82-claude (the same as `unix/steps/82-claude.zsh`, and flags the native copy Claude Code's updater drops in `~\.local` beside scoop's)), update_reminder.ps1 + Update-Reminder.vbs (Patch Tuesday toast from a scheduled task; runs under Windows PowerShell for its WinRT toast API, so keep it ASCII)
-- `glazewm/` - GlazeWM tiling window manager config (Windows only, Hyprland-like keybindings)
-- `wt/` - Windows Terminal settings
-- `ideavim/` - IdeaVim config for JetBrains IDEs (keybindings aligned with nvim, requires [Which-Key](https://plugins.jetbrains.com/plugin/15976-which-key) plugin)
-- `vim/` - Git submodule, plugins managed by vim-plug (has own CLAUDE.md)
-- `nvim/` - Git submodule, plugins managed by lazy.nvim, cross-platform macOS/Linux/Windows (has own CLAUDE.md)
-- `voice/` - `voice-dictate`, hold-to-talk speech input for Wayland (Arch only): records the
-  default PipeWire source, transcribes locally with whisper.cpp on the GPU (ggml-vulkan, no
-  CUDA toolkit), and types the text into the focused window via `wtype`. Bound to SUPER+Z in
-  the Hyprland config, which lives in the `~/.dotfiles.git` bare repo, not here. The model
-  (`ggml-large-v3-turbo-q5_0.bin`, 574 MB) plus a Silero VAD model live in
-  `~/.local/share/whisper.cpp/`, downloaded by `bootstrap.arch.sh --voice` rather than tracked.
-  VAD is not optional: without it Whisper turns room tone into confident filler text
-- `helium/` - Helium browser config, used on macOS, Arch and Windows. policies.json (Chromium policy format: force-installs KeePassXC-Browser and Aria2 Explorer by extension ID alone, with no update URL, which is how Helium fetches them through its own services, and forces HTTPS-only mode and DNS over HTTPS to dns.google in secure mode, SECURITY.md section 7; on Arch, `/etc/chromium/policies/managed/helium.json` links to it; on Windows, apply-policies.ps1 writes it into `HKLM\SOFTWARE\Policies\Helium`, run elevated, and `-Check` lists the drift instead; on macOS, apply-policies.sh builds a configuration profile from it with jq and plutil, a payload for Helium's `net.imput.helium` domain, and opens it to be installed in System Settings, since `ExtensionInstallForcelist` counts only as a forced value, which `defaults write` can't make; `--check` compares `/Library/Managed Preferences/net.imput.helium.plist` with the file), helium-browser-flags.conf (read by the AUR package's wrapper: `--force-dark-mode`, and `--password-store=gnome-libsecret`, which keeps the cookies' key in KeePassXC's Login database; `symlinks.linux` links it), preferences.json (every platform: Helium layout and zen mode, profile name and avatar) + preferences.linux.json (fonts, page languages, the Classic theme, and Google as the search engine, a signed setting that Windows and macOS reset when it's edited) + preferences.windows.json (page languages only; the fonts stay Chromium's defaults, and Google is set by hand) + preferences.darwin.json (the same, from the Mac's Edge) + apply-preferences.sh (Linux and macOS) / apply-preferences.ps1 (merge them into the profile's `Preferences` with Helium closed, and the name and avatar into `Local State`, which the profile menu reads; the .ps1 uses jq too, with `-a` so the console's encoding can't garble it). No policy covers these settings. To record a setting changed in the UI, diff `Preferences` from before and after. fix-handlers.ps1 (Windows): scoop's portable build keeps its profile in `~\scoop\persist\helium\User Data`, passed by the shim and shortcut as `--user-data-dir`; the browser registration Helium writes on its first start (`Helium.<suffix>`, `HeliumHTM.<suffix>`) leaves that out, so links would open a second, empty profile, and the script adds it to every command (`-Check` lists the ones without it). On Windows the process is `chrome.exe`, told apart by its path under `scoop\apps\helium`; KeePassXC registers through the Chromium entry (`HKCU\Software\Chromium\NativeMessagingHosts`), which Helium reads. On macOS the profile is `~/Library/Application Support/net.imput.helium` and the process `Helium`; Helium updates itself there (Sparkle), and KeePassXC needs its custom browser location pointed at the profile's `NativeMessagingHosts`, as on Linux
-- `keepassxc/` - KeePassXC, on every platform. keepassxc.ini: the settings every machine shares (the tray, no databases reopened or remembered, the inactivity lock, browser integration searching every open database, the password generator), and never `[KeeShare]`'s `Own`, the machine's private key, since the repo is public. apply-settings.sh (macOS, Arch) / apply-settings.ps1 (Windows) merge it into KeePassXC's own `keepassxc.ini` with KeePassXC quit, since it rewrites that file when it saves its settings and when it quits, leaving the keys it doesn't name alone and keeping the previous file as `.bak`. It's a merge rather than a symlink because KeePassXC writes KeeShare's key into that same file. `--check`/`-Check` lists the drift, and each platform's 80-settings runs it. They also have it start at login: on macOS a launch agent, `local.keepassxc`, running start.sh: on a network `mac/vpn-reminder.sh --trusted` says is trusted, it mounts tp-share if it isn't (`mount volume` through osascript, with Finder's Keychain login, after `nc` finds the SMB port answering within 3 seconds, since `mount volume` waits minutes for a server that doesn't) and opens the share's database, after sync.sh refreshes the local copy; anywhere else the local copy; `open -g -a KeePassXC --args`, which passes nothing to a KeePassXC already running; on Windows a Run entry of its own, `KeePassXC database`, which starts it through scoop's `current` link with the database `-Database` names, a path kept in the registry rather than the public repo, and kept on a rerun without it. Not KeePassXC's own `KeePassXC` entry, which its settings write again as the bare program on every save, so the script removes that one. A database missing at sign-in is skipped without a word. On Arch, Hyprland's `user_startup.lua` starts it with the Login database and the main one from tp-share, a line `arch/kooldots-upgrade.sh` owns and Arch's 80-settings checks. KeePassXC's file: Windows `~\scoop\persist\keepassxc\config\keepassxc.ini` (scoop's build is portable), macOS `~/Library/Application Support/KeePassXC/keepassxc.ini`, Arch `~/.config/keepassxc/keepassxc.ini`. sync.sh (macOS) copies the share's database, the one in use, over the local copy, which it keeps read-only (mode 444 and `chflags uchg`, since KeePassXC saves by replacing the file, which the mode alone allows), checking the KeePass signature and the copy first; no password, no merge; `--check` lists a local copy missing, writable, or behind the share's, which mac/steps/80-settings.zsh runs
-- `cheatsheet.md` - Key bindings reference for macOS/Linux tools (view with `keys` command)
-- `powershell/cheatsheet.md` - Key bindings reference for Windows (PowerShell aliases, git, gitui)
-- `symlinks` - Declarative symlink mappings (all platforms)
-- `symlinks.darwin` - macOS-specific symlink mappings
-- `symlinks.linux` - Linux-specific symlink mappings (the update-reminder and night light systemd user units, `voice-dictate`, makepkg's `~/.config/pacman/makepkg.conf`, Helium's flags file)
-- `symlinks.windows` - Windows-specific symlink mappings
-- `Brewfile` - macOS package manifest (formulae, casks, fonts, Go tools). Scoped to what *this repo's* configs need — personal apps and general-purpose CLI live in MIGRATION.md instead, and must not be added back here. `brew bundle dump --file=Brewfile -f` regenerates from the machine and pulls all of that back in, so re-trim after dumping. Never run `brew bundle` with `--cleanup` against it
-- `bootstrap.sh` - macOS new-machine setup: Xcode CLT, Homebrew, `brew bundle`, submodules, `setup_symlinks.sh`, machine-local shell stubs, the launch agents of the update and VPN reminders. Idempotent, never overwrites existing files. Flags: `--no-brew`, `--rust`
-- `MIGRATION.md` - New-Mac runbook for everything outside the repo: SSH keys, personal apps, personal data paths, known gotchas, monthly updates
-- `SECURITY.md` - Security runbook for every machine, by control (screen lock and Find My, firewall, listening services, updates, SSH key passphrases with an agent, aria2's RPC secret, Helium and KeePassXC, the router, untrusted networks, a lost or stolen machine), each with macOS, Windows and Arch steps and marked for a laptop (leaves home: the Macs today) or the desktop (stays home: the dual-boot box). The three MIGRATION runbooks point here rather than repeat it. A security setting made by hand that a command can read goes in the platform's `80-settings`, which lists it under Security
-- `IPHONE.md` - iPhone runbook. Nothing from the repo runs on the phone and a computer can read little of it, so it's mostly steps in Settings: section 1 is security (passcode and Face ID, Find My and Stolen Device Protection, updates, networks: Proton VPN, Shadowrocket in mainland China (the phone's Clash Verge Rev) and the DNS over HTTPS profile, configuration profiles and certificates (Shadowrocket's HTTPS Decryption off), backups, a lost or stolen phone), section 2 the monthly check, run from the Mac, and what's left to check by hand
-- `iphone/` - check.py: a uv script (pymobiledevice3 declared inline, so `iphone/check.py` runs it) for the Mac, with the phone on USB, through the pairing Finder made (`autopair=False`, so it never pairs itself): reads the passcode flag (`PasswordProtected`, true only while the phone is locked with a passcode, so it's run with the phone locked), local backup encryption, Wi-Fi sync and the installed profiles, compares the iOS version with Apple's release list for the model (gdmf.apple.com, fetched with `/usr/bin/curl`, which trusts Apple's root certificate; Python's certificate bundles don't), and prints none of the phone's identifiers. apps.py, the same way: the apps you installed, largest first, with their data's size, marking TestFlight builds, apps signed by anything but the App Store (`SignerIdentity`), and offloaded ones (`IsDemotedApp`); it lists only, never uninstalls
-- `unix/` - What the macOS and Arch monthly updates share. runner.zsh: the helpers, the `todo` list, and `run_steps`, which runs one phase (update or cleanup) of every step in `unix/steps/` and the platform's `steps/`, in number order. steps/: 30-go (`go install` for the Brewfile's `go` lines, flags Go tools it doesn't list; cleanup `go clean -modcache`), 31-rust, 32-uv (`uv python upgrade`; cleanup uninstalls the Pythons it replaced unless a venv was made against one directly, then `uv cache prune`), 40-sheldon, 41-vim (`+PlugUpgrade +PlugUpdate`, flags a new plug.vim to commit in the submodule; names the plugins it updated, and the failures from `PlugUpdate`'s window, saved before vim quits and clears the screen), 42-nvim (headless `Lazy! sync`, then `MasonToolsUpdateSync` in a second nvim, parsers left to the nvim config's auto-update; nvim exits 0 regardless, so it reads lazy's red error lines and asks mason what's still behind), 43-yazi, 82-claude (puts `DISABLE_AUTOUPDATER` back in Claude Code's `settings.json` with jq, since the package manager updates it; a file that isn't valid JSON is left alone and flagged)
-- `mac/` - macOS monthly update, the counterpart of the PowerShell pair: update.sh (attended — every step's update, then every cleanup, then what's left for you), cleanup.sh (the cleanups alone), steps/ (10-softwareupdate: lists Software Update and opens it in System Settings; 20-homebrew: `brew upgrade` reopening apps a cask quit to upgrade, the Brewfile and `brew doctor` checks, cleanup `brew cleanup --prune=all`; 51-aria2: aria2/darwin's install script copies rather than links, since the tracker refresh rewrites `aria2.conf`, so this brings the installed tracker script and launch agents back in line with the repo, rewrites the installed `aria2.conf` from the repo's keeping its `rpc-secret=` and `bt-tracker=` lines, reloads or restarts what changed, and flags an agent not loaded or a config without a secret; 60-wifi: a cleanup that lists the remembered Wi-Fi networks not in `~/.config/wifi/keep`, kept out of the repo since it's public, and forgets them with sudo if you say yes, checking afterwards since `networksetup` exits 0 even when it fails; what's left, or a missing keep file, goes under Security; 80-settings: what a macOS update can reset — the login-shell PATH, and a table of the `defaults` values MIGRATION.md has you set: natural scrolling off, and the AeroSpace and network-share settings; and Helium's policies, through `helium/apply-policies.sh --check`, and KeePassXC's settings and launch agent, through `keepassxc/apply-settings.sh --check`, and its read-only local copy of the database, through `keepassxc/sync.sh --check`; then, listed as Security, SECURITY.md's: the password as soon as the screen locks, the firewall and stealth mode, AirPlay Receiver off (ControlCenter not listening on 7000), the automatic security updates, a mounted SMB share's host in `/etc/hosts`, and `/etc/nsmb.conf` with NetBIOS off, SMB 2 or later, and signing required; and the DNS over HTTPS profile, through `mac/dns-over-https.sh --check`), update-reminder.sh (an `osascript` notification, so it shows as Script Editor, on the same due date as the Windows reminder, the day after Patch Tuesday; `--register` writes and loads its launch agent `local.monthly-update-reminder`, at login and daily at noon, which `bootstrap.sh` does), vpn-reminder.sh (SECURITY.md section 9: an `osascript` dialog with macOS's open padlock (CoreTypes.bundle's `UnlockedIcon.icns`, or the caution sign if a release drops it), which Focus doesn't hide, when the Mac is on a network not in `~/.config/vpn-reminder/trusted` and the route to an internet address, IPv4 or, where the network has it, IPv6, goes through no tunnel interface (utun, ipsec, ppp), so any VPN counts; once each time it becomes so, on joining and when the VPN drops, after 10 seconds for a reconnecting VPN; a network is its router's hardware address from DHCP and ARP, since macOS hides the Wi-Fi name without Location Services, and the list stays out of the repo, which is public; `--trust` adds the current one, `--trusted` exits 0 when every network the Mac is on is in the list (1 when not, 2 on none yet), which keepassxc/start.sh asks before mounting tp-share, `--register` writes and loads its launch agent `local.vpn-reminder`, which `bootstrap.sh` does: it keeps `--watch` running, a check at login and again 2 seconds after each burst of `com.apple.system.config.network_change` from `notifyutil -w`, since launchd's LaunchEvents start a job again every 10 seconds until it takes the event through XPC, which a script can't), dns-over-https.sh (SECURITY.md section 9: builds a configuration profile with jq and plutil, as Helium's, whose `com.apple.dnsSettings.managed` payload sends every lookup to Cloudflare over HTTPS on any network, and opens it to be installed in System Settings; it never falls back to plain DNS, and a VPN's own DNS takes over while it's on; `--check` compares the installed profile, which `system_profiler` lists without sudo, and reads its switch in Network → VPN & Filters from `/Library/Preferences/com.apple.networkextension.plist`, an archive plutil can't turn into JSON, with python3's plistlib: only the `Enabled` of the configuration whose profile identifier is the script's, since the file also holds the VPNs' settings; `--iphone` sends the profile to the connected iPhone with pymobiledevice3 instead of opening it, IPHONE.md section 1.4)
-- `pkglist.arch` - Arch package manifest. Scoped to what *this repo's* configs need — the desktop (Hyprland, waybar, greetd, fcitx5, theming, GUI apps, drivers) is installed separately and must not be added here. One package per line, `#` comments, `aur/` prefix marks AUR packages
-- `bootstrap.arch.sh` - Arch new-machine setup: `pkglist.arch` via pacman (paru only if an `aur/` entry exists), submodules, `setup_symlinks.sh`, machine-local shell stubs, `chsh` to zsh, yazi plugins, enables `update-reminder.timer` and `nightlight.timer`. Idempotent, never overwrites existing files. Flags: `--no-pkg`, `--rust`, `--aria2`, `--voice`, `--print-packages`
-- `MIGRATION.arch.md` - New-Arch-box runbook: SSH keys, the `~/.dotfiles.git` bare repo (no remote — must be copied), personal data paths, known gotchas, monthly updates
-- `arch/` - Arch monthly update, the counterpart of the PowerShell pair: update.sh (attended, zsh like the rest of `unix/` — every step's update, then every cleanup, then what's left for you), cleanup.sh (the cleanups alone), steps/ (20-pacman: reflector, `paru -Syu`, restarts aria2 and flags tmux when an upgrade replaced the binary they run, pacdiff; 50-ge-proton; 51-aria2: the same as macOS's for aria2/linux's systemd user units, flagging a unit not enabled or a config without a secret; 80-settings: ufw enabled and on (SECURITY.md section 2), LLMNR off, and `sign` on each SMB share in `/etc/fstab` with its login readable only by root (section 3), DNS over TLS in strict mode globally and on each link with DNS servers, with `/etc/resolv.conf` pointing at systemd-resolved (MIGRATION.arch.md section 1), KeePassXC's Secret Service on, since KeePassXC doubles as the keychain, its other settings `keepassxc/keepassxc.ini`'s (`keepassxc/apply-settings.sh --check`), and its start at login, `kooldots-upgrade.sh`'s entry in Hyprland's `user_startup.lua`, and no gh token in plain text in `hosts.yml` (SECURITY.md section 7), the night light's timer, location and KooL script (`arch/nightlight.sh --check`), and systemd-boot still first in the boot order, which Windows Update can take; 81-health: failed units, orphans, deleted AUR packages; 85-reboot: kernel or NVIDIA driver replaced), update-reminder.sh + update-reminder.{service,timer} (systemd user timer, linked in by `symlinks.linux`; a notify-send notification on the same due date as the Windows reminder, the day after Patch Tuesday, with an Update now button that opens kitty), nightlight.sh + nightlight.{service,timer} (systemd user timer, a minute after login and every 15 minutes, linked in by `symlinks.linux`: on at sunset and off at sunrise through KooL's `~/.config/hypr/scripts/Hyprsunset.sh on`/`off`, the script behind waybar's night light button and SUPER+N, so the button shows the state; it switches only when the sun crosses the horizon, by NOAA's solar position formulas at the lock screen weather's location, which KooL's `UserScripts/Weather.py` finds from the IP address and keeps in `~/.cache/open_meteo_cache.json`, or `~/.config/nightlight/location`'s latitude and longitude in its place, kept out of the repo, so a click holds until the next sunrise or sunset; `on` runs in a `systemd-run --scope`, since systemd kills what the oneshot leaves running, the hyprsunset it starts; `--check` lists a missing location or script, a timer not running, or a failed run), kooldots-upgrade.sh (attended upgrade of KooL's `~/Arch-Hyprland` installer and its Hyprland-Dots, which own `~/.config/hypr` — a tarball and a `~/.dotfiles.git` tag first, then `update-deps.sh` and `copy.sh --express-upgrade` with `$ZSH` pointed at sheldon's Oh My Zsh; then puts back what express mode overwrites: qt5ct/qt6ct from the bare repo, the yazi symlinks, the waybar power-profiles-daemon removal (waybar 0.15 segfaults in it on an early reload) and the tray-style removal, the kitty include; re-adds this machine's Hyprland user settings if missing, and puts KeePassXC's start at login back if it's missing or differs, which 80-settings checks, leaving commented-out examples alone, and checks the user Lua files, which Hyprland would skip silently if broken, and `Hyprland --verify-config`. `--post-only` runs just the repairs and checks, idempotent; they follow `$XDG_CONFIG_HOME`, so they can be tried on a copy), makepkg.conf (makepkg's user overrides for AUR builds: no `-debug` packages, fast compression; linked in by `symlinks.linux`)
-- `MIGRATION.windows.md` - Windows 11 LTSC (re)install runbook for the dual-boot box: backing up C: to `D:\Migration`, shared ESP on the Windows disk holds Arch's kernel, restoring systemd-boot afterwards, Windows settings (key remap, locale, dark mode, telemetry), scoop packages, profile stub, SSH keys, network share, personal apps and data, monthly updates
-- `setup_symlinks.sh` - Reads symlink map files and creates symlinks, skips existing files/symlinks (macOS/Linux)
-- `setup_symlinks.ps1` - Windows equivalent of setup_symlinks.sh. Saved as UTF-8 **with BOM** — without it Windows PowerShell 5.1 misreads the emoji and fails to parse; keep the BOM when editing
+Configs, linked in by the symlink maps:
 
-## Key conventions
+- `zsh/` - zshrc, kept minimal (it delegates to sheldon and `lib/`), and `rfv`
+- `lib/core/`, `lib/after/` - zsh config loaded first and last
+- `sheldon/` - the zsh plugin config
+- `git/`, `tmux/`, `kitty/`, `gitui/`, `yazi/`, `ideavim/` - one tool each
+- `vim/`, `nvim/` - the only git submodules, each with its own CLAUDE.md
+- `aerospace/` (macOS), `glazewm/` and `wt/` (Windows) - window managers and terminal
+- `aria2/` - the config, and an install script for each platform
+- `helium/` - the browser's policies and preferences, and the scripts that apply them
+- `keepassxc/` - the settings every machine shares, and the scripts that apply them and start it at login
+- `voice/` - `voice-dictate`, hold-to-talk dictation (Arch)
+- `iphone/` - read-only checks of the iPhone, run from the Mac
 
-- **Theme**: Gruvbox dark hard across all tools (tmux, gitui, bat, vim, kitty, yazi)
-- **Key bindings**: Vim-style navigation (h/j/k/l) across all tools where possible
-- **Plugin management**: Sheldon for zsh, vim-plug for vim, lazy.nvim for neovim
-- **Cross-platform**: macOS (AeroSpace, Homebrew), Arch Linux (Hyprland, pacman), and Windows (GlazeWM, PowerShell, git, gitui, nvim, Windows Terminal, aria2)
-- **`$DOTFILES`**: Resolved dynamically from zshrc symlink via `${${(%):-%x}:A:h:h}`, exported as env var
-- **`$SHELDON_CONFIG_DIR`**: Points to `$DOTFILES/sheldon`
-- **Symlinks**: Managed via declarative map files (`symlinks`, `symlinks.darwin`, `symlinks.linux`, `symlinks.windows`), not hardcoded in scripts
-- **Sheldon load order**: `lib/core/` -> completions -> compinit -> ohmyzsh-lib -> ohmyzsh-plugins -> fzf-git -> powerlevel10k -> `lib/after/` -> zsh-autosuggestions -> zsh-syntax-highlighting
-- **Submodules**: Only `vim/` and `nvim/` remain as git submodules
+Each platform:
+
+- `bootstrap.sh`, `bootstrap.arch.sh` - new-machine setup for macOS and Arch; idempotent, never
+  overwrite existing files. Windows is set up by hand from MIGRATION.windows.md
+- `Brewfile`, `pkglist.arch` - package manifests
+- `symlinks`, `symlinks.{darwin,linux,windows}` - the link maps, read by `setup_symlinks.sh` and
+  `setup_symlinks.ps1`
+- `unix/` - what the macOS and Arch monthly updates share: `runner.zsh` and `steps/`
+- `mac/`, `arch/` - each one's monthly update (`update.sh`, `cleanup.sh`, `steps/`) and that
+  platform's own scripts and units
+- `powershell/` - Windows: the profile, and the monthly update (`update.ps1`, `cleanup.ps1`,
+  `runner.ps1`, `steps/`) with its reminder
+
+Runbooks, for what the repo can't do:
+
+- `MIGRATION.md`, `MIGRATION.arch.md`, `MIGRATION.windows.md` - setting up a Mac, the Arch box and
+  Windows: SSH keys, personal apps and data, gotchas, monthly updates
+- `SECURITY.md` - security by control, with each platform's steps; the MIGRATION runbooks point here
+  rather than repeat it
+- `IPHONE.md` - the iPhone: steps in Settings, and a monthly check run from the Mac
+- `cheatsheet.md`, `powershell/cheatsheet.md` - key bindings (`keys` shows the first)
+
+## Conventions
+
+- **Public repo**: no secrets, private keys, network names, router addresses, IPs, locations or
+  personal lists. Those live in files outside the repo, such as `~/.config/vpn-reminder/trusted`,
+  that the scripts read
+- **Package manifests**: `Brewfile` and `pkglist.arch` list only what this repo's configs need.
+  Personal apps go in the MIGRATION runbooks; the Arch desktop is installed separately. Never run
+  `brew bundle` with `--cleanup`, and re-trim after `brew bundle dump`
+- **Counterparts**: a script usually has one on the other platforms (`.sh` and `.ps1`,
+  `runner.zsh` and `runner.ps1`, steps with the same number); keep them in step
+- **Drift**: a setting the repo applies, or one made by hand that a command can read, is checked by
+  the platform's `80-settings` step, through the applying script's `--check` (`-Check`) where it has
+  one. Security settings are listed under Security, with their SECURITY.md section
+- **Monthly update steps**: `NN-tool.zsh` in `unix/steps/` (both) or `mac/steps/`/`arch/steps/`,
+  defining `update()`, `cleanup()` or both; on Windows `NN-tool.ps1` in `powershell/steps/`, with
+  the same number. `unix/runner.zsh` and `powershell/runner.ps1` have the contract and the numbering
+- **Theme and keys**: Gruvbox dark hard, and vim-style (h/j/k/l) bindings, in every tool that allows
+- **Plugins**: sheldon for zsh, vim-plug for vim, lazy.nvim for neovim
+- **`$DOTFILES`**: resolved from the zshrc symlink via `${${(%):-%x}:A:h:h}`; `$SHELDON_CONFIG_DIR`
+  is `$DOTFILES/sheldon`
+- **Sheldon load order**: `lib/core/` -> completions -> compinit -> ohmyzsh-lib -> ohmyzsh-plugins
+  -> fzf-git -> powerlevel10k -> `lib/after/` -> zsh-autosuggestions -> zsh-syntax-highlighting
+- **Encoding**: `setup_symlinks.ps1` keeps its UTF-8 BOM and `powershell/update_reminder.ps1` stays
+  ASCII, since Windows PowerShell 5.1 reads them
 
 ## Bare repo dotfiles
 
-Configs not managed by this symlink-based repo (Hyprland, waybar, wofi, etc.) are managed via a git bare repo at `~/.dotfiles.git`. Setup:
+Configs this repo doesn't link (Hyprland, waybar, wofi, etc.) are in a git bare repo at
+`~/.dotfiles.git`, with no remote. The `cfg` alias (`lib/after/tools.zsh`) is `git` for that repo:
 
 ```sh
 git init --bare ~/.dotfiles.git
 cfg config status.showUntrackedFiles no
-```
-
-The `cfg` alias (defined in `lib/after/tools.zsh`) works like `git` but targets `~/.dotfiles.git`:
-
-```sh
 cfg add ~/.config/hypr/ ~/.config/waybar/
 cfg commit -m "initial commit"
-cfg push
 ```
+
+On Arch, KooL's Hyprland-Dots own `~/.config/hypr` and their upgrade overwrites it;
+`arch/kooldots-upgrade.sh` puts back what this machine changed.
 
 ## Working with this repo
 
-- When modifying `vim/` or `nvim/`, they are git submodules — commit inside the submodule directory, then generate patches with `git format-patch`
-- Do not specify `-c user.name` or `-c user.email` when committing in submodules — the machine's git config already has the correct credentials
-- Use `git format-patch` to generate patches for pushing from another machine with `git am`
-- Adding a new zsh config: drop a `*.zsh` file into `lib/core/` (early) or `lib/after/` (late)
-- Adding a monthly update or cleanup step (macOS, Arch): drop `NN-tool.zsh` into `unix/steps/` (both) or `mac/steps/`/`arch/steps/`, defining `update()`, `cleanup()` or both; `unix/runner.zsh` has the contract and the numbering. On Windows: `NN-tool.ps1` in `powershell/steps/`, with the same number, returning its `Update`/`Cleanup` script blocks; `powershell/runner.ps1` has the contract
-- Adding a new symlink: append a line to `symlinks` (or `symlinks.darwin`/`symlinks.linux`/`symlinks.windows`)
-- Sheldon env var expansion: `local` paths in `plugins.toml` don't support `$VAR` — use `inline` plugins with shell code instead
-- `rm` is aliased to `rm -i` (from oh-my-zsh common-aliases) — use `command rm` in shell commands to bypass the interactive prompt
+- `vim/` and `nvim/` are submodules: commit inside the submodule, then `git format-patch` for the
+  other machines' `git am`. Don't pass `-c user.name` or `-c user.email`; the machine's git config
+  has them
+- A new zsh config: a `*.zsh` file in `lib/core/` (early) or `lib/after/` (late)
+- A new symlink: a line in `symlinks` or the platform's map
+- Sheldon's `local` paths in `plugins.toml` don't expand `$VAR`; use an `inline` plugin instead
+- `rm`, `cp` and `mv` are aliased to `-i` (oh-my-zsh common-aliases); use `command rm` and so on
