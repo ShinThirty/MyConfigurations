@@ -547,9 +547,11 @@ it shows an alert: on joining such a network, and again each time the VPN
 drops. Any VPN counts, Clash Verge Rev's TUN mode included, but it can't tell
 whether a tunnel encrypts everything: in Rule mode, Clash passes. Trust your
 own networks, home and your phone's hotspot, by running
-`mac/vpn-reminder.sh --trust` once on each. `bootstrap.sh` registers its launch
-agent; on an older install, `mac/vpn-reminder.sh --register`. A Windows or
-Linux laptop has no reminder yet.
+`mac/vpn-reminder.sh --trust` once on each, and only those: KeePassXC's start
+at login (`keepassxc/start.sh`) mounts tp-share on a network the list has.
+`bootstrap.sh` registers its launch agent; on an older install,
+`mac/vpn-reminder.sh --register`. A Windows or Linux laptop has no reminder
+yet.
 
 - **Proton VPN Free**: no data cap and no ads, one connection at a time, to
   a server in one of a few countries, which it picks for you. Enough for
@@ -595,7 +597,9 @@ when you leave. The monthly update lists it until you do.
 - When KeePassXC doesn't offer a login where it normally would, check the
   address bar before typing
 - Don't open tp-share there: anyone on the network can answer for its name
-  and collect the login attempt to crack offline. Open it only at home
+  and collect the login attempt to crack offline. Open it only at home. On a
+  Mac, KeePassXC's start at login doesn't try it there, and opens the
+  read-only local copy of the database instead
 - When you leave, forget the network (macOS: System Settings → Wi-Fi, ⋯ next to
   it → Forget This Network; Windows: Settings → Network & internet → Wi-Fi →
   Manage known networks). Otherwise the laptop joins any network with that

@@ -148,7 +148,7 @@ brew install hashicorp/tap/terraform   # needs: brew tap hashicorp/tap
 
 | App | What to redo |
 |---|---|
-| KeePassXC | Before its first start, or with it quit, `keepassxc/apply-settings.sh`. It merges `keepassxc/keepassxc.ini`, the settings every machine shares, browser integration among them, into `~/Library/Application Support/KeePassXC/keepassxc.ini`, and loads a launch agent, `local.keepassxc`, which opens KeePassXC at login, minimized to the menu bar, and opens it now; leave KeePassXC's own *Automatically launch KeePassXC at system startup* off. It remembers no databases, so open the database (see below) with Database → Open Database. Then Settings → Browser Integration → Advanced: tick **Use a custom browser configuration location**: type Chromium, `~/Library/Application Support/net.imput.helium/NativeMessagingHosts`. KeePassXC has no Helium entry, and ticking Chromium writes to Chromium's own folder, which Helium doesn't read. KeePassXC keeps this in its local config, `~/Library/Caches/KeePassXC/keepassxc.ini`, which the script leaves alone. Restart Helium, then connect the KeePassXC-Browser extension, which Helium's policy installs |
+| KeePassXC | Before its first start, or with it quit, `keepassxc/apply-settings.sh`. It merges `keepassxc/keepassxc.ini`, the settings every machine shares, browser integration among them, into `~/Library/Application Support/KeePassXC/keepassxc.ini`, and loads a launch agent, `local.keepassxc`, which opens KeePassXC at login, minimized to the menu bar, and opens it now, with the database locked: at home the network share's, mounting the share with the login Finder keeps in the Keychain, and anywhere else the read-only local copy (see below), through `keepassxc/start.sh`. Home is a network `mac/vpn-reminder.sh --trust` trusted ([SECURITY.md section 9](SECURITY.md#9-untrusted-networks)), so run that first, and connect to the share once in Finder (⌘K) with *Remember this password in my keychain* ticked; leave KeePassXC's own *Automatically launch KeePassXC at system startup* off. It remembers no databases, so open another with Database → Open Database. Then Settings → Browser Integration → Advanced: tick **Use a custom browser configuration location**: type Chromium, `~/Library/Application Support/net.imput.helium/NativeMessagingHosts`. KeePassXC has no Helium entry, and ticking Chromium writes to Chromium's own folder, which Helium doesn't read. KeePassXC keeps this in its local config, `~/Library/Caches/KeePassXC/keepassxc.ini`, which the script leaves alone. Restart Helium, then connect the KeePassXC-Browser extension, which Helium's policy installs |
 | AeroSpace, kitty | Grant **Accessibility** permission in System Settings → Privacy & Security |
 | aria2 | Its daemon and tracker updates need an install of their own (below) |
 | findutils (`locate`) | Run `loaddb` once. `locate` searches `~/locatedb`, which only `loaddb` builds (your home folder, minus `/Volumes`), and nothing rebuilds it on a schedule — run it again when results are stale |
@@ -240,7 +240,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 
 | What | Notes |
 |---|---|
-| Password manager database | `~/.local/share/keepass/*.kdbx`, then open it in KeePassXC. A second copy lives on the network share, and `keepassxc/sync.sh` merges the two both ways — but it looks only at that path, so with the database anywhere else it seeds a second local copy from the share, and the two drift apart. Its `backups/` dir is disposable. |
+| Password manager database | Nothing to copy: the one in use is on the network share, which KeePassXC opens at home (section 3). Away from home it opens a copy in `~/.local/share/keepass/`, which `keepassxc/sync.sh` makes from the share's and keeps read-only, so nothing is saved where the share never sees it. KeePassXC's login start runs it at each login at home; run it by hand before you leave after a long time logged in. The read-only is the file's mode and macOS's immutable flag (`chflags nouchg` lifts it); the monthly update flags a copy that's writable, or behind the share's. |
 | Encryption identity | The age key. Anything encrypted to it is **unrecoverable** without this file — copy it or lose access. |
 | Broker / API credential file | Plaintext keys. Copy directly, never into this repo. Rotating them as part of the move is the safer play. |
 | Trading working dir | Local SQLite DB plus scratch subdirectories. |
@@ -401,7 +401,8 @@ installed copies back in line with the repo (restarting aria2 if its config
 changed), checks the Brewfile against what's installed and reads `brew doctor`, checks that `git`
 still resolves to Homebrew's in a login shell, that the settings from
 section 1 and SECURITY.md are still as set, Helium's policies match `policies.json`, and
-KeePassXC's match `keepassxc/keepassxc.ini`, with its launch agent loaded, turns
+KeePassXC's match `keepassxc/keepassxc.ini`, with its launch agent loaded and
+the local copy of the database read-only and current, turns
 Claude Code's own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is
 some of:
@@ -446,7 +447,9 @@ some of:
   natural scrolling ([section 1](#1-clone-and-bootstrap)), a Helium policy
   (rerun `helium/apply-policies.sh`), or a KeePassXC setting or its launch
   agent (rerun `keepassxc/apply-settings.sh`), both in
-  [section 3](#3-apps-and-tools-not-covered-by-the-brewfile)
+  [section 3](#3-apps-and-tools-not-covered-by-the-brewfile), or the local
+  copy of the database writable or behind (run `keepassxc/sync.sh`,
+  [section 4](#4-personal-data-to-bring-over))
 - **Security** — a setting from SECURITY.md that isn't as it says: the screen
   lock, the firewall and stealth mode, AirPlay Receiver, the automatic
   security updates, a mounted share's name not in `/etc/hosts`, a line

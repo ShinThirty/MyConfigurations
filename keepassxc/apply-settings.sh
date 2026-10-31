@@ -9,8 +9,9 @@
 # keepassxc.ini.bak; with no file yet, KeePassXC starts from keepassxc.ini's.
 #
 # Starting at login, minimized to the tray by MinimizeOnStartup:
-#   macOS  a launch agent, local.keepassxc, which this writes and loads, and
-#          which opens KeePassXC as the Dock would. Leave KeePassXC's own
+#   macOS  a launch agent, local.keepassxc, which this writes and loads. It
+#          runs start.sh, which opens tp-share's database at home, mounting
+#          the share, and the local copy anywhere else. Leave KeePassXC's own
 #          Settings → General → Automatically launch KeePassXC at system
 #          startup off
 #   Arch   Hyprland's UserConfigs/user_startup.lua, which starts it with the
@@ -116,9 +117,8 @@ agent() {
     <string>$label</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/bin/open</string>
-        <string>-a</string>
-        <string>KeePassXC</string>
+        <string>/bin/bash</string>
+        <string>$here/start.sh</string>
     </array>
     <key>RunAtLoad</key>
     <true/>

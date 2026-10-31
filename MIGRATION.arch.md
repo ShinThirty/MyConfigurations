@@ -330,7 +330,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 
 | What | Notes |
 |---|---|
-| Password manager database | KeePassXC opens it from the network share, `/mnt/tp-share/Password/shinthirty.kdbx`, so there's nothing to copy. `keepassxc/sync.sh` merges a local copy in `~/.local/share/keepass/` with it both ways, but it hardcodes the macOS `/Volumes/...` mount path — fix that before running it here. Its `backups/` dir is disposable. |
+| Password manager database | KeePassXC opens it from the network share, `/mnt/tp-share/Password/shinthirty.kdbx`, so there's nothing to copy. `keepassxc/sync.sh` is the Mac's: a read-only copy for a laptop away from home, which the desktop doesn't need. |
 | KeePassXC's Login database | `~/.local/share/keepassxc/login.kdbx`, with its folder: the keychain ([section 2](#2-clone-and-bootstrap)). Copy it, or make a new one, and each app asks for its secret again. |
 | Encryption identity | The age key under `~/.config/age`. Anything encrypted to it is **unrecoverable** without this file — copy it or lose access. |
 | Broker / API credential file | Plaintext keys. Copy directly, never into this repo. Rotating them as part of the move is the safer play. |

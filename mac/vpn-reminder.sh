@@ -7,6 +7,7 @@
 #
 #   mac/vpn-reminder.sh --register    install the launch agent (bootstrap.sh does this)
 #   mac/vpn-reminder.sh --trust       trust the network the Mac is on now
+#   mac/vpn-reminder.sh --trusted     exit 0 on a trusted network, 1 on another, 2 on none
 #
 # The agent keeps --watch running from login: a check then, and again after
 # each change of network. A watcher rather than launchd's LaunchEvents, which
@@ -17,6 +18,8 @@
 # Wi-Fi name from a script without Location Services. The trusted ones are
 # listed one per line in ~/.config/vpn-reminder/trusted, not in this repo,
 # which is public: a router's address can be looked up to where it is.
+# keepassxc/start.sh asks with --trusted before it mounts tp-share, so trust
+# only networks that are yours.
 
 label=local.vpn-reminder
 trusted=$HOME/.config/vpn-reminder/trusted
@@ -82,6 +85,13 @@ if [[ $1 == --trust ]]; then
   { print -r -- $now; cat $trusted 2>/dev/null } | sort -u >$trusted.new && mv $trusted.new $trusted
   print "Trusted this network; $(wc -l <$trusted | tr -d ' ') in $trusted"
   exit
+fi
+
+# Every network the Mac is on trusted, as exposed() below reads it
+if [[ $1 == --trusted ]]; then
+  [[ -n $now ]] || exit 2
+  print -r -- $now | grep -qvxFf <(cat $trusted 2>/dev/null) && exit 1
+  exit 0
 fi
 
 # Whether traffic to an address on the internet goes through a tunnel
