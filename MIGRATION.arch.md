@@ -238,7 +238,9 @@ Then:
    `~/.config/helium-newtab`: a clock, your links, notes and a fortune. The
    page's links are in `links.js` next to that link
    ([section 6](#6-personal-data-to-bring-over)); `newtab.html`'s header has the
-   format. `helium/newtab-fortunes.sh` gives the page's cow its fortunes.
+   format, and the monthly update lists links to add and drop
+   ([section 10](#10-monthly-updates)). `helium/newtab-fortunes.sh` gives the
+   page's cow its fortunes.
 3. The theme, kitty's Gruvbox dark hard: in `helium://extensions`, turn on
    Developer mode, **Load unpacked** `helium/theme`, and turn Developer mode
    off again; Chromium keeps a theme on without it. After a change to its
@@ -376,7 +378,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 | `~/.aws/config` | Profile definitions only, no secrets. Copy it, then re-authenticate; the `login/cache` and `cli/cache` dirs are disposable. |
 | `~/.claude/settings.json` | Claude Code prefs, including `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — it comes from the AUR, so the monthly `paru -Syu` handles updates, and the monthly update puts the key back if it goes missing ([section 10](#10-monthly-updates)). `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
 | `~/.config/net.imput.helium` | Helium's profile: logins (cookies), history, site data. Copy it whole with Helium closed at both ends. The logins come back only with the Login database above: Helium encrypts its cookies with a key it keeps there, the `Chromium Safe Storage` entry ([section 2](#2-clone-and-bootstrap)). |
-| `~/.config/helium-newtab/links.js` | The links on Helium's new tab page ([section 2](#2-clone-and-bootstrap)). The page's notes are in Helium's profile, so they come with it. |
+| `~/.config/helium-newtab/links.js`, `ignore` | The links on Helium's new tab page ([section 2](#2-clone-and-bootstrap)), and the sites the monthly update never suggests one for. The page's notes are in Helium's profile, so they come with it. |
 | `~/Music/playlists/` | Plain-text playlists the `music` function reads. Small, easy to forget. |
 | `~/.local/share/nvim/sessions`, shada | Optional editor state. |
 | `~/.zsh_history` | Optional, along with the fzf history dir. |
@@ -575,7 +577,8 @@ aria2's installed copies back in line with the repo (restarting aria2 if its
 config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on, its other settings are `keepassxc/keepassxc.ini`'s, and Hyprland starts it at login with both databases, that gh's token isn't in plain text, that the night light follows the sun, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, turns Claude Code's
 own update checks back off if `~/.claude/settings.json` has lost
-`DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is some of:
+`DISABLE_AUTOUPDATER`, compares Helium's new tab links with the sites you
+open, and runs the cleanup below. It ends with what's left, which is some of:
 
 - **Reboot** after a kernel or NVIDIA driver upgrade. The running kernel's
   modules are gone, and GPU programs (Steam, `voice-dictate`'s Vulkan backend)
@@ -627,6 +630,11 @@ own update checks back off if `~/.claude/settings.json` has lost
   ([section 2](#2-clone-and-bootstrap))
 - **Claude Code**: `~/.claude/settings.json` isn't valid JSON, so the script
   couldn't turn its update checks back off. Fix it and run the update again
+- **Helium's new tab**: sites you opened on 4 or more days of the last 30 that
+  no link goes to, and links you haven't opened in 90 days. Edit
+  `~/.config/helium-newtab/links.js`, or put a site you never want suggested
+  in `ignore` next to it, one a line; its subdomains go with it
+  ([section 2](#2-clone-and-bootstrap))
 
 **The cleanup.** `update.sh` ends with it, and it asks nothing.
 `go clean -modcache` empties the Go module cache. Go never prunes it, so it

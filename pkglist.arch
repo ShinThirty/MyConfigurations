@@ -70,6 +70,10 @@ jq
 # The fortunes the new tab page's cow thinks
 fortune-mod
 
+# --- helium/newtab-links.sh --------------------------------------------------
+# Reads Helium's history, to suggest the new tab page's links
+sqlite
+
 # --- git send-email + credential helper (git/gitconfig) ----------------------
 # All four are optdepends of git, so pacman never pulls them in on its own.
 # git send-email needs these two to speak authenticated SMTP — without them it
