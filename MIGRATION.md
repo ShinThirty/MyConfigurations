@@ -214,11 +214,12 @@ the first start ([section 4](#4-personal-data-to-bring-over)), then, from
 3. With Helium closed, `helium/apply-preferences.sh`: Helium's layout and zen
    mode, the profile's name and avatar, and the page languages. It also makes a
    new tab open `helium/newtab.html`, from the link `setup_symlinks.sh` makes
-   in `~/.config/helium-newtab`, rather than Chromium's page of most visited
-   sites. The page's links are in `links.js` next to that link
+   in `~/.config/helium-newtab`: a clock, your links, notes and a fortune. The
+   page's links are in `links.js` next to that link
    ([section 4](#4-personal-data-to-bring-over)); `newtab.html`'s header has
    the format. `helium/newtab-fortunes.sh` gives the page's cow its fortunes.
-   On a fresh profile, then Settings → Search engine → Google, by hand. It's a signed setting, which macOS resets if a script writes it.
+   Then, on a fresh profile, Settings → Search engine → Google, by hand. It's
+   a signed setting, which macOS resets if a script writes it.
 4. The theme, kitty's Gruvbox dark hard: in `helium://extensions`, turn on
    Developer mode, **Load unpacked** `helium/theme`, and turn Developer mode
    off again; Chromium keeps a theme on without it. After a change to its

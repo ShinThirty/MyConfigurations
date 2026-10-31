@@ -235,8 +235,8 @@ Then:
    profile's name and avatar, the Classic theme, the fonts and page languages,
    and Google as the search engine. It also makes a new tab open
    `helium/newtab.html`, from the link `symlinks` makes in
-   `~/.config/helium-newtab`, rather than Chromium's page of most visited
-   sites. The page's links are in `links.js` next to that link
+   `~/.config/helium-newtab`: a clock, your links, notes and a fortune. The
+   page's links are in `links.js` next to that link
    ([section 6](#6-personal-data-to-bring-over)); `newtab.html`'s header has the
    format. `helium/newtab-fortunes.sh` gives the page's cow its fortunes.
 3. The theme, kitty's Gruvbox dark hard: in `helium://extensions`, turn on
