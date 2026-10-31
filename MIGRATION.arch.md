@@ -163,7 +163,9 @@ runs `keepassxc --minimized` with the main database and the Login one at
 login, once waybar's tray is up: Qt looks for a tray only when it starts.
 Login opens last, so it's the active tab, whose database the Secret Service
 gives apps as the default for new secrets. Both stay locked in the tray, and
-Login asks for its password when an app asks for a secret. KeePassXC can't
+Login asks for its password when an app asks for a secret. The monthly
+update checks this entry, and `arch/kooldots-upgrade.sh --post-only` puts it
+back ([section 5](#5-the-hyprland-bare-repo)). KeePassXC can't
 read a locked database's settings, so until the main database is first
 unlocked, apps see it as exposed too, and an app looking for a secret can ask
 you to unlock it as well. Unlocked, it's out of their reach, and while its tab
@@ -313,7 +315,8 @@ replaces qt5ct, qt6ct and yazi, which this repo and the bare repo own, undoes
 two waybar fixes, and installs a second Oh My Zsh beside sheldon's. The script
 backs up first (a tarball and a bare-repo tag), runs the upgrade, puts all of
 that back, re-adds this machine's Hyprland settings if they're missing (the
-SUPER+Z dictation binding among them), and checks that the config loads.
+SUPER+Z dictation binding among them) and KeePassXC's start at login if it's
+missing or differs, and checks that the config loads.
 `--post-only` runs just the repairs and checks. It's safe to rerun, and worth a
 run after a fresh KooL install too, since the installer replaces the same
 files; what it can't fix, it lists at the end.
@@ -533,7 +536,7 @@ it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its
-config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on and its other settings are `keepassxc/keepassxc.ini`'s, that gh's token isn't in plain text, that systemd-boot is still first in the boot order,
+config or unit changed). Then it checks for a newer GE-Proton, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on, its other settings are `keepassxc/keepassxc.ini`'s, and Hyprland starts it at login with both databases, that gh's token isn't in plain text, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, turns Claude Code's
 own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, and runs the cleanup below. It ends with what's left, which is some of:
@@ -551,7 +554,9 @@ own update checks back off if `~/.claude/settings.json` has lost
   pacman resets nothing itself, since it writes a `.pacnew` rather than
   replace a config you changed. Or a KeePassXC setting that's no longer
   `keepassxc/keepassxc.ini`'s: quit KeePassXC and rerun
-  `keepassxc/apply-settings.sh` ([section 2](#2-clone-and-bootstrap))
+  `keepassxc/apply-settings.sh` ([section 2](#2-clone-and-bootstrap)). Or
+  KeePassXC's start at login missing from `user_startup.lua`, or different:
+  `arch/kooldots-upgrade.sh --post-only` puts it back
 - **Go tools the Brewfile doesn't list.** `go install` never removes anything,
   so binaries from older lists sit in `~/go/bin` and never update. Delete them
   or add them to the Brewfile

@@ -17,7 +17,8 @@
 #   Arch   Hyprland's UserConfigs/user_startup.lua, which starts it with the
 #          Login database and the main one from tp-share once waybar's tray
 #          is up (MIGRATION.arch.md section 2); arch/kooldots-upgrade.sh puts
-#          that line back when KooL's upgrade drops it, so this leaves it alone
+#          that line back when KooL's upgrade drops or changes it, and
+#          arch/steps/80-settings.zsh checks it, so this leaves it alone
 #
 # --check writes nothing; it lists what differs instead. The platform's
 # steps/80-settings.zsh runs it.
