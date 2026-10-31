@@ -132,8 +132,7 @@ installer — robocopy only copies what changed since, so it takes seconds.
 everything is restored.
 
 Not worth copying: the Steam games, Vortex's mods and downloads, and Mental
-Omega are already on D:; osu!'s data is on the external SSD; Discord is a cloud
-account — just log in again. `C:\Users\LINGNA~1`
+Omega are already on D:; osu!'s data is on the external SSD. `C:\Users\LINGNA~1`
 is an orphaned installer temp folder.
 
 ---
@@ -1066,7 +1065,6 @@ value directly.
 | `age`, `aws`, `terraform`, `deno`, `jid`, `fastfetch` | General CLI — none of it is referenced by this repo's configs. `age` matters: the encrypted files in the data table are useless without it |
 | `ventoy` | Only for rebuilding the install stick |
 | `vortex` (games) | Copy `D:\Migration\home\AppData\Roaming\Vortex\` to `%APPDATA%\Vortex\` before the first launch (profiles, load order, settings) — the scoop package doesn't persist it elsewhere. Its mods and downloads aren't on C:. The package unpacks the vendor setup without running it, so nothing installs the .NET runtime its mod installer (`ModInstallerIPC`) needs: .NET 9 Desktop, any 9.x but not 10. `scoop install versions/windowsdesktop-runtime-9.0` from an **elevated** shell — the manifest refuses to run otherwise, so `scoop import` unelevated skips it |
-| `discord` (extras) | Log in |
 | `helium` (extras) | The browser. Restore its profile before the first start, then the steps [below](#helium) |
 
 **Outside scoop** — vendor installers, since there's no Store or winget:
@@ -1367,8 +1365,8 @@ if Arch is the default. An update that rewrites Windows' boot files can also
 put Windows Boot Manager first in the firmware boot order — section 4 has the
 fix.
 
-**Not in the script, because they update themselves:** Edge, OneDrive, Steam
-(scoop's manifest is a `nightly` it never updates) and Discord's modules.
+**Not in the script, because they update themselves:** Edge, OneDrive and Steam
+(scoop's manifest is a `nightly` it never updates).
 KeePassXC, ShareX and Claude Code have their own update checks off, so scoop
 is the only thing that updates them — keep it that way if a restored config
 turns one back on. The script does that for Claude Code itself.

@@ -128,7 +128,6 @@ want, skip what you don't.
 |---|---|
 | `obsidian` | Vault is in iCloud, see below |
 | `helium-browser` | The browser. Restore its profile before the first start, then the steps below |
-| `discord` | Log in |
 | `clash-verge-rev` | Import the subscription or profile (see below). Install Service Mode in its settings and turn on TUN mode, so terminal tools (brew, `go install`, git) go through it too, not just apps that follow the system proxy. Set it up before a trip to mainland China — fetching it from there is the hard part |
 | `protonvpn` | Sign in with a free Proton account, and allow its VPN configuration on the first connection. A laptop needs a VPN for networks you don't control ([SECURITY.md section 9](SECURITY.md#9-untrusted-networks)) |
 | `claude-code@latest` | `claude` CLI; re-auth on first run. Restoring `settings.json` from the `~/.claude/` row below brings back `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — the monthly `brew upgrade` handles updates, and the monthly update puts the key back if it goes missing ([section 8](#8-monthly-updates)) |
@@ -505,8 +504,8 @@ timer.
 hand goes in the table in `mac/steps/80-settings.zsh`, so the update notices
 when macOS resets it.
 
-**Not in the script, because they update themselves:** Helium, Discord,
-Obsidian, Clash Verge Rev and Proton VPN (their casks are marked `auto_updates`, which
+**Not in the script, because they update themselves:** Helium, Obsidian,
+Clash Verge Rev and Proton VPN (their casks are marked `auto_updates`, which
 `brew upgrade` skips),
 App Store apps, and the firmware, which comes with macOS updates. KeePassXC
 has its own update check off, so brew is the only thing that updates it —
