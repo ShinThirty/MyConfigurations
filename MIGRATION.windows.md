@@ -117,7 +117,7 @@ Get-CimInstance Win32_PnPSignedDriver | Where-Object { $_.DeviceClass -eq 'NET' 
 # Inventories. The scoopfile leaves out apps you don't want back, and the java bucket,
 # which was only there for temurin-jre; add names to drop more
 $export = scoop export | Out-String | ConvertFrom-Json
-$export.apps = @($export.apps | Where-Object Name -notin 'ghostscript', 'zoom', 'sharpkeys', 'temurin-jre')
+$export.apps = @($export.apps | Where-Object Name -notin 'ghostscript', 'sharpkeys', 'temurin-jre')
 $export.buckets = @($export.buckets | Where-Object Name -ne 'java')
 $export | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 "$B\scoopfile.json"
 net use > "$B\net-use.txt"
@@ -767,7 +767,7 @@ rustup default stable
 **Shortcut:** `scoop import D:\Migration\scoopfile.json` (from
 [section 2.2](#22-from-the-old-windows)) reinstalls the old install's app and
 bucket list, personal apps included, minus what the backup filtered out
-(ghostscript, zoom, sharpkeys, temurin-jre). It installs each app's latest version, not the
+(ghostscript, sharpkeys, temurin-jre). It installs each app's latest version, not the
 one recorded in the file. It doesn't cover pwsh, oh-my-posh,
 Windows Terminal or Rust, which came from winget and the Store there — so run
 the block above too; scoop skips anything already installed.
@@ -1048,7 +1048,7 @@ checklist.
 ### 12.1 Apps
 
 **From scoop** — `scoop import` ([section 6](#6-packages-scoop)) covers these,
-including the `games` and `versions` buckets. `ghostscript`, `zoom`, `sharpkeys`
+including the `games` and `versions` buckets. `ghostscript`, `sharpkeys`
 and `temurin-jre` are left out, and the `java` bucket with them: the backup in
 [section 2.2](#22-from-the-old-windows) filters them from the scoopfile.
 SharpKeys isn't needed because
