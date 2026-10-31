@@ -10,6 +10,11 @@ don't name are left alone, so rerunning is harmless. The previous file is kept a
                             were in Edge. The search engine is a signed setting, which Windows resets
                             when it's edited in the file, so Google is set in Helium's settings
 
+It also makes a new tab open newtab.html, at the link the symlink map makes in
+~\.config\helium-newtab, through Helium's custom-ntp flag in Local State. The path is this machine's,
+so it's not in a fragment. The NewTabPageLocation policy would do the same, but Chromium ignores it
+on a PC that no organization manages.
+
 scoop's Helium keeps its profile in ~\scoop\persist\helium\User Data; -UserData points the script at
 a copy.
 
@@ -39,10 +44,13 @@ Set-Json $prefs '-s', '.[0] * .[1] * .[2]', $prefs, "$PSScriptRoot\preferences.j
 Write-Host "Merged preferences.json and preferences.windows.json into $($prefs.Replace($HOME, '~'))"
 
 # The profile menu shows the name and avatar from Local State's profile cache, which Helium doesn't
-# refresh from Preferences on its own.
+# refresh from Preferences on its own. The flags are there too, so the new tab page's is.
 $state = "$UserData\Local State"
-Set-Json $state '--slurpfile', 'f', "$PSScriptRoot\preferences.json", @'
-  ($f[0].profile // {}) as $p
+$ntp = ([Uri]"$HOME\.config\helium-newtab\newtab.html").AbsoluteUri
+Set-Json $state '--slurpfile', 'f', "$PSScriptRoot\preferences.json", '--arg', 'ntp', $ntp, @'
+  .browser.enabled_labs_experiments |= (. // []) - ["custom-ntp"] + ["custom-ntp"]
+  | .browser.enabled_labs_experiments_origin_lists["custom-ntp"] = $ntp
+  | ($f[0].profile // {}) as $p
   | if $p.name then
       .profile.info_cache.Default += {name: $p.name, is_using_default_name: false}
     else . end
@@ -53,4 +61,4 @@ Set-Json $state '--slurpfile', 'f', "$PSScriptRoot\preferences.json", @'
       }
     else . end
 '@, $state
-Write-Host "Set the profile's name and avatar in $($state.Replace($HOME, '~'))"
+Write-Host "Set the profile's name and avatar, and the new tab page, in $($state.Replace($HOME, '~'))"

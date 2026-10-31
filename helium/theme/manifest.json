@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Gruvbox Dark Hard",
+  "version": "1.0",
+  "description": "Gruvbox dark hard, in kitty's colours: the tab strip and inactive tabs #1d2021, the active tab and toolbar #3c3836, the address bar #282828",
+  "theme": {
+    "colors": {
+      "frame": [29, 32, 33],
+      "frame_inactive": [29, 32, 33],
+      "background_tab": [29, 32, 33],
+      "background_tab_inactive": [29, 32, 33],
+      "tab_background_text": [189, 174, 147],
+      "tab_background_text_inactive": [189, 174, 147],
+      "toolbar": [60, 56, 54],
+      "tab_text": [213, 196, 161],
+      "toolbar_text": [213, 196, 161],
+      "toolbar_button_icon": [189, 174, 147],
+      "bookmark_text": [213, 196, 161],
+      "omnibox_background": [40, 40, 40],
+      "omnibox_text": [213, 196, 161],
+      "ntp_background": [29, 32, 33],
+      "ntp_text": [213, 196, 161]
+    }
+  }
+}

@@ -66,6 +66,10 @@ keepassxc
 # a GUI app, installed by hand (MIGRATION.arch.md).
 jq
 
+# --- helium/newtab-fortunes.sh -----------------------------------------------
+# The fortunes the new tab page's cow thinks
+fortune-mod
+
 # --- git send-email + credential helper (git/gitconfig) ----------------------
 # All four are optdepends of git, so pacman never pulls them in on its own.
 # git send-email needs these two to speak authenticated SMTP — without them it

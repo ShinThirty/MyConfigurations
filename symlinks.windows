@@ -10,3 +10,4 @@ $DOTFILES/nvim:$LOCALAPPDATA/nvim
 $DOTFILES/wt/settings.json:$HOME/scoop/persist/windows-terminal/settings/settings.json
 $DOTFILES/ideavim/ideavimrc:$HOME/.ideavimrc
 $DOTFILES/glazewm/config.yaml:$HOME/.glzr/glazewm/config.yaml
+$DOTFILES/helium/newtab.html:$HOME/.config/helium-newtab/newtab.html

@@ -64,6 +64,10 @@ brew "ffmpeg"
 # Provides keepassxc-cli, which sync.sh uses to merge the local and SMB copies
 cask "keepassxc"
 
+# --- helium/newtab-fortunes.sh ---
+# The fortunes the new tab page's cow thinks
+brew "fortune"
+
 # --- yazi preview helpers ---
 # Optional yazi dependencies — previews silently degrade without them.
 brew "poppler"

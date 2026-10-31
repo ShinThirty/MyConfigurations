@@ -1123,14 +1123,22 @@ again. Then, from `~\MyConfigurations`:
    `--user-data-dir` to each. If it says Helium hasn't registered yet, use
    Helium's Settings → Default browser → **Make default** once, close Helium and
    run it again.
-4. On a fresh profile, with Helium closed, `helium\apply-preferences.ps1`:
-   Helium's layout and zen mode, the profile's name and avatar, and the page
-   languages. Then Settings → Search engine → Google, by hand. It's a signed
-   setting, which Windows resets if a script writes it.
-5. Settings → Apps → Default apps → Helium → **Set default**, and check `.pdf`
+4. With Helium closed, `helium\apply-preferences.ps1`: Helium's layout and zen
+   mode, the profile's name and avatar, and the page languages. It also makes a
+   new tab open `helium\newtab.html`, from the link `setup_symlinks.ps1` makes
+   in `~\.config\helium-newtab`, rather than Chromium's page of most visited
+   sites. The page's links are in `links.js` next to that link
+   ([section 12.2](#122-data)); `newtab.html`'s header has the format. On a
+   fresh profile, then Settings → Search engine → Google, by hand. It's a
+   signed setting, which Windows resets if a script writes it.
+5. The theme, kitty's Gruvbox dark hard: in `helium://extensions`, turn on
+   Developer mode, **Load unpacked** `helium\theme`, and turn Developer mode
+   off again; Chromium keeps a theme on without it. After a change to its
+   `manifest.json`, **Reload** on the theme's card applies it.
+6. Settings → Apps → Default apps → Helium → **Set default**, and check `.pdf`
    moved with it. Helium's own default-browser button registers it again,
    likely without the profile folder, so run `fix-handlers.ps1` after using it.
-6. KeePassXC: [section 10](#10-network-share-and-password-database).
+7. KeePassXC: [section 10](#10-network-share-and-password-database).
 
 `helium://policy` lists `ExtensionInstallForcelist` with status OK,
 `helium://extensions` shows both extensions, and a link opened from Windows
@@ -1145,6 +1153,7 @@ link handler that has changed.
 | Encryption identity / encrypted files | `~\.config\age\`. Anything encrypted to the age key is **unrecoverable** without it |
 | Broker / API credential files, trading working dir | Dotfiles and a dot-directory in `~`. Copy directly, never into this repo |
 | `~\.aws\` | Profile config; re-authenticate |
+| `~\.config\helium-newtab\links.js` | The links on Helium's new tab page ([below](#helium)). The page's notes are in Helium's profile, so they come with it |
 | `~\.claude\` | Copy back `CLAUDE.md` (global instructions), `settings.json` and `projects\*\memory\` (per-project memory — valid only under the same account name). `sessions\`, `history.jsonl`, `.credentials.json` and `~\.claude.json` are per-machine; re-login instead |
 | `~\Documents` (local) | Notes written by tools that hardcode `~\Documents`, *not* the OneDrive-redirected one. Copy back, or into OneDrive's Documents if you'd rather have them synced |
 | `~\Downloads` | Kept for its few personal exports |

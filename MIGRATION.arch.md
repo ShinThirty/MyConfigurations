@@ -233,8 +233,17 @@ Then:
 2. With Helium closed, run `helium/apply-preferences.sh`. It merges the settings
    no policy covers into the profile: Helium's layout and zen mode, the
    profile's name and avatar, the Classic theme, the fonts and page languages,
-   and Google as the search engine.
-3. In KeePassXC: Settings → Browser Integration → Advanced → custom browser
+   and Google as the search engine. It also makes a new tab open
+   `helium/newtab.html`, from the link `symlinks` makes in
+   `~/.config/helium-newtab`, rather than Chromium's page of most visited
+   sites. The page's links are in `links.js` next to that link
+   ([section 6](#6-personal-data-to-bring-over)); `newtab.html`'s header has the
+   format. `helium/newtab-fortunes.sh` gives the page's cow its fortunes.
+3. The theme, kitty's Gruvbox dark hard: in `helium://extensions`, turn on
+   Developer mode, **Load unpacked** `helium/theme`, and turn Developer mode
+   off again; Chromium keeps a theme on without it. After a change to its
+   `manifest.json`, **Reload** on the theme's card applies it.
+4. In KeePassXC: Settings → Browser Integration → Advanced → custom browser
    location, type Chromium, `~/.config/net.imput.helium/NativeMessagingHosts`.
    Then connect the extension, and in its settings, General → Passkeys, tick
    **Enable passkeys**. It's off by default, and without it a site's passkey
@@ -367,6 +376,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 | `~/.aws/config` | Profile definitions only, no secrets. Copy it, then re-authenticate; the `login/cache` and `cli/cache` dirs are disposable. |
 | `~/.claude/settings.json` | Claude Code prefs, including `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — it comes from the AUR, so the monthly `paru -Syu` handles updates, and the monthly update puts the key back if it goes missing ([section 10](#10-monthly-updates)). `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
 | `~/.config/net.imput.helium` | Helium's profile: logins (cookies), history, site data. Copy it whole with Helium closed at both ends. The logins come back only with the Login database above: Helium encrypts its cookies with a key it keeps there, the `Chromium Safe Storage` entry ([section 2](#2-clone-and-bootstrap)). |
+| `~/.config/helium-newtab/links.js` | The links on Helium's new tab page ([section 2](#2-clone-and-bootstrap)). The page's notes are in Helium's profile, so they come with it. |
 | `~/Music/playlists/` | Plain-text playlists the `music` function reads. Small, easy to forget. |
 | `~/.local/share/nvim/sessions`, shada | Optional editor state. |
 | `~/.zsh_history` | Optional, along with the fzf history dir. |

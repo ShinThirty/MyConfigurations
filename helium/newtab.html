@@ -1,0 +1,312 @@
+<!doctype html>
+<!--
+Helium's new tab page, in place of Chromium's, whose tiles show the sites you
+visit most to anyone who sees the screen. Helium's custom-ntp flag, which
+apply-preferences.sh and .ps1 set, opens it from
+~/.config/helium-newtab/newtab.html, a link the symlink maps make. The address
+bar still has the focus on a new tab, so typing goes there as before. The flag
+applies in private windows too, whose notes start empty and aren't kept.
+
+The links are personal, so they're not in the repo but in links.js, next to the
+link, which the page loads. A group is a heading and its links, and a link is
+a name and a URL, with an optional key:
+
+  const links = {
+    Dev: [
+      ['GitHub', 'https://github.com'],
+      ['Arch Wiki', 'https://wiki.archlinux.org', 'w'],
+    ],
+  }
+
+After a click on the page, a link's letter opens it: its key, or else the first
+letter of its name no link above it has. Esc leaves the notes, which Helium
+keeps with the profile's site data, so on that machine only. The page loads
+nothing from the network: no fonts, and letters rather than favicons, which a
+service would have to be sent the links for.
+
+Under the notes, a cow thinks a fortune from fortunes.js, as `fortune | cowthink`
+would, and a click thinks another. newtab-fortunes.sh writes the file next to
+links.js; without it there's no cow.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Tab</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%233c3836'/%3E%3Crect x='4' y='4' width='8' height='8' rx='1' fill='%23fabd2f'/%3E%3C/svg%3E">
+<style>
+  /* Gruvbox dark hard */
+  :root {
+    color-scheme: dark;
+    --bg0-h: #1d2021;
+    --bg0: #282828;
+    --bg1: #3c3836;
+    --bg3: #665c54;
+    --fg1: #ebdbb2;
+    --fg4: #a89984;
+    --gray: #928374;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg0-h); }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 2.25rem;
+    color: var(--fg1);
+    font: 16px/1.4 "FantasqueSansM Nerd Font Mono", "FantasqueSansM Nerd Font", ui-monospace, monospace;
+  }
+  #clock { text-align: center; }
+  #time {
+    font-size: clamp(3rem, 8vw, 5rem);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  #date { margin-top: 0.5rem; color: var(--fg4); font-size: 1.1rem; }
+  #links {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, max-content));
+    justify-content: center;
+    gap: 2rem 3rem;
+  }
+  h2 {
+    margin: 0 0 0.6rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid;
+    font-size: 1rem;
+    font-weight: normal;
+    color: var(--accent);
+  }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; }
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-inline: -0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    color: inherit;
+    text-decoration: none;
+  }
+  a:hover, a:focus-visible { background: var(--bg1); outline: none; }
+  .key {
+    display: inline-grid;
+    place-items: center;
+    width: 1.6em;
+    height: 1.6em;
+    border-radius: 3px;
+    background: var(--bg1);
+    color: var(--accent);
+    font-weight: bold;
+    transition: opacity 0.15s;
+  }
+  a:hover .key, a:focus-visible .key { background: var(--bg0-h); }
+  /* The letters work only while the page, not the address bar or the notes, has the focus */
+  body:not(.keys) .key { opacity: 0.5; }
+  #notes {
+    width: min(40rem, 100%);
+    min-height: 3lh;
+    max-height: 40vh;
+    field-sizing: content;
+    resize: none;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--bg1);
+    border-radius: 6px;
+    background: var(--bg0);
+    color: inherit;
+    font: inherit;
+    outline: none;
+  }
+  #notes:focus { border-color: var(--bg3); }
+  #notes::placeholder { color: var(--gray); }
+  #hint { min-height: 1lh; margin-top: -1.75rem; color: var(--gray); font-size: 0.85rem; }
+  #fortune {
+    margin: -1rem 0 0;
+    color: var(--fg4);
+    font: inherit;
+    line-height: 1.3;
+    cursor: pointer;
+  }
+  #fortune .frame { color: var(--gray); }
+  #help { max-width: 40rem; color: var(--fg4); }
+  #help pre {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    background: var(--bg0);
+    color: var(--fg1);
+    font: inherit;
+    overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+<div id="clock"><div id="time"></div><div id="date"></div></div>
+<main id="links"></main>
+<textarea id="notes" placeholder="Notes" spellcheck="false" aria-label="Notes"></textarea>
+<div id="hint"></div>
+<pre id="fortune" hidden title="Click for another"></pre>
+<script>
+(() => {
+  // Gruvbox's bright colours, one per group in turn
+  const accents = ['#fabd2f', '#8ec07c', '#fe8019', '#83a598', '#d3869b', '#b8bb26', '#fb4934'];
+  const $ = id => document.getElementById(id);
+  const byKey = new Map();
+  const notes = $('notes');
+  const hint = $('hint');
+
+  const time = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const day = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  let timer;
+  function tick() {
+    const now = new Date();
+    $('time').textContent = time.format(now);
+    $('date').textContent = day.format(now);
+    clearTimeout(timer);
+    timer = setTimeout(tick, 60000 - now.getSeconds() * 1000 - now.getMilliseconds());
+  }
+  // A hidden tab's timers can run late, so catch up when it shows again
+  document.addEventListener('visibilitychange', () => document.hidden || tick());
+  tick();
+
+  function render(groups) {
+    Object.entries(groups).forEach(([title, list], i) => {
+      const section = document.createElement('section');
+      section.style.setProperty('--accent', accents[i % accents.length]);
+      const h2 = document.createElement('h2');
+      h2.textContent = title;
+      const ul = document.createElement('ul');
+      for (const [name, url, given] of list) {
+        const a = document.createElement('a');
+        a.href = url;
+        const letters = [given, ...name.toLowerCase().match(/[a-z0-9]/g) ?? []];
+        const key = letters.find(k => k && !byKey.has(k.toLowerCase()))?.toLowerCase();
+        const badge = document.createElement('span');
+        badge.className = 'key';
+        badge.textContent = (key ?? '').toUpperCase();
+        if (key) byKey.set(key, a);
+        a.append(badge, name);
+        const li = document.createElement('li');
+        li.append(a);
+        ul.append(li);
+      }
+      section.append(h2, ul);
+      $('links').append(section);
+    });
+    update();
+  }
+
+  function explain(problem) {
+    const help = document.createElement('div');
+    help.id = 'help';
+    const p = document.createElement('p');
+    p.textContent = problem;
+    const pre = document.createElement('pre');
+    pre.textContent = "const links = {\n  Dev: [\n    ['GitHub', 'https://github.com'],\n  ],\n}";
+    help.append(p, pre);
+    $('links').replaceWith(help);
+  }
+
+  function load(src, onload, onerror) {
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = onload;
+    script.onerror = onerror;
+    document.head.append(script);
+  }
+
+  load('links.js', () => typeof links === 'object'
+    ? render(links)
+    : explain("links.js doesn't define links, or has an error the console shows. It looks like:"),
+  () => explain('No links yet: put them in ~/.config/helium-newtab/links.js, next to this page, like this:'));
+
+  const cow = [
+    '       o',
+    '        o   ^__^',
+    '         o  (oo)\\_______',
+    '            (__)\\       )\\/\\',
+    '                ||----w |',
+    '                ||     ||',
+  ];
+  // The fortune in a box, with the cow under it. Fortunes come wrapped at about
+  // 72 columns, so only a line longer than that is wrapped again.
+  function cowthink(text) {
+    const lines = [];
+    for (let line of text.split('\n')) {
+      // Each run before a tab starts at a tab stop, every 8 columns
+      line = line.replace(/[^\t]*\t/g, s => s.slice(0, -1).padEnd((Math.floor((s.length - 1) / 8) + 1) * 8)).trimEnd();
+      while (line.length > 72) {
+        const space = line.lastIndexOf(' ', 72);
+        const at = space > 0 ? space : 72;
+        lines.push(line.slice(0, at).trimEnd());
+        line = line.slice(at).trimStart();
+      }
+      lines.push(line);
+    }
+    const width = Math.max(...lines.map(l => l.length));
+    const edge = `*${'-'.repeat(width + 2)}*`;
+    // The box and the cow are a frame, quieter than the fortune
+    const frame = text => Object.assign(document.createElement('span'), { className: 'frame', textContent: text });
+    return [
+      frame(edge + '\n'),
+      ...lines.flatMap(l => [frame('| '), l.padEnd(width), frame(' |\n')]),
+      frame([edge, ...cow].join('\n')),
+    ];
+  }
+
+  const fortune = $('fortune');
+  function think() {
+    fortune.replaceChildren(...cowthink(fortunes[Math.floor(Math.random() * fortunes.length)]));
+  }
+  load('fortunes.js', () => {
+    if (typeof fortunes !== 'object' || !fortunes.length) return;
+    think();
+    fortune.hidden = false;
+  });
+  // A click picks another, unless it was to select the text
+  fortune.addEventListener('click', () => getSelection().isCollapsed && think());
+
+  function update() {
+    const inNotes = document.activeElement === notes;
+    document.body.classList.toggle('keys', document.hasFocus() && !inNotes);
+    hint.textContent = !byKey.size ? ''
+      : inNotes ? 'Esc leaves the notes'
+      : document.hasFocus() ? '' : "Click the page, then press a link's letter";
+  }
+  for (const event of ['focus', 'blur']) addEventListener(event, update);
+  notes.addEventListener('focus', update);
+  notes.addEventListener('blur', update);
+
+  addEventListener('keydown', e => {
+    if (e.target === notes) {
+      if (e.key === 'Escape') notes.blur();
+      return;
+    }
+    if (e.metaKey || e.ctrlKey || e.altKey || e.isComposing) return;
+    const a = byKey.get(e.key.toLowerCase());
+    if (a) {
+      e.preventDefault();
+      location.assign(a.href);
+    }
+  });
+
+  // Every new tab shows the same notes, so one typed in another tab shows here too
+  const saved = 'helium-newtab.notes';
+  try {
+    notes.value = localStorage.getItem(saved) ?? '';
+  } catch {
+    notes.placeholder = "Notes (Helium blocks this page's storage, so they won't be kept)";
+  }
+  notes.addEventListener('input', () => {
+    try { localStorage.setItem(saved, notes.value); } catch {}
+  });
+  addEventListener('storage', e => {
+    if (e.key === saved && document.activeElement !== notes) notes.value = e.newValue ?? '';
+  });
+})();
+</script>
+</body>
+</html>

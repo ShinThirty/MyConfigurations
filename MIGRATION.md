@@ -211,12 +211,20 @@ the first start ([section 4](#4-personal-data-to-bring-over)), then, from
 2. Start Helium. On a fresh profile, accept Helium services on its setup page,
    then quit it (⌘Q) and start it again: the extensions install on that second
    start. Quit it.
-3. On a fresh profile, with Helium closed, `helium/apply-preferences.sh`:
-   Helium's layout and zen mode, the profile's name and avatar, and the page
-   languages. Then Settings → Search engine → Google, by hand. It's a signed
-   setting, which macOS resets if a script writes it.
-4. System Settings → Desktop & Dock → Default web browser → Helium.
-5. KeePassXC: the custom browser location in the table above. Then connect
+3. With Helium closed, `helium/apply-preferences.sh`: Helium's layout and zen
+   mode, the profile's name and avatar, and the page languages. It also makes a
+   new tab open `helium/newtab.html`, from the link `setup_symlinks.sh` makes
+   in `~/.config/helium-newtab`, rather than Chromium's page of most visited
+   sites. The page's links are in `links.js` next to that link
+   ([section 4](#4-personal-data-to-bring-over)); `newtab.html`'s header has
+   the format. `helium/newtab-fortunes.sh` gives the page's cow its fortunes.
+   On a fresh profile, then Settings → Search engine → Google, by hand. It's a signed setting, which macOS resets if a script writes it.
+4. The theme, kitty's Gruvbox dark hard: in `helium://extensions`, turn on
+   Developer mode, **Load unpacked** `helium/theme`, and turn Developer mode
+   off again; Chromium keeps a theme on without it. After a change to its
+   `manifest.json`, **Reload** on the theme's card applies it.
+5. System Settings → Desktop & Dock → Default web browser → Helium.
+6. KeePassXC: the custom browser location in the table above. Then connect
    KeePassXC-Browser, and in its settings, General → Passkeys, tick **Enable
    passkeys**. It's off by default, and without it a site's passkey request
    skips KeePassXC; a restored profile keeps the setting. The Passkeys card
@@ -246,6 +254,7 @@ None of this is in the repo. Decide case by case what you actually still need.
 | Trading working dir | Local SQLite DB plus scratch subdirectories. |
 | `~/.aws/config` | Profile definitions only, no secrets. Copy it, then re-authenticate; the `login/cache` and `cli/cache` dirs are disposable. |
 | `~/Library/Application Support/net.imput.helium` | Helium's profile: history, bookmarks, site data, extensions. Copy it whole with Helium closed at both ends, before its first start. Not the logins: Helium encrypts its cookies with a key from the login Keychain (the "Helium Storage Key" item), not from the profile, so sign in to sites again. |
+| `~/.config/helium-newtab/links.js` | The links on Helium's new tab page (section 3). The page's notes are in Helium's profile, so they come with it. |
 | `~/.claude/settings.json` | Claude Code prefs. `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
 | Obsidian vault | Lives in iCloud Drive, so it **syncs on its own** — sign into iCloud and wait. Don't copy it manually. |
 | `~/Documents` | Personal documents, analysis, scripts, tax records. |

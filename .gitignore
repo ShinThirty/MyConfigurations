@@ -74,3 +74,6 @@ tags
 
 # End of https://www.toptal.com/developers/gitignore/api/vim
 
+
+# Helium caches an unpacked theme next to its manifest
+helium/theme/Cached Theme.pak
