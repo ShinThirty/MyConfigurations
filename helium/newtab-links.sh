@@ -46,12 +46,13 @@ query() {
 query 'select consider_for_ntp_most_visited, last_visit_time from visits, urls limit 1' >/dev/null ||
   exit 1
 
-# https://www.example.com/path?query → example.com/path
+# https://www.example.com/path?query → example.com/path. Not a local named
+# path: zsh ties that one to $PATH
 address() {
   local rest=${1#*://}
-  local host=${${rest%%/*}:l} path=/${rest#*/}
-  [[ $rest == */* ]] || path=/
-  print -r -- ${host#www.}${path%%[?#]*}
+  local host=${${rest%%/*}:l} page=/${rest#*/}
+  [[ $rest == */* ]] || page=/
+  print -r -- ${host#www.}${page%%[?#]*}
 }
 
 # Each link's name and URL, from lines such as ['GitHub', 'https://github.com']
