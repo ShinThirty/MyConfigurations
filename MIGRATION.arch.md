@@ -395,9 +395,9 @@ None of this is in the repo. Decide case by case what you actually still need.
 login shell, but you stay in bash until the next login. `exec zsh` to try it
 immediately; log out and back in to make it stick for the display manager too.
 
-**Go tools are not in `pkglist.arch`.** The macOS `Brewfile` lists ~22
-`go "..."` entries (gopls, dlv, golangci-lint, gofumpt, …) that nvim's Go setup
-expects. `arch/update.sh` installs and updates that list
+**Go tools are not in `pkglist.arch`.** The macOS `Brewfile` lists five
+`go "..."` entries (gopls, goimports, dlv, golangci-lint, gofumpt) that nvim's
+Go setup runs. `arch/update.sh` installs and updates that list
 ([section 10](#10-monthly-updates)), so its first run doubles as the install. By
 hand it's the same everywhere:
 

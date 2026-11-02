@@ -103,29 +103,12 @@ cask "font-jetbrains-mono-nerd-font"
 cask "font-symbols-only-nerd-font"
 
 # --- Go tools (installed to $GOPATH/bin, not Homebrew) ---
-# nvim's go.nvim setup shells out to these.
+# nvim's Go setup runs these: the LSP server, formatters, linter and debugger.
 go "golang.org/x/tools/gopls"
 go "golang.org/x/tools/cmd/goimports"
-go "golang.org/x/tools/cmd/callgraph"
-go "golang.org/x/tools/cmd/gonew"
-go "golang.org/x/vuln/cmd/govulncheck"
 go "github.com/go-delve/delve/cmd/dlv"
 go "github.com/golangci/golangci-lint/v2/cmd/golangci-lint"
 go "mvdan.cc/gofumpt"
-go "github.com/segmentio/golines"
-go "github.com/fatih/gomodifytags"
-go "github.com/abenz1267/gomvp"
-go "github.com/davidrjenni/reftools/cmd/fillswitch"
-go "github.com/koron/iferr"
-go "github.com/josharian/impl"
-go "github.com/abice/go-enum"
-go "github.com/twpayne/go-jsonstruct/v3/cmd/gojsonstruct"
-go "github.com/tmc/json-to-struct"
-go "github.com/cweill/gotests/gotests"
-go "gotest.tools/gotestsum"
-go "github.com/kyoh86/richgo"
-go "github.com/onsi/ginkgo/v2/ginkgo"
-go "go.uber.org/mock/mockgen"
 
 # --- Everything else lives in MIGRATION.md ---
 # Personal apps and general-purpose CLI are listed there under "Apps and tools
