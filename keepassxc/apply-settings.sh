@@ -4,8 +4,8 @@
 # start at login: the counterpart of apply-settings.ps1. KeePassXC rewrites its
 # file when it saves its settings and when it quits, so quit it first; with
 # MinimizeOnClose, closing its window only hides it. Keys keepassxc.ini doesn't
-# name are left alone, KeeShare's private key and Arch's Secret Service among
-# them, so rerunning is harmless. The previous file is kept as
+# name are left alone, KeeShare's private key and whether Arch's Secret Service
+# is on among them, so rerunning is harmless. The previous file is kept as
 # keepassxc.ini.bak; with no file yet, KeePassXC starts from keepassxc.ini's.
 #
 # Starting at login, minimized to the tray by MinimizeOnStartup:

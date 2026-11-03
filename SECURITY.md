@@ -486,13 +486,15 @@ it has access to.
   with its own password. Apps keep their secrets in its `Secret Service`
   group, through KeePassXC's Secret Service, and the SSH keys' passphrases are
   in its `SSH` group (section 5), so make its password as strong as theirs.
-  Any program you run can ask the Secret Service for what it holds, so that
-  group is the only one exposed there: Login's Database Settings → Secret
-  Service Integration exposes it alone, and the main database's is *Don't
-  expose this database*. KeePassXC starts at login with Login locked in the
-  tray, and asks for its password when an app first needs a secret; a
-  fingerprint login gives it nothing to unlock with (MIGRATION.arch.md
-  section 2)
+  Any program you run can ask the Secret Service for what it holds, and gets
+  it without a prompt: `keepassxc/keepassxc.ini` turns KeePassXC's
+  confirmation prompt off, since it remembers an answer only while the asking
+  process runs. That group is the only one exposed there: Login's Database
+  Settings → Secret Service Integration exposes it alone, and the main
+  database's is *Don't expose this database*. KeePassXC starts at login with
+  Login locked in the tray, and asks for its password when an app first needs
+  a secret; a fingerprint login gives it nothing to unlock with
+  (MIGRATION.arch.md section 2)
 
 ---
 
