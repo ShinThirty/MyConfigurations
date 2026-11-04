@@ -44,8 +44,8 @@ the same way as on Windows and Arch. macOS has one setting for the mouse and
 the trackpad, so this flips the trackpad too. The monthly update checks that
 it stays off.
 
-**Settings for AeroSpace and the network share.** Then log out and back in,
-which the first one needs:
+**Settings for AeroSpace, the network share and USB drives.** Then log out and
+back in, which the first one needs:
 
 ```sh
 # Displays share one set of Spaces, as AeroSpace's guide recommends with more
@@ -60,11 +60,13 @@ defaults write com.apple.WindowManager EnableTopTilingByEdgeDrag -bool false
 # Mission Control groups windows by app, without which it shows them smaller
 # than they need to be
 defaults write com.apple.dock expose-group-apps -bool true
-# No .DS_Store files on tp-share, where Windows and Arch see them
+# No .DS_Store files on tp-share, where Windows and Arch see them, or on USB
+# drives, external APFS ones included
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 ```
 
-All but the last are in System Settings → Desktop & Dock. The monthly update
+All but the last two are in System Settings → Desktop & Dock. The monthly update
 checks these too.
 
 **DNS over HTTPS**, so lookups go encrypted to Cloudflare on any network

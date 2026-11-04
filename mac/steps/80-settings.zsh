@@ -27,6 +27,8 @@ update() {
     'Mission Control no longer groups windows by app: turn it on in System Settings → Desktop & Dock (MIGRATION.md section 1)'
     com.apple.desktopservices DSDontWriteNetworkStores 1
     'Finder writes .DS_Store files to network shares again (MIGRATION.md section 1): defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true'
+    com.apple.desktopservices DSDontWriteUSBStores 1
+    'Finder writes .DS_Store files to USB drives again (MIGRATION.md section 1): defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true'
   )
   local domain key want fix
   for domain key want fix in $settings; do
