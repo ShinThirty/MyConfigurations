@@ -247,15 +247,14 @@ EOF
       added+=("${cmd%% *}")
     fi
   done
-  # SECURITY.md section 7's Login database, and the main one from tp-share.
-  # Login opens last, so it's the active tab, whose database the Secret
-  # Service gives apps as the default for new secrets. Qt looks for a tray
-  # only once, at start, so KeePassXC waits for waybar's; $HOME stays literal,
-  # for the shell exec_once runs it in. arch/steps/80-settings.zsh checks for
-  # this same entry. An active entry that runs keepassxc otherwise, as with
-  # Login alone, becomes this one; a commented-out example starts with --
-  entry='"gdbus wait --session --timeout 30 org.kde.StatusNotifierWatcher; keepassxc --minimized /mnt/tp-share/Password/shinthirty.kdbx $HOME/.local/share/keepassxc/login.kdbx",'
-  re='^([[:space:]]*)"[^"]*keepassxc '
+  # keepassxc/start.arch.sh: KeePassXC with SECURITY.md section 7's Login
+  # database and the main one from tp-share, once waybar's tray is up. $HOME
+  # stays literal, for the shell exec_once runs it in. The monthly update's
+  # arch/steps/80-settings.zsh checks for this same entry. Any other active
+  # entry that starts KeePassXC, as one running keepassxc itself does, becomes
+  # this one; a commented-out example starts with --
+  entry='"$HOME/MyConfigurations/keepassxc/start.arch.sh",'
+  re='^([[:space:]]*)"[^"]*keepassxc'
   active="$(grep -E "$re" "$U/user_startup.lua")"
   if [[ -z $active ]]; then
     sed -i "/local startup_commands = {/a \\  $entry" "$U/user_startup.lua"

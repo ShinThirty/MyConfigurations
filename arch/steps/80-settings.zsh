@@ -104,12 +104,12 @@ update() {
     else
       ok "KeePassXC's settings are keepassxc.ini's"
     fi
-    # Hyprland's user_startup.lua starts it at login with the main database
-    # and the Login one, the entry arch/kooldots-upgrade.sh puts back when
-    # KooL's upgrade drops it. A commented-out one starts with --
+    # Hyprland's user_startup.lua runs keepassxc/start.arch.sh at login, the
+    # entry arch/kooldots-upgrade.sh puts back when KooL's upgrade drops it.
+    # A commented-out one starts with --
     local startup=${XDG_CONFIG_HOME:-$HOME/.config}/hypr/UserConfigs/user_startup.lua
-    local entry='"gdbus wait --session --timeout 30 org.kde.StatusNotifierWatcher; keepassxc --minimized /mnt/tp-share/Password/shinthirty.kdbx $HOME/.local/share/keepassxc/login.kdbx",'
-    local active=(${(f)"$(grep -E '^[[:space:]]*"[^"]*keepassxc ' $startup 2>/dev/null)"})
+    local entry='"$HOME/MyConfigurations/keepassxc/start.arch.sh",'
+    local active=(${(f)"$(grep -E '^[[:space:]]*"[^"]*keepassxc' $startup 2>/dev/null)"})
     if (( $#active == 1 )) && [[ ${active[1]#"${active[1]%%[![:space:]]*}"} == "$entry" ]]; then
       ok 'KeePassXC starts at login with both databases'
     elif (( ! $#active )); then
@@ -117,7 +117,7 @@ update() {
       todo+=("Reset: Hyprland's user_startup.lua doesn't start KeePassXC, so apps find no keychain at login; arch/kooldots-upgrade.sh --post-only puts its entry back (MIGRATION.arch.md section 2)")
     else
       warn 'KeePassXC starts at login differently, listed below'
-      todo+=("Reset: Hyprland's user_startup.lua starts KeePassXC with an entry other than arch/kooldots-upgrade.sh's, which opens the main database and then Login's, so Login's is the default for new secrets; its --post-only puts that entry back (MIGRATION.arch.md section 2)")
+      todo+=("Reset: Hyprland's user_startup.lua starts KeePassXC with an entry other than arch/kooldots-upgrade.sh's, keepassxc/start.arch.sh, which waits for waybar's tray and opens the main database and then Login's, so Login's is the default for new secrets; its --post-only puts that entry back (MIGRATION.arch.md section 2)")
     fi
   fi
   local hosts=${GH_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/gh}/hosts.yml

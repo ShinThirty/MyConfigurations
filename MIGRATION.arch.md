@@ -185,13 +185,14 @@ folder (section 6), or make it:
    the `SSH` group ([SECURITY.md section 5](SECURITY.md#5-ssh-keys)).
 
 `UserConfigs/user_startup.lua`, from the bare repo ([section 5](#5-the-hyprland-bare-repo)),
-runs `keepassxc --minimized` with the main database and the Login one at
-login, once waybar's tray is up: Qt looks for a tray only when it starts.
-Login opens last, so it's the active tab, whose database the Secret Service
-gives apps as the default for new secrets. Both stay locked in the tray, and
-Login asks for its password when an app asks for a secret. The monthly
-update checks this entry, and `arch/kooldots-upgrade.sh --post-only` puts it
-back ([section 5](#5-the-hyprland-bare-repo)). KeePassXC can't
+runs `keepassxc/start.arch.sh` at login, which starts `keepassxc --minimized`
+with the main database and the Login one once waybar's tray is up: Qt looks
+for a tray only when it starts. Login opens last, so it's the active tab,
+whose database the Secret Service gives apps as the default for new secrets.
+Both stay locked in the tray, and Login asks for its password when an app
+asks for a secret. The monthly update checks this entry, and
+`arch/kooldots-upgrade.sh --post-only` puts it back
+([section 5](#5-the-hyprland-bare-repo)). KeePassXC can't
 read a locked database's settings, so until the main database is first
 unlocked, apps see it as exposed too, and an app looking for a secret can ask
 you to unlock it as well. Unlocked, it's out of their reach, and while its tab
