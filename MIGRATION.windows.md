@@ -1273,7 +1273,7 @@ the toast API pwsh lacks. Both scripts keep their state in
 ```
 
 It opens Settings → Windows Update, updates scoop and its apps, runs
-`rustup update`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the
+`rustup update`, `uv tool upgrade --all`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the
 parsers rebuild themselves the next time nvim starts), `ya pkg upgrade` and
 `Update-PSResource`, prints the BIOS and driver versions, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config

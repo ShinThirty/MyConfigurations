@@ -570,7 +570,7 @@ It refreshes the mirrorlist with reflector, runs `paru -Syu` (Arch news first),
 restarts aria2 if an upgrade (this one or a day-to-day `paru`) replaced its
 binary, and walks through new `.pacnew` files with `pacdiff`. Outside pacman
 it runs `rustup update`, `go install` for the Brewfile's `go` lines,
-`uv python upgrade`, `sheldon lock --update`, vim-plug's `PlugUpgrade` and
+`uv python upgrade`, `uv tool upgrade --all`, `sheldon lock --update`, vim-plug's `PlugUpgrade` and
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its

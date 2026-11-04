@@ -406,7 +406,7 @@ Editor, so dismiss it instead. Both scripts keep their state in
 It lists what Software Update has and opens it in System Settings, runs
 `brew upgrade`, reinstalls the Brewfile's Go tools at `@latest`, runs
 `rustup update`, `uv python upgrade` (once uv has Pythons of its own),
-`sheldon lock --update`, vim-plug's `PlugUpgrade` and `PlugUpdate`, nvim's
+`uv tool upgrade --all`, `sheldon lock --update`, vim-plug's `PlugUpgrade` and `PlugUpdate`, nvim's
 `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config

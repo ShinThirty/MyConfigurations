@@ -1,5 +1,5 @@
-# uv's cache, which lives on D: (section 12.1). uv has no Pythons of its own here, so there's no
-# uv python upgrade as on macOS and Arch
+# uv's cache, which lives on D: (section 12.1), and the tools it installed. uv has no Pythons of its
+# own here, so there's no uv python upgrade as on macOS and Arch
 
 @{
     Update = {
@@ -12,6 +12,12 @@
             Write-Warn 'no longer on D:'
             $todo.Add('uv: ~\scoop\persist\uv\cache is no longer a junction to D:\uv-cache (section 12.1)')
         }
+
+        Write-Step 'uv tools'
+        if (-not (Get-ChildItem (uv tool dir) -Directory -ErrorAction SilentlyContinue)) { Write-Skip 'none installed'; return }
+        # Within the version constraints each was installed with
+        uv tool upgrade --all
+        if ($LASTEXITCODE) { $todo.Add('uv tool upgrade failed: read its output above') }
     }
 
     Cleanup = {

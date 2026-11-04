@@ -1,13 +1,22 @@
-# uv's own Pythons, and its cache
+# uv's own Pythons, the tools it installed, and its cache
 
 update() {
   info 'uv-managed Pythons'
   (( $+commands[uv] )) || { skip 'uv not installed'; return }
   local pythons=($(uv python dir 2>/dev/null)/*(N/))
-  (( $#pythons )) || { skip 'none installed'; return }
-  # Venvs point at the minor-version directory, so they pick up the new patch
-  # release. The cleanup uninstalls the one it replaces
-  uv python upgrade || todo+=('uv python upgrade failed: read its output above')
+  if (( $#pythons )); then
+    # Venvs point at the minor-version directory, so they pick up the new patch
+    # release. The cleanup uninstalls the one it replaces
+    uv python upgrade || todo+=('uv python upgrade failed: read its output above')
+  else
+    skip 'none installed'
+  fi
+
+  info 'uv tools'
+  local tools=($(uv tool dir 2>/dev/null)/*(N/))
+  (( $#tools )) || { skip 'none installed'; return }
+  # Within the version constraints each was installed with
+  uv tool upgrade --all || todo+=('uv tool upgrade failed: read its output above')
 }
 
 cleanup() {
