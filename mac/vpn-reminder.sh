@@ -18,9 +18,9 @@
 # and a script can't.
 #
 # A network is known by its router's hardware address, since macOS hides the
-# Wi-Fi name from a script without Location Services. The trusted ones are
-# listed one per line in ~/.config/vpn-reminder/trusted, and home's alone in
-# ~/.config/vpn-reminder/home, not in this repo, which is public: a router's
+# Wi-Fi name from a script without Location Services. Home's is alone in
+# ~/.config/vpn-reminder/home, and the other trusted ones one per line in
+# ~/.config/vpn-reminder/trusted, not in this repo, which is public: a router's
 # address can be looked up to where it is. Trust only networks that are yours.
 
 label=local.vpn-reminder
@@ -82,25 +82,33 @@ routers() {
 
 now=$(routers)
 
-# --home trusts the network too. Home is one router, so on more than one
-# network the Mac can't tell which is home's
-if [[ $1 == --(trust|home) ]]; then
+if [[ $1 == --trust ]]; then
   [[ -n $now ]] || { print "The Mac isn't on a network with a router"; exit 1 }
-  [[ $1 == --home && $now == *$'\n'* ]] &&
-    { print "The Mac is on several networks: leave all but home's"; exit 1 }
   mkdir -p ${trusted:h}
   { print -r -- $now; cat $trusted 2>/dev/null } | sort -u >$trusted.new && mv $trusted.new $trusted
   print "Trusted this network; $(wc -l <$trusted | tr -d ' ') in $trusted"
-  [[ $1 == --home ]] || exit
-  print -r -- $now >$home
-  print "It's home too, the only network tp-share is mounted on"
   exit
 fi
 
-# A network the Mac is on isn't trusted. Ask only when it's on one: with none,
-# this says yes
+# Home is one router, so on more than one network the Mac can't tell which is
+# home's. Trusted for being home, it leaves the trusted list if it was there
+if [[ $1 == --home ]]; then
+  [[ -n $now ]] || { print "The Mac isn't on a network with a router"; exit 1 }
+  [[ $now != *$'\n'* ]] ||
+    { print "The Mac is on several networks: leave all but home's"; exit 1 }
+  mkdir -p ${home:h}
+  print -r -- $now >$home
+  if [[ -f $trusted ]]; then
+    grep -vxF -- $now $trusted >$trusted.new; mv $trusted.new $trusted
+  fi
+  print "This network is home: trusted, and the only one tp-share is mounted on"
+  exit
+fi
+
+# A network the Mac is on is neither trusted nor home's. Ask only when it's on
+# one: with none, this says yes
 untrusted() {
-  print -r -- $now | grep -qvxFf <(cat $trusted 2>/dev/null)
+  print -r -- $now | grep -qvxFf <(cat $trusted $home 2>/dev/null)
 }
 
 # Every network the Mac is on trusted, as exposed() below reads it
