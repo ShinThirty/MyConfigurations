@@ -186,7 +186,7 @@ info "VPN reminder"
 if [[ -e "$HOME/Library/LaunchAgents/local.vpn-reminder.plist" ]]; then
   skip "launch agent already registered"
 elif "$DOTFILES/mac/vpn-reminder.sh" --register >/dev/null; then
-  ok "launch agent registered (SECURITY.md section 9): run mac/vpn-reminder.sh --trust at home"
+  ok "launch agent registered (SECURITY.md section 9): run mac/vpn-reminder.sh --home at home"
 else
   warn "registering failed — run mac/vpn-reminder.sh --register"
 fi

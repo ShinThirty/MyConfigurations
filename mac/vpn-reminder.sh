@@ -3,11 +3,14 @@
 # vpn-reminder.sh — VPN reminder (SECURITY.md section 9). When the Mac is on a
 # network you haven't trusted and its traffic isn't in a tunnel, shows a
 # dialog: on joining such a network, and again each time the VPN drops. A
-# dialog rather than a notification, since Focus hides those.
+# dialog rather than a notification, since Focus hides those. It also mounts
+# tp-share at home and ejects it on any other network.
 #
 #   mac/vpn-reminder.sh --register    install the launch agent (bootstrap.sh does this)
 #   mac/vpn-reminder.sh --trust       trust the network the Mac is on now
+#   mac/vpn-reminder.sh --home        trust it as home: tp-share is mounted only there
 #   mac/vpn-reminder.sh --trusted     exit 0 on a trusted network, 1 on another, 2 on none
+#   mac/vpn-reminder.sh --at-home     exit 0 at home, 1 on another network, 2 on none
 #
 # The agent keeps --watch running from login: a check then, and again after
 # each change of network. A watcher rather than launchd's LaunchEvents, which
@@ -16,13 +19,13 @@
 #
 # A network is known by its router's hardware address, since macOS hides the
 # Wi-Fi name from a script without Location Services. The trusted ones are
-# listed one per line in ~/.config/vpn-reminder/trusted, not in this repo,
-# which is public: a router's address can be looked up to where it is.
-# keepassxc/start.sh asks with --trusted before it mounts tp-share, so trust
-# only networks that are yours.
+# listed one per line in ~/.config/vpn-reminder/trusted, and home's alone in
+# ~/.config/vpn-reminder/home, not in this repo, which is public: a router's
+# address can be looked up to where it is. Trust only networks that are yours.
 
 label=local.vpn-reminder
 trusted=$HOME/.config/vpn-reminder/trusted
+home=$HOME/.config/vpn-reminder/home
 state=~/.local/state/vpn-reminder
 
 if [[ $1 == --register ]]; then
@@ -79,19 +82,60 @@ routers() {
 
 now=$(routers)
 
-if [[ $1 == --trust ]]; then
+# --home trusts the network too. Home is one router, so on more than one
+# network the Mac can't tell which is home's
+if [[ $1 == --(trust|home) ]]; then
   [[ -n $now ]] || { print "The Mac isn't on a network with a router"; exit 1 }
+  [[ $1 == --home && $now == *$'\n'* ]] &&
+    { print "The Mac is on several networks: leave all but home's"; exit 1 }
   mkdir -p ${trusted:h}
   { print -r -- $now; cat $trusted 2>/dev/null } | sort -u >$trusted.new && mv $trusted.new $trusted
   print "Trusted this network; $(wc -l <$trusted | tr -d ' ') in $trusted"
+  [[ $1 == --home ]] || exit
+  print -r -- $now >$home
+  print "It's home too, the only network tp-share is mounted on"
   exit
 fi
+
+# A network the Mac is on isn't trusted. Ask only when it's on one: with none,
+# this says yes
+untrusted() {
+  print -r -- $now | grep -qvxFf <(cat $trusted 2>/dev/null)
+}
 
 # Every network the Mac is on trusted, as exposed() below reads it
 if [[ $1 == --trusted ]]; then
   [[ -n $now ]] || exit 2
-  print -r -- $now | grep -qvxFf <(cat $trusted 2>/dev/null) && exit 1
+  untrusted && exit 1
   exit 0
+fi
+
+# On home's network alone: its one router, the one --home marked
+at_home() {
+  [[ -n $now && $now == "$(cat $home 2>/dev/null)" ]]
+}
+
+if [[ $1 == --at-home ]]; then
+  [[ -n $now ]] || exit 2
+  at_home
+  exit
+fi
+
+# tp-share, the share at home: mounted there once its SMB port answers, and
+# ejected on any other network, a trusted one included. Elsewhere, anyone can
+# answer for its name and collect the login attempt to crack offline
+# (SECURITY.md section 9). Forced, since a terminal in it would keep it there.
+# With no network, as for a moment on waking, it stays: nothing can answer
+# then. Ejected by hand at home, it's back after the next change of network.
+share=/Volumes/tp-share
+if [[ -n $now ]]; then
+  if mount -t smbfs | grep -qF " on $share ("; then
+    at_home || diskutil unmount force $share >/dev/null
+  elif at_home && nc -z -G 3 tp-share 445 2>/dev/null; then
+    # With the login Finder keeps in the Keychain. Only once the port answers:
+    # mount volume waits minutes for a server that doesn't
+    osascript -e 'mount volume "smb://tp-share/G"' >/dev/null 2>&1
+  fi
 fi
 
 # Whether traffic to an address on the internet goes through a tunnel
@@ -107,7 +151,7 @@ tunneled() {
 # On a network you haven't trusted, with IPv4 or IPv6 traffic outside a tunnel.
 # A VPN that carries only IPv4 leaves IPv6 on the network, where it has IPv6.
 exposed() {
-  [[ -n $now ]] && print -r -- $now | grep -qvxFf <(cat $trusted 2>/dev/null) &&
+  [[ -n $now ]] && untrusted &&
     ! { tunneled 1.1.1.1 && tunneled -inet6 2606:4700:4700::1111 }
 }
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #
 # Starts KeePassXC at login on macOS with the database for where the Mac is:
-# tp-share's at home, mounting the share if it isn't, and the local copy,
-# which is read-only, anywhere else. The launch agent apply-settings.sh writes,
-# local.keepassxc, runs this. Home is a network mac/vpn-reminder.sh trusts: on
-# any other, whoever answers for the share's name gets the login attempt
+# tp-share's at home, once mac/vpn-reminder.sh's agent has mounted the share,
+# and the local copy, which is read-only, anywhere else. The launch agent
+# apply-settings.sh writes, local.keepassxc, runs this. Home is the network
+# vpn-reminder.sh --home marked, the only one it mounts the share on
 # (SECURITY.md section 9). KeePassXC starts in the menu bar with the database
 # locked, as MinimizeOnStartup has it.
 #
@@ -21,19 +21,21 @@ backup="$HOME/.local/share/keepass/shinthirty.kdbx"
 
 # The Wi-Fi can still be joining at login: 2 is no network yet
 for _ in {1..30}; do
-  /bin/zsh "$here/../mac/vpn-reminder.sh" --trusted
-  trusted=$?
-  [[ $trusted == 2 ]] || break
+  /bin/zsh "$here/../mac/vpn-reminder.sh" --at-home
+  home=$?
+  [[ $home == 2 ]] || break
   sleep 1
 done
 
 db=$backup
-if [[ $trusted == 0 ]]; then
-  # Only when the share's SMB port answers: mount volume waits minutes for a
-  # server that doesn't, as from the phone's hotspot. It mounts with the login
-  # Finder keeps in the Keychain
-  if [[ ! -f $remote ]] && nc -z -G 3 tp-share 445 2>/dev/null; then
-    osascript -e 'mount volume "smb://tp-share/G"' >/dev/null 2>&1
+if [[ $home == 0 ]]; then
+  # vpn-reminder.sh mounts the share once its SMB port answers, so it's waited
+  # for only then
+  if nc -z -G 3 tp-share 445 2>/dev/null; then
+    for _ in {1..30}; do
+      [[ -f $remote ]] && break
+      sleep 1
+    done
   fi
   [[ -f $remote ]] && db=$remote
 fi

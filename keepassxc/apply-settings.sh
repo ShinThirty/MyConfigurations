@@ -10,8 +10,9 @@
 #
 # Starting at login, minimized to the tray by MinimizeOnStartup:
 #   macOS  a launch agent, local.keepassxc, which this writes and loads. It
-#          runs start.sh, which opens tp-share's database at home, mounting
-#          the share, and the local copy anywhere else. Leave KeePassXC's own
+#          runs start.sh, which opens tp-share's database at home, once
+#          mac/vpn-reminder.sh has mounted the share, and the local copy
+#          anywhere else. Leave KeePassXC's own
 #          Settings → General → Automatically launch KeePassXC at system
 #          startup off
 #   Arch   start.arch.sh, which waits for waybar's tray; Hyprland's
