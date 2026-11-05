@@ -87,9 +87,8 @@ On Arch, KooL's Hyprland-Dots own `~/.config/hypr` and their upgrade overwrites 
 
 ## Working with this repo
 
-- `vim/` and `nvim/` are submodules: commit inside the submodule, then `git format-patch` for the
-  other machines' `git am`. Don't pass `-c user.name` or `-c user.email`; the machine's git config
-  has them
+- `vim/` and `nvim/` are submodules: commit inside the submodule, then bump it in this repo. Don't
+  pass `-c user.name` or `-c user.email`; the machine's git config has them
 - A new zsh config: a `*.zsh` file in `lib/core/` (early) or `lib/after/` (late)
 - A new symlink: a line in `symlinks` or the platform's map
 - Sheldon's `local` paths in `plugins.toml` don't expand `$VAR`; use an `inline` plugin instead
