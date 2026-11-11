@@ -1313,9 +1313,10 @@ open, and runs the cleanup below. It ends with what's left, which is some of:
 - **Apps that were running** — scoop skips an app whose files are in use. The
   script lists them and waits while you quit them; aria2 it stops and restarts
   itself
-- **nvim** — a plugin `Lazy! sync` couldn't update, or a mason package that's
-  still behind (`:Mason`, then `U`). nvim exits 0 whatever happens, so the
-  script reads its output and asks mason afterwards
+- **nvim** — a plugin `Lazy! sync` couldn't update, a mason package that's
+  still behind (`:Mason`, then `U`), or an nvim stopped for running past its
+  time limit (10 minutes; 2 for mason's check). nvim exits 0 whatever happens,
+  so the script reads its output and asks mason afterwards
 - **Commit `yazi/package.toml`** if `ya pkg upgrade` moved its revisions. It
   only reaches the repo through its symlink, so if
   `%APPDATA%\yazi\config\package.toml` has become a plain file, the script

@@ -455,9 +455,10 @@ and runs the cleanup below. It ends with what's left, which is some of:
 - **Go tools the Brewfile doesn't list** — `go install` never removes anything,
   so binaries from older lists sit in `~/go/bin` and never update. Delete them
   or add them to the Brewfile
-- **nvim** — a plugin `Lazy! sync` couldn't update, or a mason package that's
-  still behind (`:Mason`, then `U`). nvim exits 0 whatever happens, so the
-  script reads its output and asks mason afterwards
+- **nvim** — a plugin `Lazy! sync` couldn't update, a mason package that's
+  still behind (`:Mason`, then `U`), or an nvim stopped for running past its
+  time limit (10 minutes; 2 for mason's check). nvim exits 0 whatever happens,
+  so the script reads its output and asks mason afterwards
 - **vim** — a plugin `PlugUpdate` couldn't update. vim clears the screen when
   it quits, so the script saves `PlugUpdate`'s report first and prints the
   failures from it

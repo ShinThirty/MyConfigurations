@@ -1,6 +1,7 @@
 # nvim's plugins (lazy.nvim), and the tools and LSP servers mason installs. The
 # treesitter parsers are left to the nvim config's auto-update, which rebuilds
-# the ones whose pinned revision moved the next time nvim starts
+# the ones whose pinned revision moved the next time nvim starts. Each nvim has
+# a time limit, as one that hangs would hold up the whole update
 
 update() {
   info 'nvim plugins'
@@ -10,7 +11,8 @@ update() {
   # what it prints: lazy prints its errors in red
   local lock=${XDG_CONFIG_HOME:-$HOME/.config}/nvim/lazy-lock.json out line moved=()
   local before=(${(f)"$(cat $lock 2>/dev/null)"})
-  out=$(nvim --headless '+Lazy! sync' +qa 2>&1)
+  out=$(capped 600 nvim --headless '+Lazy! sync' +qa 2>&1)
+  local stopped=$(( $? == 124 ))
   local errors=(${(M)${(f)out}:#*$'\e[31m'*})
   local after=(${(f)"$(cat $lock 2>/dev/null)"})
   # Without the commas, a plugin that becomes or stops being the last doesn't count
@@ -20,12 +22,20 @@ update() {
     print -rl -- $errors | sed 's/^/  /'
     todo+=('nvim: Lazy! sync failed for the plugins above')
   fi
-  if (( $#moved )); then ok "updated $moved"; elif (( ! $#errors )); then ok 'plugins up to date'; fi
+  if (( stopped )); then
+    warn 'Lazy! sync was stopped after 10 minutes'
+    todo+=('nvim: Lazy! sync was stopped after 10 minutes: run :Lazy sync in nvim')
+  fi
+  if (( $#moved )); then ok "updated $moved"; elif (( ! $#errors && ! stopped )); then ok 'plugins up to date'; fi
 
   info 'nvim tools and LSP servers'
   # In a second nvim, so it runs the plugin code the first one just updated. It
   # prints nothing when all goes well
-  out=$(nvim --headless '+MasonToolsUpdateSync' +qa 2>&1)
+  out=$(capped 600 nvim --headless '+MasonToolsUpdateSync' +qa 2>&1)
+  if (( $? == 124 )); then
+    warn 'MasonToolsUpdateSync was stopped after 10 minutes'
+    todo+=('nvim: MasonToolsUpdateSync was stopped after 10 minutes: run :MasonToolsUpdate in nvim')
+  fi
   if [[ -n $out ]]; then
     print -r -- $out | sed 's/^/  /'
     todo+=('nvim: read what MasonToolsUpdateSync printed above')
@@ -37,8 +47,13 @@ update() {
     for _, p in ipairs(r.get_installed_packages()) do
       if p:get_installed_version() ~= p:get_latest_version() then io.write(p.name, "\n") end
     end'
-  local stale=(${(f)"$(nvim --headless -c "lua ${check//$'\n'/ }" +qa 2>/dev/null)"})
-  if (( $#stale )); then
+  out=$(capped 120 nvim --headless -c "lua ${check//$'\n'/ }" +qa 2>/dev/null)
+  stopped=$(( $? == 124 ))
+  local stale=(${(f)out})
+  if (( stopped )); then
+    warn "mason's version check was stopped after 2 minutes"
+    todo+=("nvim: mason's version check was stopped after 2 minutes: :Mason shows what's behind")
+  elif (( $#stale )); then
     todo+=("nvim: mason has newer versions of $stale (:Mason, then U)")
   else
     ok 'mason tools and LSP servers up to date'

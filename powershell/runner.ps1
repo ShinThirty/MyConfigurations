@@ -18,6 +18,37 @@ function Write-Ok { Write-Host "  `e[32m✅`e[0m $args" }
 function Write-Skip { Write-Host "  `e[90m•`e[0m  $args" }
 function Write-Warn { Write-Host "  `e[33m⚠️`e[0m  $args" }
 
+# Invoke-Capped <seconds> <command> <arguments>: runs the command and returns the lines it printed,
+# stdout's then stderr's, or stdout's alone with -NoStderr. If it runs past <seconds>, it's stopped
+# along with what it started, and $LASTEXITCODE is 124, as with timeout(1). It counts as running
+# until its output closes, which a process it started can hold open after it exits
+function Invoke-Capped([int]$Seconds, [string]$Command, [string[]]$Arguments, [switch]$NoStderr) {
+    $psi = [Diagnostics.ProcessStartInfo]::new((Get-Command $Command -CommandType Application -TotalCount 1).Source)
+    $Arguments | ForEach-Object { $psi.ArgumentList.Add($_) }
+    $psi.RedirectStandardOutput = $psi.RedirectStandardError = $true
+    $psi.StandardOutputEncoding = $psi.StandardErrorEncoding = [Text.UTF8Encoding]::new($false)
+    $p = [Diagnostics.Process]::Start($psi)
+    [Threading.Tasks.Task[]]$read = $p.StandardOutput.ReadToEndAsync(), $p.StandardError.ReadToEndAsync()
+    $deadline = [DateTime]::Now.AddSeconds($Seconds)
+    $done = $false
+    try {
+        # In short waits, so that Ctrl+C gets through
+        while (-not $done -and [DateTime]::Now -lt $deadline) {
+            $done = $p.WaitForExit(200) -and [Threading.Tasks.Task]::WaitAll($read, 200)
+        }
+    } finally {
+        # Past its time, or Ctrl+C
+        if (-not $done) {
+            try { $p.Kill($true) } catch {}
+            $null = [Threading.Tasks.Task]::WaitAll($read, 5000)
+        }
+    }
+    $global:LASTEXITCODE = $done ? $p.ExitCode : 124
+    foreach ($r in ($NoStderr ? $read[0] : $read)) {
+        if ($r.IsCompletedSuccessfully) { $r.Result -split '\r?\n' }
+    }
+}
+
 $repo = Split-Path $PSScriptRoot
 $todo = [System.Collections.Generic.List[string]]::new()
 

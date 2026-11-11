@@ -628,8 +628,9 @@ open, and runs the cleanup below. It ends with what's left, which is some of:
 - **aria2**: a unit that isn't enabled: `systemctl --user enable --now` it
   ([section 2](#2-clone-and-bootstrap)); or a config without an RPC secret
   ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret))
-- **nvim**: a plugin `Lazy! sync` couldn't update, or a mason package that's
-  still behind (`:Mason`, then `U`)
+- **nvim**: a plugin `Lazy! sync` couldn't update, a mason package that's
+  still behind (`:Mason`, then `U`), or an nvim stopped for running past its
+  time limit (10 minutes; 2 for mason's check)
 - **vim**: a plugin `PlugUpdate` couldn't update
 - **Commit vim-plug** if `PlugUpgrade` replaced `vim/autoload/plug.vim`: in the
   vim submodule, then the submodule in the repo

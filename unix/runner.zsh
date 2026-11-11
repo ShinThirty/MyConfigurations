@@ -19,6 +19,45 @@ ok()   { printf '  \033[32m✅\033[0m %s\n' "$*" }
 skip() { printf '  \033[90m•\033[0m  %s\n' "$*" }
 warn() { printf '  \033[33m⚠️\033[0m  %s\n' "$*" }
 
+# capped <seconds> <command>...: runs the command, and if it runs past <seconds>
+# stops it along with what it started and returns 124, as timeout(1) does
+# (macOS has none). Its stdout and stderr reach the caller once it ends, through
+# files, so a process it started can't hold the caller's $(...) open
+capped() {
+  setopt localoptions localtraps
+  local limit=$1 dir=$(mktemp -d) pid st start=$SECONDS
+  shift
+  # In the background, so this shell can watch the clock
+  "$@" >$dir/out 2>$dir/err &
+  pid=$!
+  trap 'kill_tree $pid; command rm -rf $dir; exit 130' INT TERM
+  while kill -0 $pid 2>/dev/null && (( SECONDS - start < limit )); do
+    sleep 0.2
+  done
+  if kill -0 $pid 2>/dev/null; then
+    kill_tree $pid
+    wait $pid 2>/dev/null
+    st=124
+  else
+    wait $pid 2>/dev/null
+    st=$?
+  fi
+  cat $dir/out
+  cat $dir/err >&2
+  command rm -rf $dir
+  return $st
+}
+
+# kill_tree <pid>: kills the process and everything it started
+kill_tree() {
+  local tree=() kids=($1)
+  while (( $#kids )); do
+    tree+=($kids)
+    kids=($(pgrep -P ${(j:,:)kids}))
+  done
+  kill -KILL $tree 2>/dev/null
+}
+
 todo=()
 
 # run_steps <platform> <phase>...: every step's update or cleanup, by number
