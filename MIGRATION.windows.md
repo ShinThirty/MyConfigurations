@@ -1156,12 +1156,29 @@ link handler that has changed.
 | Broker / API credential files, trading working dir | Dotfiles and a dot-directory in `~`. Copy directly, never into this repo |
 | `~\.aws\` | Profile config; re-authenticate |
 | `~\.config\helium-newtab\links.js`, `ignore` | The links on Helium's new tab page ([below](#helium)), and the sites the monthly update never suggests one for. The page's notes are in Helium's profile, so they come with it |
-| `~\.claude\` | Copy back `CLAUDE.md` (global instructions), `settings.json` and `projects\*\memory\` (per-project memory — valid only under the same account name). `sessions\`, `history.jsonl`, `.credentials.json` and `~\.claude.json` are per-machine; re-login instead |
+| `~\.claude\` | Copy back `CLAUDE.md` (global instructions), `settings.json` and `projects\*\memory\` (per-project memory — valid only under the same account name; this repo's comes from ferry, below). `sessions\`, `history.jsonl`, `.credentials.json` and `~\.claude.json` are per-machine; re-login instead |
 | `~\Documents` (local) | Notes written by tools that hardcode `~\Documents`, *not* the OneDrive-redirected one. Copy back, or into OneDrive's Documents if you'd rather have them synced |
 | `~\Downloads` | Kept for its few personal exports |
 | osu! lazer | Data stays on the external SSD at `E:\osu`. Before the first launch, put `storage.ini` (`FullPath = E:\osu`) and `framework.ini` back in `%APPDATA%\osu\`. The SSD must be E: ([section 3.7](#37-first-login)) |
 | Skyrim saves and INIs | `Documents\My Games\` — in OneDrive, so they sync back |
 | Shell history | PSReadLine's `ConsoleHost_history.txt` and zoxide's `db.zo` — optional, same paths |
+
+**Claude's memory for this repo** comes from the hub on the share, through
+[ferry](https://github.com/ShinThirty/ferry) and `ferry.toml`, not from the
+backup. With Z: mapped ([section 10](#10-network-share-and-password-database))
+and no Claude Code session open in the repo:
+
+```powershell
+uv tool install git+https://github.com/ShinThirty/ferry
+# the key goes at ~\.config\ferry\myconfigurations\identity, from the USB stick, never through the share
+ferry enroll myconfigurations --hub Z:\myconfigurations-hub --dest $HOME\MyConfigurations
+```
+
+Then start Claude Code in the repo and approve its hooks: each session start
+pulls the memory and each end pushes it. A machine that already had memory for
+the repo finds it moved aside, as `memory.pre-ferry-<stamp>` beside the memory
+folder under `~\.claude\projects\`. Have Claude fold it in, run `ferry`, and
+delete the old folder once it's in.
 
 **Regenerate rather than copy:** `~\scoop\apps`, `~\.rustup`, `~\.cargo`,
 `%LOCALAPPDATA%\nvim-data` (lazy.nvim and mason rebuild it), `~\.cache`,

@@ -77,3 +77,6 @@ tags
 
 # Helium caches an unpacked theme next to its manifest
 helium/theme/Cached Theme.pak
+
+# ferry: this machine's sync state for ferry.toml
+.ferry/

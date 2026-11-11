@@ -1,0 +1,10 @@
+# What ferry keeps in step across machines, through an encrypted hub on the
+# home network share: Claude Code's memory for this repo. The repo itself
+# travels by GitHub. Each MIGRATION runbook has the steps to enroll a machine.
+name = "myconfigurations"
+sync-root = false
+
+[repos.memory]               # Claude's project memory
+claude-memory = true
+auto = true
+union = ["MEMORY.md"]

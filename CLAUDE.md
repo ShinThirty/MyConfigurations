@@ -45,6 +45,12 @@ Runbooks, for what the repo can't do:
 - `IPHONE.md` - the iPhone: steps in Settings, and a monthly check run from the Mac
 - `cheatsheet.md`, `powershell/cheatsheet.md` - key bindings (`keys` shows the first)
 
+Claude's memory for this repo:
+
+- `ferry.toml`, `.claude/settings.json` - ferry keeps the memory in step across the machines,
+  through an encrypted hub on tp-share; the hooks pull at session start and push at session end.
+  Each machine enrolls by hand, from its MIGRATION runbook
+
 ## Conventions
 
 - **Public repo**: no secrets, private keys, network names, router addresses, IPs, locations or

@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ferry",
+            "args": ["-C", "${CLAUDE_PROJECT_DIR}", "pull", "--hook"],
+            "timeout": 150,
+            "statusMessage": "Pulling Claude's memory from the sync hub..."
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ferry",
+            "args": ["-C", "${CLAUDE_PROJECT_DIR}", "push", "--background"]
+          }
+        ]
+      }
+    ]
+  }
+}

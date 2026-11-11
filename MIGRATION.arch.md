@@ -376,13 +376,30 @@ None of this is in the repo. Decide case by case what you actually still need.
 | Broker / API credential file | Plaintext keys. Copy directly, never into this repo. Rotating them as part of the move is the safer play. |
 | Trading working dir | Local SQLite DB plus scratch subdirectories. |
 | `~/.aws/config` | Profile definitions only, no secrets. Copy it, then re-authenticate; the `login/cache` and `cli/cache` dirs are disposable. |
-| `~/.claude/settings.json` | Claude Code prefs, including `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — it comes from the AUR, so the monthly `paru -Syu` handles updates, and the monthly update puts the key back if it goes missing ([section 10](#10-monthly-updates)). `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
+| `~/.claude/settings.json` | Claude Code prefs, including `"env": { "DISABLE_AUTOUPDATER": "1" }`, which stops its own update checks — it comes from the AUR, so the monthly `paru -Syu` handles updates, and the monthly update puts the key back if it goes missing ([section 10](#10-monthly-updates)). `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. This repo's memory comes from ferry (below). |
 | `~/.config/net.imput.helium` | Helium's profile: logins (cookies), history, site data. Copy it whole with Helium closed at both ends. The logins come back only with the Login database above: Helium encrypts its cookies with a key it keeps there, the `Chromium Safe Storage` entry ([section 2](#2-clone-and-bootstrap)). |
 | `~/.config/helium-newtab/links.js`, `ignore` | The links on Helium's new tab page ([section 2](#2-clone-and-bootstrap)), and the sites the monthly update never suggests one for. The page's notes are in Helium's profile, so they come with it. |
 | `~/Music/playlists/` | Plain-text playlists the `music` function reads. Small, easy to forget. |
 | `~/.local/share/nvim/sessions`, shada | Optional editor state. |
 | `~/.zsh_history` | Optional, along with the fzf history dir. |
 | `~/.config/hypr` | Comes from the bare repo above, not from a manual copy. |
+
+**Claude's memory for this repo** comes from the hub on tp-share, through
+[ferry](https://github.com/ShinThirty/ferry) and `ferry.toml`, not from the old
+machine. With the share mounted and no Claude Code session open in the repo:
+
+```sh
+uv tool install git+https://github.com/ShinThirty/ferry
+# the key goes at ~/.config/ferry/myconfigurations/identity (folder 700, file 600),
+# from the USB stick, never through the share
+ferry enroll myconfigurations --hub /mnt/tp-share/myconfigurations-hub --dest ~/MyConfigurations
+```
+
+Then start Claude Code in the repo and approve its hooks: each session start
+pulls the memory and each end pushes it. A machine that already had memory for
+the repo finds it moved aside, as `memory.pre-ferry-<stamp>` beside the memory
+folder under `~/.claude/projects/`. Have Claude fold it in, run `ferry`, and
+delete the old folder once it's in.
 
 **Regenerate rather than copy:** `~/.rustup`, `~/.cargo`, `~/.npm`, `~/.cache`,
 `~/.local/share/sheldon`, `~/.local/share/nvim`, `~/.local/share/yazi`,

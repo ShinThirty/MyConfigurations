@@ -258,12 +258,30 @@ None of this is in the repo. Decide case by case what you actually still need.
 | `~/.aws/config` | Profile definitions only, no secrets. Copy it, then re-authenticate; the `login/cache` and `cli/cache` dirs are disposable. |
 | `~/Library/Application Support/net.imput.helium` | Helium's profile: history, bookmarks, site data, extensions. Copy it whole with Helium closed at both ends, before its first start. Not the logins: Helium encrypts its cookies with a key from the login Keychain (the "Helium Storage Key" item), not from the profile, so sign in to sites again. |
 | `~/.config/helium-newtab/links.js`, `ignore` | The links on Helium's new tab page (section 3), and the sites the monthly update never suggests one for. The page's notes are in Helium's profile, so they come with it. |
-| `~/.claude/settings.json` | Claude Code prefs. `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. |
+| `~/.claude/settings.json` | Claude Code prefs. `projects/`, `sessions/`, `history.jsonl` are per-machine history — copy only if you want it. This repo's memory comes from ferry (below). |
 | Obsidian vault | Lives in iCloud Drive, so it **syncs on its own** — sign into iCloud and wait. Don't copy it manually. |
 | `~/Documents` | Personal documents, analysis, scripts, tax records. |
 | `~/Music/playlists/` | Plain-text playlists the `music` function reads. Small, easy to forget. |
 | Proxy client profiles | Clash Verge Rev's profiles, under its Application Support dir. They hold server credentials — copy them, or re-import from the subscription URL. |
 | `~/.zsh_history` | Optional, along with the fzf history dir. |
+
+**Claude's memory for this repo** comes from the hub on tp-share, through
+[ferry](https://github.com/ShinThirty/ferry) and `ferry.toml`, not from the old
+machine. At home, with the share mounted and no Claude Code session open in the
+repo:
+
+```sh
+uv tool install git+https://github.com/ShinThirty/ferry
+# the key goes at ~/.config/ferry/myconfigurations/identity (folder 700, file 600),
+# from the USB stick, never through the share
+ferry enroll myconfigurations --hub /Volumes/tp-share/myconfigurations-hub --dest ~/MyConfigurations
+```
+
+Then start Claude Code in the repo and approve its hooks: each session start
+pulls the memory and each end pushes it. A machine that already had memory for
+the repo finds it moved aside, as `memory.pre-ferry-<stamp>` beside the memory
+folder under `~/.claude/projects/`. Have Claude fold it in, run `ferry`, and
+delete the old folder once it's in.
 
 **Regenerate rather than copy:** `~/.rustup`, `~/.cargo`, `~/.npm`, `~/.gradle`,
 `~/.ivy2`, `~/.stack`, `~/.cabal`, `~/.ghcup`, `~/go/pkg`, `~/.cache`,
