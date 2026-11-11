@@ -607,7 +607,7 @@ Set-Policy "$w\CloudContent" DisableWindowsConsumerFeatures 1
 # local instead of sending each query to Bing (Explorer's search box loses its history too)
 Set-Policy 'HKCU\Software\Policies\Microsoft\Windows\CloudContent' DisableTailoredExperiencesWithDiagnosticData 1
 Set-Policy 'HKCU\Software\Policies\Microsoft\Windows\Explorer' DisableSearchBoxSuggestions 1
-# Edge's own diagnostic data. Edge then says it's "managed by your organization" — harmless
+# Edge's own diagnostic data, until section 12.1 uninstalls Edge, and if an update puts it back
 Set-Policy 'HKLM\SOFTWARE\Policies\Microsoft\Edge' DiagnosticData 0
 
 # The service that uploads diagnostic data
@@ -653,12 +653,12 @@ reg delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "Logitech Dow
 LTSC already leaves out Widgets, Copilot, the Store, Teams, Phone Link and the
 Xbox apps. These are what's left worth turning off.
 
-**No Edge in the background.** Edge stays installed, since LTSC has no
-supported way to remove it, but it goes unused: Helium is the browser
-([section 12.1](#helium)). Left on, Startup Boost still starts Edge at every
-logon with no window, about nine processes (~700 MB), and background mode keeps
-it running after its last window closes. The policies stop both, a fresh Edge
-profile included, so if something does open Edge, it quits with its window:
+**No Edge in the background.** Helium is the browser, and Edge is uninstalled
+once Helium is the default ([section 12.1](#helium)). Until then, and if an
+update puts Edge back, Startup Boost starts it at every logon with no window,
+about nine processes (~700 MB), and background mode keeps it running after its
+last window closes. The policies stop both, a fresh Edge profile included, so
+if something does open Edge, it quits with its window:
 
 ```powershell
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v StartupBoostEnabled /t REG_DWORD /d 0 /f
@@ -1072,7 +1072,7 @@ value directly.
 | App | What to redo after install |
 |---|---|
 | Mental Omega | Installed in `D:\Games\Mental Omega`, so the game survives; only the Start menu shortcut is lost. Recreate it pointing at `MentalOmegaClient.exe` with the game folder as working directory (snippet below the table) |
-| Microsoft Edge | Included in LTSC, and unused; its policies are in [section 5](#5-windows-settings) |
+| Microsoft Edge | Included in LTSC. Uninstall it once Helium is the default ([below](#helium)); its policies stay ([section 5](#5-windows-settings)) |
 
 ```powershell
 # Mental Omega's Start menu shortcut — the launcher loads its files relative to the working directory
@@ -1140,7 +1140,22 @@ again. Then, from `~\MyConfigurations`:
 6. Settings → Apps → Default apps → Helium → **Set default**, and check `.pdf`
    moved with it. Helium's own default-browser button registers it again,
    likely without the profile folder, so run `fix-handlers.ps1` after using it.
-7. KeePassXC: [section 10](#10-network-share-and-password-database).
+7. Edge: Settings → Apps → Installed apps → Microsoft Edge → **Uninstall**.
+   Keep **Microsoft Edge WebView2 Runtime**, which Zebar and other apps draw
+   with. Edge Update keeps the runtime current, so its two services stay, and
+   so does `Program Files (x86)\Microsoft\EdgeCore`, which holds the runtime's
+   files. Then what Edge leaves, its profile and per-user settings:
+
+   ```powershell
+   Remove-Item -Recurse -Force "$env:LOCALAPPDATA\Microsoft\Edge"
+   Remove-Item -Recurse -Force 'HKCU:\Software\Microsoft\Edge'
+   ```
+
+   `.xml` and `.mht` still open with Edge, so Windows asks for an app each
+   time: set them in Settings → Apps → Default apps → Choose defaults by file
+   type (Helium opens both). Windows' own `microsoft-edge:` links ask too;
+   nothing here handles them.
+8. KeePassXC: [section 10](#10-network-share-and-password-database).
 
 `helium://policy` lists `ExtensionInstallForcelist` with status OK,
 `helium://extensions` shows both extensions, and a link opened from Windows
@@ -1296,7 +1311,7 @@ parsers rebuild themselves the next time nvim starts), `ya pkg upgrade` and
 installed copies back in line with the repo (restarting aria2 if its config
 changed), checks that an update
 hasn't reset the section 5 settings or Helium's policies, link handlers and
-new tab page, that KeePassXC's settings are still `keepassxc\keepassxc.ini`'s and it still
+new tab page, or put Edge back, that KeePassXC's settings are still `keepassxc\keepassxc.ini`'s and it still
 starts at sign-in with the database, that the firewall and Defender are on,
 turns Claude Code's own update checks back off if `~\.claude\settings.json` has
 lost `DISABLE_AUTOUPDATER`, compares Helium's new tab links with the sites you
@@ -1330,7 +1345,8 @@ open, and runs the cleanup below. It ends with what's left, which is some of:
   ([section 11](#11-aria2)), or its config has no RPC secret
   ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret))
 - **Reset** — a section 5 setting an update turned back, a Run entry an app
-  put back, a Helium policy, link handler or new tab page that changed (rerun the script
+  put back, Edge installed again (uninstall it, [section 12.1](#helium)), a
+  Helium policy, link handler or new tab page that changed (rerun the script
   it names, [section 12.1](#helium)), or a KeePassXC setting or its Run entry
   (rerun `keepassxc\apply-settings.ps1`, [section 10](#10-network-share-and-password-database))
 - **Security** — the firewall off for a network profile, Defender's
@@ -1359,6 +1375,10 @@ device entries it removes first. Everything you approve is deleted from one
 elevated window, so there's one UAC prompt. It never offers printer drivers
 (`prnms009.inf` is Microsoft Print to PDF) or the packages vendor installers
 put back for hardware this PC doesn't have (`nvpcf`, `nvppc`, `smbusamd`).
+Then the firewall: each WebView2 Runtime version adds a rule for its own
+folder, which stays once the next version replaces it. The cleanup lists the
+versions whose rules are left and asks before deleting them, from an elevated
+window of their own.
 
 **Drivers and BIOS.** Compare the printed versions against the sources in
 [section 3.2](#32-drivers)'s table — chipset first, rebooting after each. The
@@ -1383,7 +1403,8 @@ if Arch is the default. An update that rewrites Windows' boot files can also
 put Windows Boot Manager first in the firmware boot order — section 4 has the
 fix.
 
-**Not in the script, because they update themselves:** Edge, OneDrive and Steam
+**Not in the script, because they update themselves:** the WebView2 Runtime
+(through Edge Update), OneDrive and Steam
 (scoop's manifest is a `nightly` it never updates).
 KeePassXC, ShareX and Claude Code have their own update checks off, so scoop
 is the only thing that updates them — keep it that way if a restored config

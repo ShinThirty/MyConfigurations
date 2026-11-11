@@ -1,6 +1,6 @@
-# What a Windows update can quietly reset: the section 5 settings, Helium's policies, link handlers
-# and new tab page, KeePassXC's settings and Run entry, the Run entries apps put back, and
-# SECURITY.md's firewall, Defender and share name
+# What a Windows update can quietly reset: the section 5 settings, Edge's removal, Helium's
+# policies, link handlers and new tab page, KeePassXC's settings and Run entry, the Run entries apps
+# put back, and SECURITY.md's firewall, Defender and share name
 
 @{
     Update = {
@@ -73,6 +73,10 @@
         $unwanted = [ordered]@{ 'Logitech Download Assistant' = '5.4'; 'MicrosoftEdgeAutoLaunch_*' = '5.5' }
         foreach ($pattern in $unwanted.Keys) {
             $runNames | Where-Object { $_ -like $pattern } | ForEach-Object { $drift.Add("the Run key has $_ again (section $($unwanted[$pattern]))") }
+        }
+        # Section 12.1 uninstalls Edge; its policies above stay for when an update puts it back
+        if (Test-Path "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe") {
+            $drift.Add('Edge is installed again: uninstall it and remove what it leaves (section 12.1)')
         }
         if ($drift) {
             Write-Warn "$($drift.Count) changed, listed below"
