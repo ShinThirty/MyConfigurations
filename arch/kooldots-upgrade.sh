@@ -37,8 +37,9 @@ skip() { printf '  \033[90m•\033[0m  %s\n' "$*"; }
 warn() { printf '  \033[33m⚠️\033[0m  %s\n' "$*"; }
 todo=()
 
-# The bare repo behind zsh's cfg alias
-cfg() { git --git-dir="$HOME/.dotfiles.git" --work-tree="$HOME" "$@"; }
+# The bare repo behind zsh's cfg alias. git reads the paths it's given from the
+# directory it runs in, so this runs it in $HOME
+cfg() { git --git-dir="$HOME/.dotfiles.git" --work-tree="$HOME" -C "$HOME" "$@"; }
 
 if (( ! post_only )); then
   for repo in "$INSTALLER" "$DOTS"; do
@@ -316,7 +317,7 @@ local bind_options = {
   repeating = true, locked = true, release = true, non_consuming = true,
   transparent = true, ignore_mods = true, dont_inhibit = true, long_press = true,
   submap_universal = true, click = true, drag = true, description = true,
-  desc = true, device = true,
+  desc = true, device = true, allow_input_capture = true,
 }
 local failed, current = false, ""
 local function stand_in(path)
@@ -364,7 +365,7 @@ fi
 info "Check: Hyprland --verify-config"
 # A made-up instance, so nothing it runs can reach the session's socket
 out="$(HYPRLAND_INSTANCE_SIGNATURE=kooldots-upgrade-check Hyprland --verify-config 2>&1)"
-if grep -q 'Using lua config' <<<"$out" && grep -qx 'config ok' <<<"$out"; then
+if grep -q 'Regular config at .*/hyprland\.lua' <<<"$out" && grep -qx 'config ok' <<<"$out"; then
   ok "config ok, and Hyprland picks hyprland.lua"
 else
   printf '%s\n' "$out" | tail -n 5 | sed 's/^/  /'
