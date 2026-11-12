@@ -38,8 +38,10 @@ cleanup() {
     [[ $name =~ $re && $newest[$match[1]$match[2]] != $name ]] && old+=($name)
   done
   # ~/Library is skipped: no venv lives there, and macOS asks before a terminal
-  # reads most of it
-  (( $#old )) && venvs=(${(f)"$(find $HOME -xdev -path $HOME/Library -prune -o \
+  # reads most of it. So is uv's cache: the environments in it are uv's own, made
+  # on demand, and the prune below removes the ones left behind
+  (( $#old )) && venvs=(${(f)"$(find $HOME -xdev \( -path $HOME/Library -o \
+    -path "$(uv cache dir 2>/dev/null)" \) -prune -o \
     -name pyvenv.cfg -not -path "$pydir/*" -print 2>/dev/null)"})
   for name in $old; do
     users=()
