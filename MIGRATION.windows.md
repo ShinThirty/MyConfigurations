@@ -1307,7 +1307,7 @@ the toast API pwsh lacks. Both scripts keep their state in
 ```
 
 It opens Settings → Windows Update, updates scoop and its apps, runs
-`rustup update`, `uv tool upgrade --all`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the
+`rustup update`, `uv python upgrade`, `uv tool upgrade --all`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the
 parsers rebuild themselves the next time nvim starts), `ya pkg upgrade` and
 `Update-PSResource`, prints the BIOS and driver versions, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config
@@ -1367,9 +1367,12 @@ open, and runs the cleanup below. It ends with what's left, which is some of:
   ([section 12.1](#helium))
 
 **The cleanup.** `update.ps1` ends with it. Without asking, it removes old
-scoop versions and their downloads, runs `uv cache prune`, removes old
-PowerShell module versions, and deletes TEMP files older than 7 days. A module
-version loaded in the session, or a
+scoop versions and their downloads, uninstalls the uv Pythons that
+`uv python upgrade` replaced, runs `uv cache prune`, removes old
+PowerShell module versions, and deletes TEMP files older than 7 days. Venvs
+point at uv's minor-version junction, which moved to the new release, so only
+a venv made against the old one directly keeps it; the summary names the venv
+to recreate. A module version loaded in the session, or a
 TEMP file in use, waits for next month. Then it lists the driver packages
 nothing needs and asks before deleting them: third-party packages no device
 uses, and packages that only devices unplugged for over 30 days use, whose
