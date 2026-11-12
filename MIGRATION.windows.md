@@ -195,7 +195,7 @@ The board is an ASRock X870 Riptide WiFi:
 | Wi-Fi 7 + Bluetooth: AMD RZ717 (MediaTek, PCI `14C3:0717`, USB `0E8D:0717`) | No built-in driver. ASRock's support page lists packages for two Wi-Fi modules — take the **MediaTek** WLAN and Bluetooth ones. The AzureWave EB601NF packages are Realtek drivers for the other module and don't match |
 | AMD chipset | X870 / Granite Ridge: PSP, GPIO, I2C, SMBus and four unnamed ACPI devices. AMD's chipset package (amd.com → Chipsets → AM5 → X870). Its *3D V-Cache Performance Optimizer* only matters on two-CCD X3D chips, not the 9800X3D |
 | NVIDIA GeForce RTX 5070 Ti | Blackwell, so it needs a current driver — nvidia.com, or NVCleanstall to leave out the NVIDIA App and telemetry |
-| AMD Radeon iGPU (the 9800X3D's) | Windows Update installs a June 2024 driver (32.0.11024.2) before [section 5.4](#54-drivers-stay-out-of-windows-update) stops it, and nothing updates it after. A current one comes from AMD — or turn the iGPU off in the BIOS if no display uses it |
+| AMD Radeon iGPU (the 9800X3D's) | Stays on as a fallback output, though no display uses it. amd.com's driver (Processors with graphics → Ryzen 9000), installed as **Driver Only**, which leaves out the AMD Software app |
 | Fingerprint reader: U.are.U 4500 (USB `05BA:000A`) | Crossmatch "U.are.U Fingerprint Reader Driver (WBF)" 5.0.0.5. Its readme stops at Windows 10, but it installs and starts on LTSC 2024. Needed for Windows Hello fingerprint |
 
 If Ethernet doesn't come up anyway, the backup in [section 2.2](#22-from-the-old-windows)
@@ -395,6 +395,8 @@ again.
    installer fetches from the Microsoft Store, which LTSC doesn't have.
    Resolution, refresh rate and HDR are in Windows' display settings; G-SYNC,
    colour range and DSR need the Control Panel
+6. The iGPU's driver from amd.com, installed as **Driver Only**
+   ([section 3.2](#32-drivers))
 
 Updating the BIOS (optional): ASRock's Instant Flash reads FAT32 only, so use
 a spare stick — the Ventoy partition is exFAT, and keep that stick intact for
