@@ -345,6 +345,13 @@ wlogout, cliphist, grim/slurp/swappy, greetd, fcitx5, the Qt/GTK theming stack,
 GUI apps) — `pkglist.arch` intentionally leaves all of it out. `pacman -Qqe` on
 the old machine is the honest checklist.
 
+Add `inotify-tools`, which KooL's installer leaves out. KooL's
+`scripts/LuaConfigWatch.sh` reloads Hyprland when a `.lua` file in
+`~/.config/hypr`'s `lua/`, `configs/` or `UserConfigs/` is saved. With
+`inotifywait` it waits for the save; without it, it rescans those folders every
+second for the whole session. It looks for `inotifywait` when it starts, so a
+new install takes effect at the next login.
+
 **Upgrading KooL's Hyprland setup.** `~/.config/hypr` started as KooL's
 Hyprland-Dots, installed by the `~/Arch-Hyprland` installer. Upgrade them with
 `arch/kooldots-upgrade.sh`, not KooL's `copy.sh --express-upgrade` alone: that
