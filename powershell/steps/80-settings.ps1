@@ -18,7 +18,8 @@
             'HKLM:\SYSTEM\CurrentControlSet\Control\Keyboard Layout' = @{ 'Scancode Map' = '00000000000000000300000001003A003A00010000000000' }
             'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' = @{ AppsUseLightTheme = 0; SystemUsesLightTheme = 0 }
             'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel' = @{ '{645FF040-5081-101B-9F08-00AA002F954E}' = 1 }
-            'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' = @{ HideFileExt = 0 }
+            # TaskbarLocation 1: the taskbar at the top
+            'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' = @{ HideFileExt = 0; TaskbarLocation = 1 }
             'HKCU:\Control Panel\Mouse' = @{ MouseSpeed = '0'; MouseThreshold1 = '0'; MouseThreshold2 = '0' }
             'HKCU:\Control Panel\Keyboard' = @{ KeyboardDelay = '0'; InitialKeyboardIndicators = '2' }
             'Registry::HKEY_USERS\.DEFAULT\Control Panel\Keyboard' = @{ InitialKeyboardIndicators = '2147483650' }

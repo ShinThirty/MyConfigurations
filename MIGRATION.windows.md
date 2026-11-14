@@ -557,6 +557,10 @@ Set-ItemProperty $k -Name '{645FF040-5081-101B-9F08-00AA002F954E}' -Value 1 -Typ
 Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name HideFileExt -Value 0
 ```
 
+**Taskbar at the top**, as GlazeWM's status bar ([section 9](#9-desktop)):
+Settings → Personalization → Taskbar → Taskbar behaviors → **Taskbar
+position** → Top. That turns auto-hide off; leave it off.
+
 **Mouse and keyboard.** Enhance pointer precision off, shortest key-repeat
 delay, NumLock on from the logon screen, and the Sticky Keys shortcut
 (Shift ×5) off. Sign out to apply — with NumLock on, because Windows can save
@@ -749,7 +753,7 @@ scoop install 7zip ffmpeg jq poppler resvg imagemagick
 # nvim: parsers are compiled; mason installs npm, pypi and cargo packages
 scoop install tree-sitter mingw nodejs rustup-gnu
 # Desktop
-scoop install extras/glazewm extras/zebar extras/sharex extras/oculante
+scoop install extras/glazewm extras/sharex extras/oculante
 # Music
 scoop install mpv yt-dlp python
 # Downloads
@@ -899,10 +903,6 @@ foreach ($r in '.', 'vim', 'nvim') { git -C $HOME\MyConfigurations\$r config use
 Full details in `glazewm/README.md`. The post-install steps that aren't automated:
 
 - GlazeWM tray icon → **Run on system startup**
-- **Zebar** — the old install ran the starter pack's **`with-glazewm`** widget
-  (`~\.glzr\zebar\settings.json`: pack `glzr-io.starter`, widget
-  `with-glazewm`, preset `default`). Pick it from the Zebar tray icon if a fresh
-  install comes up with another one
 - **ShareX** (screenshots, in place of Snipping Tool) — before its first launch,
   copy `D:\Migration\home\scoop\persist\sharex\` over `~\scoop\persist\sharex\`.
   That restores the old settings: captures are copied to the clipboard and saved
@@ -1143,8 +1143,8 @@ again. Then, from `~\MyConfigurations`:
    moved with it. Helium's own default-browser button registers it again,
    likely without the profile folder, so run `fix-handlers.ps1` after using it.
 7. Edge: Settings → Apps → Installed apps → Microsoft Edge → **Uninstall**.
-   Keep **Microsoft Edge WebView2 Runtime**, which Zebar and other apps draw
-   with. Edge Update keeps the runtime current, so its two services stay, and
+   Keep **Microsoft Edge WebView2 Runtime**, which Windows' search box and
+   other apps draw with. Edge Update keeps the runtime current, so its two services stay, and
    so does `Program Files (x86)\Microsoft\EdgeCore`, which holds the runtime's
    files. Then what Edge leaves, its profile and per-user settings:
 
@@ -1263,7 +1263,7 @@ Then:
   video), and the shell follows its cwd on quit
 - `keys` — opens `powershell/cheatsheet.md`
 - `music` — playlist picker comes up
-- `alt+enter` — GlazeWM opens a terminal; Zebar bar visible
+- `alt+enter` — GlazeWM opens a terminal, tiled below the taskbar at the top
 - `ctrl+shift+alt+4` — ShareX's region overlay covers the whole screen (not
   tiled by GlazeWM); the capture lands on the clipboard and in
   `~\scoop\persist\sharex\ShareX\Screenshots\`

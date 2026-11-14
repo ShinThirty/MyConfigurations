@@ -8,7 +8,6 @@ Tiling window manager setup for Windows, replicating core Hyprland functionality
 # Core
 scoop bucket add extras
 scoop install extras/glazewm
-scoop install extras/zebar
 scoop install extras/sharex
 
 # Music
@@ -25,6 +24,8 @@ Then link the config:
 ### Post-install
 
 - Right-click GlazeWM tray icon -> **Run on system startup**
+- Settings → Personalization → Taskbar → Taskbar behaviors → **Taskbar position: Top**
+  ([Status bar](#status-bar-taskbar))
 - Enable clipboard history: press `Win+V` and follow the prompt
 - ShareX: Application settings → Integration → **Run ShareX when Windows starts**, and
   Task settings → After capture: **Copy image to clipboard** + **Save image to file** only
@@ -38,7 +39,7 @@ Then link the config:
 | Hyprland | Windows | Purpose |
 |---|---|---|
 | Hyprland | **GlazeWM** | Tiling window manager |
-| waybar | **Zebar** | Status bar |
+| waybar | Taskbar (built-in), at the top | Status bar |
 | rofi | Start menu (built-in) | App launcher |
 | grim + slurp | **ShareX** | Screenshots and screen recording |
 | cliphist | `Win+V` (built-in) | Clipboard history |
@@ -92,13 +93,18 @@ In resize/move mode, use `h/j/k/l` or arrow keys to resize/move the focused wind
 | Pause WM bindings | `alt+shift + p` |
 | Exit GlazeWM | `alt+shift + e` |
 
-## Zebar (status bar)
+## Status bar (taskbar)
 
-GlazeWM v3 uses [Zebar](https://github.com/glzr-io/zebar) as a companion status bar. The GlazeWM config auto-starts and stops Zebar.
+The Windows taskbar is the status bar, at the top of the screen: Settings → Personalization →
+Taskbar → Taskbar behaviors → **Taskbar position: Top**. Moving it there turns auto-hide off, and it
+stays off, so the taskbar is always visible. GlazeWM tiles windows below it, with the same 8px gap as
+the other edges.
 
-Widget packs live in `~/.glzr/zebar/`. The default pack works out of the box. Customize via the system tray GUI or edit the HTML/CSS/JS files directly.
+With `show_all_in_taskbar: false` and `hide_method: 'cloak'`, the taskbar shows only the current
+workspace's windows. Nothing shows the workspace number.
 
-Available data providers: CPU, memory, battery, network, date/time, media, GlazeWM workspaces, weather.
+The monthly update's settings step checks the position (`TaskbarLocation` is 1 in
+`HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced`).
 
 ## Music (mpv + yt-dlp)
 
