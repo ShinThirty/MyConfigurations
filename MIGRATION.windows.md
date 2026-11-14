@@ -903,6 +903,9 @@ foreach ($r in '.', 'vim', 'nvim') { git -C $HOME\MyConfigurations\$r config use
 Full details in `glazewm/README.md`. The post-install steps that aren't automated:
 
 - GlazeWM tray icon → **Run on system startup**
+- The workspace number in the tray: run `glazewm\build-workspace-tray.ps1` in
+  `~\MyConfigurations`, then Settings → Personalization → Taskbar → Other
+  system tray icons → **GlazeWM workspace** on
 - **ShareX** (screenshots, in place of Snipping Tool) — before its first launch,
   copy `D:\Migration\home\scoop\persist\sharex\` over `~\scoop\persist\sharex\`.
   That restores the old settings: captures are copied to the clipboard and saved
@@ -1263,7 +1266,8 @@ Then:
   video), and the shell follows its cwd on quit
 - `keys` — opens `powershell/cheatsheet.md`
 - `music` — playlist picker comes up
-- `alt+enter` — GlazeWM opens a terminal, tiled below the taskbar at the top
+- `alt+enter` — GlazeWM opens a terminal, tiled below the taskbar at the top;
+  `alt+2` turns the tray's workspace number to 2
 - `ctrl+shift+alt+4` — ShareX's region overlay covers the whole screen (not
   tiled by GlazeWM); the capture lands on the clipboard and in
   `~\scoop\persist\sharex\ShareX\Screenshots\`
@@ -1311,7 +1315,7 @@ It opens Settings → Windows Update, updates scoop and its apps, runs
 parsers rebuild themselves the next time nvim starts), `ya pkg upgrade` and
 `Update-PSResource`, prints the BIOS and driver versions, brings aria2's
 installed copies back in line with the repo (restarting aria2 if its config
-changed), checks that an update
+changed), rebuilds GlazeWM's workspace tray if its source changed, checks that an update
 hasn't reset the section 5 settings or Helium's policies, link handlers and
 new tab page, or put Edge back, that KeePassXC's settings are still `keepassxc\keepassxc.ini`'s and it still
 starts at sign-in with the database, that the firewall and Defender are on,
@@ -1346,11 +1350,14 @@ open, and runs the cleanup below. It ends with what's left, which is some of:
 - **aria2** — one of its tasks is gone or disabled
   ([section 11](#11-aria2)), or its config has no RPC secret
   ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret))
+- **GlazeWM workspace tray** — its rebuild failed: the compiler's errors are
+  printed above, and the old exe keeps running ([section 9](#9-desktop))
 - **Reset** — a section 5 setting an update turned back, a Run entry an app
   put back, Edge installed again (uninstall it, [section 12.1](#helium)), a
   Helium policy, link handler or new tab page that changed (rerun the script
   it names, [section 12.1](#helium)), or a KeePassXC setting or its Run entry
-  (rerun `keepassxc\apply-settings.ps1`, [section 10](#10-network-share-and-password-database))
+  (rerun `keepassxc\apply-settings.ps1`, [section 10](#10-network-share-and-password-database)),
+  or the GlazeWM workspace number moved into the tray's overflow ([section 9](#9-desktop))
 - **Security** — the firewall off for a network profile, Defender's
   real-time protection off, the share's name not in the hosts file, LLMNR or
   NetBIOS on, SMB signing no longer required, guest logins allowed or SMB 1

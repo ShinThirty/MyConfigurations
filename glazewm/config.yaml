@@ -2,7 +2,8 @@
 # Path: ~/.glzr/glazewm/config.yaml
 
 general:
-  startup_commands: []
+  # the focused workspace's number in the tray (README: Status bar); it exits with GlazeWM
+  startup_commands: ['shell-exec %LOCALAPPDATA%\workspace-tray\workspace-tray.exe']
   shutdown_commands: []
   config_reload_commands: []
   focus_follows_cursor: false

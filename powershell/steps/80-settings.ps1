@@ -1,6 +1,7 @@
 # What a Windows update can quietly reset: the section 5 settings, Edge's removal, Helium's
-# policies, link handlers and new tab page, KeePassXC's settings and Run entry, the Run entries apps
-# put back, and SECURITY.md's firewall, Defender and share name
+# policies, link handlers and new tab page, KeePassXC's settings and Run entry, the GlazeWM
+# workspace number's place in the tray, the Run entries apps put back, and SECURITY.md's firewall,
+# Defender and share name
 
 @{
     Update = {
@@ -67,6 +68,12 @@
         }
         if (Test-Path "$HOME\scoop\apps\keepassxc") {
             & "$repo\keepassxc\apply-settings.ps1" -Check | ForEach-Object { $drift.Add("KeePassXC's $_ (rerun keepassxc\apply-settings.ps1, section 10)") }
+        }
+        if (Test-Path "$env:LOCALAPPDATA\workspace-tray\workspace-tray.exe") {
+            $icon = Get-ChildItem 'HKCU:\Control Panel\NotifyIconSettings' | Get-ItemProperty | Where-Object ExecutablePath -like '*\workspace-tray.exe'
+            if ($icon.IsPromoted -ne 1) {
+                $drift.Add('the GlazeWM workspace number is in the tray''s overflow: Settings > Personalization > Taskbar > Other system tray icons (section 9)')
+            }
         }
         $tips = @(Get-ScheduledTask -TaskPath '\SoftLanding\*' -ErrorAction SilentlyContinue | Where-Object State -ne 'Disabled')
         if ($tips) { $drift.Add("$($tips.Count) \SoftLanding\ tip tasks are enabled (section 5.5)") }

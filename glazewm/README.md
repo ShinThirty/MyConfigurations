@@ -21,11 +21,17 @@ Then link the config:
 .\setup_symlinks.ps1
 ```
 
+And build the workspace number's tray icon ([Status bar](#status-bar-taskbar)):
+
+```powershell
+.\glazewm\build-workspace-tray.ps1
+```
+
 ### Post-install
 
 - Right-click GlazeWM tray icon -> **Run on system startup**
-- Settings → Personalization → Taskbar → Taskbar behaviors → **Taskbar position: Top**
-  ([Status bar](#status-bar-taskbar))
+- Settings → Personalization → Taskbar → Taskbar behaviors → **Taskbar position: Top**, and
+  Other system tray icons → **GlazeWM workspace** on ([Status bar](#status-bar-taskbar))
 - Enable clipboard history: press `Win+V` and follow the prompt
 - ShareX: Application settings → Integration → **Run ShareX when Windows starts**, and
   Task settings → After capture: **Copy image to clipboard** + **Save image to file** only
@@ -39,7 +45,7 @@ Then link the config:
 | Hyprland | Windows | Purpose |
 |---|---|---|
 | Hyprland | **GlazeWM** | Tiling window manager |
-| waybar | Taskbar (built-in), at the top | Status bar |
+| waybar | Taskbar (built-in) at the top, and **workspace-tray** | Status bar |
 | rofi | Start menu (built-in) | App launcher |
 | grim + slurp | **ShareX** | Screenshots and screen recording |
 | cliphist | `Win+V` (built-in) | Clipboard history |
@@ -101,10 +107,20 @@ stays off, so the taskbar is always visible. GlazeWM tiles windows below it, wit
 the other edges.
 
 With `show_all_in_taskbar: false` and `hide_method: 'cloak'`, the taskbar shows only the current
-workspace's windows. Nothing shows the workspace number.
+workspace's windows.
 
-The monthly update's settings step checks the position (`TaskbarLocation` is 1 in
-`HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced`).
+The focused workspace's number is a tray icon, drawn in Gruvbox fg by `workspace-tray.cs`: a small
+C# program that listens on GlazeWM's socket (127.0.0.1:6123) and redraws the icon when focus
+changes. It uses about 25 MB and no CPU between switches. `build-workspace-tray.ps1` builds it, with
+the C# compiler in .NET Framework 4.8, which Windows ships, into `%LOCALAPPDATA%\workspace-tray\`,
+and gives the exe a hash of the source and the script as its product version. The monthly update
+(step 53) rebuilds it when that hash is out of date; rerunning the script applies a change at once.
+GlazeWM's startup command starts it, and it exits when GlazeWM does. Windows puts a new tray icon in the overflow: turn it on under Settings → Personalization →
+Taskbar → Other system tray icons → **GlazeWM workspace**.
+
+The monthly update's settings step checks both: the position (`TaskbarLocation` is 1 in
+`HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced`), and that the icon is on the
+taskbar (`IsPromoted` is 1 in its key under `HKCU:\Control Panel\NotifyIconSettings`).
 
 ## Music (mpv + yt-dlp)
 
