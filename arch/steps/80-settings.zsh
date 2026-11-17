@@ -5,7 +5,8 @@
 # LLMNR, SMB signing and logins, and KeePassXC's Secret Service SECURITY.md has
 # you set up, and the DNS over TLS MIGRATION.arch.md section 1 does, which Arch
 # doesn't come with. And KeePassXC's settings from keepassxc/keepassxc.ini, and
-# its start at login, Helium's new tab page, and the night light's timer.
+# its start at login, Helium's new tab page and its start once Login is
+# unlocked, and the night light's timer.
 
 update() {
   info 'Settings'
@@ -137,6 +138,15 @@ update() {
       todo+=("Reset: Helium's "${^ntp}" (rerun helium/apply-preferences.sh with Helium closed, MIGRATION.arch.md section 2)")
     else
       ok "Helium's new tab opens newtab.html"
+    fi
+    # Helium's menu entry, which Super+B and links open Helium through too,
+    # runs helium/start.arch.sh, which starts it once Login is unlocked
+    local launcher=(${(f)"$($DOTFILES/helium/start.arch.sh --check)"})
+    if (( $#launcher )); then
+      warn 'Helium can start with Login locked, listed below'
+      todo+=("Reset: Helium's "${^launcher}" (run helium/start.arch.sh --install, MIGRATION.arch.md section 2)")
+    else
+      ok 'Helium starts once Login is unlocked'
     fi
   fi
 

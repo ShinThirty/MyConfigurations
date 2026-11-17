@@ -214,9 +214,13 @@ configuration is in `helium/`. `symlinks.linux` links `helium-browser-flags.conf
 into `~/.config/`. It sets `--force-dark-mode`, and
 `--password-store=gnome-libsecret`, so Helium encrypts its cookies with a key
 it keeps in the Login database (KeePassXC above). Helium reads the key when it
-starts, so KeePassXC asks to unlock Login then. Cancel that, and Helium can't
-read its cookies, which signs you out of sites: quit it, and start it again
-with Login unlocked. `policies.json` force-installs KeePassXC-Browser and
+starts, and without it deletes every cookie it can't decrypt, which signs you
+out of every site. So `helium/start.arch.sh` starts it: it asks KeePassXC to
+unlock Login, and starts Helium once Login is unlocked. Run
+`helium/start.arch.sh --install`, which writes Helium's menu entry to
+`~/.local/share/applications` with the script in its place; Super+B and links
+from other apps open Helium through that entry too. `helium-browser` from a
+terminal goes around it. `policies.json` force-installs KeePassXC-Browser and
 Aria2 Explorer by extension ID alone, with no update URL, so Helium fetches them
 through its own services, and turns on HTTPS-only browsing and encrypted DNS
 ([SECURITY.md section 7](SECURITY.md#7-helium-and-keepassxc)). Helium reads policies from
@@ -598,7 +602,7 @@ it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its
-config or unit changed). Then it checks for a newer GE-Proton and a newer release of KooL's Hyprland-Dots, that Hyprland still loads `~/.config/hypr`, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on, its other settings are `keepassxc/keepassxc.ini`'s, and Hyprland starts it at login with both databases, that gh's token isn't in plain text, that a new tab in Helium opens `newtab.html`, that the night light follows the sun, that systemd-boot is still first in the boot order,
+config or unit changed). Then it checks for a newer GE-Proton and a newer release of KooL's Hyprland-Dots, that Hyprland still loads `~/.config/hypr`, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on, its other settings are `keepassxc/keepassxc.ini`'s, and Hyprland starts it at login with both databases, that gh's token isn't in plain text, that a new tab in Helium opens `newtab.html` and Helium's menu entry starts it once Login is unlocked, that the night light follows the sun, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, turns Claude Code's
 own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, compares Helium's new tab links with the sites you
@@ -621,7 +625,9 @@ open, and runs the cleanup below. It ends with what's left, which is some of:
   KeePassXC's start at login missing from `user_startup.lua`, or different:
   `arch/kooldots-upgrade.sh --post-only` puts it back. Or a new tab in Helium
   that doesn't open `newtab.html`: close Helium and rerun
-  `helium/apply-preferences.sh` ([section 2](#2-clone-and-bootstrap))
+  `helium/apply-preferences.sh` ([section 2](#2-clone-and-bootstrap)). Or
+  Helium's menu entry missing, or behind an update to Helium's own: run
+  `helium/start.arch.sh --install`
 - **Go tools the Brewfile doesn't list.** `go install` never removes anything,
   so binaries from older lists sit in `~/go/bin` and never update. Delete them
   or add them to the Brewfile

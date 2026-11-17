@@ -73,6 +73,10 @@ fortune-mod
 # --- helium/newtab-links.sh --------------------------------------------------
 # Reads Helium's history, to suggest the new tab page's links
 sqlite
+# --- helium/start.arch.sh ----------------------------------------------------
+# Asks KeePassXC to unlock Login, over D-Bus from Python. notify-send comes
+# from the desktop install (libnotify), not from here.
+python-gobject
 
 # --- git send-email + credential helper (git/gitconfig) ----------------------
 # All four are optdepends of git, so pacman never pulls them in on its own.
