@@ -4,17 +4,20 @@
 # reads the key its cookies are encrypted with from the Secret Service, so from
 # Login, when it starts (helium-browser-flags.conf). Started without the key,
 # it deletes every cookie it can't decrypt, which signs you out of every site.
-# So this asks KeePassXC to unlock Login and waits, for up to 5 minutes. If
-# Login stays locked, or KeePassXC isn't running, Helium doesn't start and a
-# notification says why. A Helium that's already running has its key, so a link
+# So this asks KeePassXC to unlock Login and waits, for up to 5 minutes, then
+# makes Login the Secret Service's default database, the one Helium reads its
+# key from. If Login stays locked, or KeePassXC isn't running, Helium doesn't
+# start and a notification says why. A Helium that's already running has its key, so a link
 # or a new window goes straight to it.
 #
 # Helium's menu entry runs this, and so do Super+B and links from other apps,
 # which open the default browser through it. --install writes that entry,
 # ~/.local/share/applications/helium.desktop: Helium's own, with each Exec
 # running this script. Rerun it when an update changes Helium's entry. --check
-# writes nothing; it lists what differs instead, and arch/steps/80-settings.zsh
-# runs it. macOS and Windows keep Helium's key in the login Keychain and DPAPI,
+# writes nothing; it compares the entry's Exec lines with Helium's own instead,
+# and arch/steps/80-settings.zsh runs it. Only the Exec lines, since
+# xdg-settings rewrites the rest when Helium becomes the default for a kind of
+# link, as for mailto. macOS and Windows keep Helium's key in the login Keychain and DPAPI,
 # which the login unlocks, so they have no counterpart.
 #
 set -uo pipefail
@@ -41,8 +44,8 @@ case ${1-} in
     [[ -f $own ]] || exit 0
     if [[ ! -f $entry ]]; then
       echo "menu entry, ${entry/#$HOME/\~}, isn't there, so Helium can start while KeePassXC's Login database is locked, and delete its cookies"
-    elif ! cmp -s "$entry" <(desktop_entry); then
-      echo "menu entry, ${entry/#$HOME/\~}, isn't Helium's own with each Exec running helium/start.arch.sh"
+    elif ! cmp -s <(grep '^Exec=' "$entry") <(desktop_entry | grep '^Exec='); then
+      echo "menu entry, ${entry/#$HOME/\~}, doesn't have Helium's own Exec lines, each running helium/start.arch.sh"
     fi
     exit 0
     ;;
@@ -60,16 +63,21 @@ refuse() {
 exec 9>"${XDG_RUNTIME_DIR:-/tmp}/helium-start.lock"
 flock 9
 
-# Exits 0 once Login is unlocked, 1 if it stays locked, and 2 if KeePassXC
-# doesn't have it open. The Secret Service lists every database KeePassXC has
-# open while it's locked, the main one too, since KeePassXC can't read a locked
-# database's Secret Service settings (SECURITY.md section 7). So this unlocks
-# Login's alone, by its collection, which KeePassXC names after the file
-# keepassxc/start.arch.sh opens, ~/.local/share/keepassxc/login.kdbx. KeePassXC
-# looks for Helium's key only in unlocked databases, so the main one can stay
-# locked. KeePassXC finishes an unlock only for the connection that asked for
-# it, while it's still open, so one connection asks, then waits for you to
-# unlock Login or cancel
+# Exits 0 once Login is unlocked and the default, 1 if it stays locked, 2 if
+# KeePassXC doesn't have it open, and 3 if it can't be made the default.
+#
+# The Secret Service lists every database KeePassXC has open while it's locked,
+# the main one too, since KeePassXC can't read a locked database's Secret
+# Service settings (SECURITY.md section 7). So this unlocks Login's alone, by
+# its collection, which KeePassXC names after the file keepassxc/start.arch.sh
+# opens, ~/.local/share/keepassxc/login.kdbx. KeePassXC finishes an unlock only
+# for the connection that asked for it, while it's still open, so one
+# connection asks, then waits for you to unlock Login or cancel.
+#
+# Helium reads its key from the default database alone. KeePassXC gives the
+# default to the active tab's database, and to none when that database leaves
+# the Secret Service, as the main one does once it's unlocked. So this makes
+# Login the default.
 python3 -I - /org/freedesktop/secrets/collection/login 2>/dev/null <<'EOF'
 import sys
 from gi.repository import Gio, GLib
@@ -101,11 +109,23 @@ if get(login, 'Collection', 'Locked'):
         GLib.timeout_add_seconds(300, loop.quit)
         call(prompt, secret + 'Prompt', 'Prompt', GLib.Variant('(s)', ('',)))
         loop.run()
-sys.exit(1 if get(login, 'Collection', 'Locked') else 0)
+if get(login, 'Collection', 'Locked'):
+    sys.exit(1)
+
+def default():
+    return call(root, secret + 'Service', 'ReadAlias', GLib.Variant('(s)', ('default',)), '(o)').unpack()[0]
+
+try:
+    if default() != login:
+        call(root, secret + 'Service', 'SetAlias', GLib.Variant('(so)', ('default', login)))
+    sys.exit(0 if default() == login else 3)
+except GLib.Error:
+    sys.exit(3)
 EOF
 case $? in
   0) ;;
   2) refuse "KeePassXC isn't running, or Login isn't open in it, so Helium would find no key for its cookies and delete them" ;;
+  3) refuse "KeePassXC wouldn't make Login its default database, so Helium would look for its key elsewhere and delete its cookies. Select Login's tab in KeePassXC, then start Helium again" ;;
   *) refuse "KeePassXC's Login database is locked, so Helium would find no key for its cookies and delete them. Unlock Login, then start Helium again" ;;
 esac
 

@@ -215,8 +215,11 @@ into `~/.config/`. It sets `--force-dark-mode`, and
 `--password-store=gnome-libsecret`, so Helium encrypts its cookies with a key
 it keeps in the Login database (KeePassXC above). Helium reads the key when it
 starts, and without it deletes every cookie it can't decrypt, which signs you
-out of every site. So `helium/start.arch.sh` starts it: it asks KeePassXC to
-unlock Login, and starts Helium once Login is unlocked. Run
+out of every site. It reads the key from the Secret Service's default
+database, which KeePassXC moves to the active tab's, and to none when you
+unlock the main database from its tab. So `helium/start.arch.sh` starts it: it
+asks KeePassXC to unlock Login, makes Login the default, and then starts
+Helium. Run
 `helium/start.arch.sh --install`, which writes Helium's menu entry to
 `~/.local/share/applications` with the script in its place; Super+B and links
 from other apps open Helium through that entry too. `helium-browser` from a
