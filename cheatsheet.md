@@ -104,6 +104,12 @@
 Runs `voice-dictate`, which transcribes locally with whisper.cpp on the GPU and
 types into whatever window has focus. `voice-dictate doctor` checks the setup.
 
+## KeePassXC (Arch/Hyprland)
+
+| Key         | Action                                                           |
+|-------------|------------------------------------------------------------------|
+| SUPER+ALT+K | Bring up KeePassXC's window; start KeePassXC if it isn't running |
+
 ## AeroSpace (macOS)
 
 ### Focus & Move

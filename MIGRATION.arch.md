@@ -192,7 +192,10 @@ whose database the Secret Service gives apps as the default for new secrets.
 Both stay locked in the tray, and Login asks for its password when an app
 asks for a secret. The monthly update checks this entry, and
 `arch/kooldots-upgrade.sh --post-only` puts it back
-([section 5](#5-the-hyprland-bare-repo)). KeePassXC can't
+([section 5](#5-the-hyprland-bare-repo)). SUPER+ALT+K, from
+`UserConfigs/user_keybinds.lua`, runs `keepassxc/show.arch.sh`, which brings
+up KeePassXC's window and focuses it, starting KeePassXC as at login when it
+isn't running; `arch/kooldots-upgrade.sh --post-only` puts that bind back too. KeePassXC can't
 read a locked database's settings, so until the main database is first
 unlocked, apps see it as exposed too, and an app looking for a secret can ask
 you to unlock it as well. Unlocked, it's out of their reach, and while its tab

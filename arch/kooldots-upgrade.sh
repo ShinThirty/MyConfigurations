@@ -268,6 +268,16 @@ bind("SUPER SHIFT", "Z", exec_cmd("$HOME/.local/bin/voice-dictate cancel"), { de
 EOF
     added+=("SUPER+Z dictation")
   fi
+  if ! grep -q 'keepassxc/show.arch.sh' "$U/user_keybinds.lua"; then
+    cat >> "$U/user_keybinds.lua" <<'EOF'
+
+-- --- KeePassXC ---------------------------------------------------------------
+-- SUPER+ALT+K brings up KeePassXC's window, from the tray or another workspace,
+-- and starts KeePassXC when it isn't running. Script: ~/MyConfigurations/keepassxc/
+bind("SUPER ALT", "K", exec_cmd("$HOME/MyConfigurations/keepassxc/show.arch.sh"), { description = "KeePassXC" })
+EOF
+    added+=("SUPER+ALT+K KeePassXC")
+  fi
   if ! grep -q 'XMODIFIERS' "$U/user_env.lua"; then
     cat >> "$U/user_env.lua" <<'EOF'
 
