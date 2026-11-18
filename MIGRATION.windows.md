@@ -751,11 +751,11 @@ scoop install neovim extras/neovim-qt gitui yazi
 # yazi previews
 scoop install 7zip ffmpeg jq poppler resvg imagemagick
 # nvim: parsers are compiled; mason installs npm, pypi and cargo packages
-scoop install tree-sitter mingw nodejs rustup-gnu
+scoop install tree-sitter mingw nodejs rustup-gnu python
 # Desktop
 scoop install extras/glazewm extras/sharex extras/oculante
 # Music
-scoop install mpv yt-dlp python
+scoop install mpv yt-dlp
 # Downloads
 scoop install aria2
 # The monthly update reads Helium's history
@@ -782,22 +782,22 @@ What needs what:
 
 | Package | Required by |
 |---|---|
-| `pwsh` | `wt/settings.json` defaults to the PowerShell 7 profile; `install_modules.ps1` refuses to run without it. Update it with `scoop update pwsh` from Windows PowerShell — scoop runs inside pwsh and can't replace it from there |
-| `oh-my-posh`, `zoxide`, `fzf`, `fd`, `bat`, `duf` | `powershell/profile.ps1` — the profile errors on startup without them |
-| `delta` | `core.pager` in `git/gitconfig.windows` |
-| `less` | The pager delta and bat hand off to. scoop's git doesn't put Git for Windows' own `less` on PATH |
-| `vcredist2022` | The VC++ runtime; scoop's Windows Terminal manifest suggests it, and a clean install may not have it. Its installer asks for elevation |
-| FantasqueSansM Nerd Font Mono | Windows Terminal font face, `nvim/ginit.vim`; Terminal-Icons and oh-my-posh glyphs |
-| `neovim-qt` | The GUI that reads `nvim/ginit.vim` |
-| `7zip`, `ffmpeg`, `jq`, `poppler`, `resvg`, `imagemagick` | yazi previews: archives, video thumbnails, JSON, PDF, SVG, fonts/HEIC (yazi's Windows install docs) |
-| `tree-sitter`, `mingw` | nvim's tree-sitter-manager builds parsers with the `tree-sitter` CLI and `cc` |
-| `nodejs` | mason: 8 of the 18 nvim tools are npm packages (css/html/json/eslint LSPs, emmet-ls, vim-language-server, prettierd, markdownlint) |
-| `rustup-gnu` | mason builds `shellharden` with cargo. The GNU toolchain needs no Visual Studio; the old install used rustup's MSVC toolchain plus VS 2022 and the Windows SDK |
-| `python` | mason's `ty` (pypi) |
-| `mpv`, `yt-dlp` | `music` function |
-| `sharex` | Screenshots and screen recording in place of Snipping Tool, which LTSC only ships in its old form (`glazewm/README.md`) |
-| `oculante` | Image viewer in place of Photos, which LTSC doesn't ship ([section 9](#9-desktop)) |
-| `sqlite` | `helium\newtab-links.ps1` reads Helium's history with `sqlite3`, for the new tab links the monthly update suggests ([section 15](#15-monthly-updates)) |
+| `pwsh` | Windows Terminal's shell, and `install_modules.ps1`. Update it with `scoop update pwsh` from Windows PowerShell — scoop runs inside pwsh and can't replace it from there |
+| `oh-my-posh`, `zoxide`, `fzf`, `fd`, `bat`, `duf` | The PowerShell profile |
+| `delta` | git's pager |
+| `less` | delta and bat, for paging. scoop's git keeps its own `less` off PATH |
+| `vcredist2022` | Windows Terminal. Its installer asks for elevation |
+| FantasqueSansM Nerd Font Mono | Windows Terminal and neovim-qt |
+| `neovim-qt` | nvim's GUI |
+| `7zip`, `ffmpeg`, `jq`, `poppler`, `resvg`, `imagemagick` | yazi's previews |
+| `tree-sitter`, `mingw` | nvim, to build its tree-sitter parsers |
+| `nodejs` | mason, for nvim's npm packages |
+| `rustup-gnu` | mason, for nvim's cargo packages. The GNU toolchain needs no Visual Studio |
+| `python` | mason, for nvim's pypi packages |
+| `mpv`, `yt-dlp` | The profile's `music` function |
+| `sharex` | Screenshots and screen recording (`glazewm/README.md`) |
+| `oculante` | The image viewer ([section 9](#9-desktop)) |
+| `sqlite` | The monthly update, for Helium's new tab links ([section 15](#15-monthly-updates)) |
 
 ---
 
