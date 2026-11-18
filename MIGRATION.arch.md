@@ -363,9 +363,14 @@ new install takes effect at the next login.
 Hyprland-Dots, installed by the `~/Arch-Hyprland` installer. Upgrade them with
 `arch/kooldots-upgrade.sh`, not KooL's `copy.sh --express-upgrade` alone: that
 replaces qt5ct, qt6ct and yazi, which this repo and the bare repo own, undoes
-two waybar fixes, and installs a second Oh My Zsh beside sheldon's. The script
-backs up first (a tarball and a bare-repo tag), runs the upgrade, puts all of
-that back, re-adds this machine's Hyprland settings if they're missing (the
+two waybar fixes, keeps `UserScripts/` as first installed, and installs a
+second Oh My Zsh beside sheldon's. Scripts there that were never edited go on
+reading files from where KooL kept them then, so RofiBeats (SUPER+SHIFT+M)
+and the calculator (SUPER+ALT+C) show unstyled. The script backs up first (a
+tarball and a bare-repo tag), runs the upgrade, puts all of that back, brings
+the unedited `UserScripts/` copies up to KooL's current ones (removing those
+KooL ships in `scripts/`, and pointing its shortcuts and waybar buttons
+there), re-adds this machine's Hyprland settings if they're missing (the
 SUPER+Z dictation binding among them) and KeePassXC's start at login if it's
 missing or differs, and checks that the config loads.
 `--post-only` runs just the repairs and checks. It's safe to rerun, and worth a

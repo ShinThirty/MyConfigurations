@@ -3,9 +3,10 @@
 # Attended upgrade of KooL's Hyprland setup: the ~/Arch-Hyprland installer and
 # its Hyprland-Dots. copy.sh --express-upgrade alone goes wrong here: it deletes
 # its own backup of ~/.config/hypr, replaces qt5ct, qt6ct and yazi, which this
-# repo and the ~/.dotfiles.git bare repo own, undoes two waybar fixes, and
-# installs Oh My Zsh beside sheldon's. This backs up first, runs the upgrade,
-# puts all of that back, and checks that the Lua config loads.
+# repo and the ~/.dotfiles.git bare repo own, undoes two waybar fixes, keeps
+# UserScripts as first installed, and installs Oh My Zsh beside sheldon's. This
+# backs up first, runs the upgrade, puts all of that back, brings KooL's
+# UserScripts up to date, and checks that the Lua config loads.
 #
 #   arch/kooldots-upgrade.sh              the whole upgrade
 #   arch/kooldots-upgrade.sh --post-only  only the repairs and checks; safe to rerun
@@ -184,6 +185,63 @@ for f in "${files[@]}"; do
   fi
 done
 if (( stripped )); then ok "removed from $stripped style(s)"; elif (( ! ${#files[@]} )); then skip "already gone"; fi
+
+# --- What copy.sh keeps -------------------------------------------------------
+info "UserScripts: KooL's scripts at this release"
+# copy.sh puts the old UserScripts back whole, so the scripts KooL ships there
+# stay as first installed, reading files from where KooL kept them then: rofi
+# themes from ~/.config/rofi, which is gone, and RofiBeats and RofiCalc show
+# unstyled. A copy that matches one of KooL's past versions was never edited
+# here, so it becomes KooL's current one, or goes where KooL ships that script
+# in scripts/ instead. An edited copy is left alone. KooL's shortcuts and
+# waybar buttons still call WallpaperRandom.sh and WallpaperSelect.sh by their
+# UserScripts path, so a call to a script that's in scripts/ and not in
+# UserScripts is pointed at scripts/
+US="$HYPR/UserScripts"
+if [[ ! -d $DOTS/.git ]]; then
+  todo+=("UserScripts: no clone at ${DOTS/#"$HOME"/\~} to compare them with")
+elif [[ -d $US ]]; then
+  declare -A kool_blobs=()
+  while read -r blob; do kool_blobs[$blob]=1; done < <(
+    git -C "$DOTS" log HEAD -m --raw --no-abbrev --format= -- config/hypr/UserScripts config/hypr/scripts |
+      awk '{ print $4 }')
+  kool_made() { [[ -n ${kool_blobs[$(git -C "$DOTS" hash-object -- "$1")]:-} ]]; }
+  refreshed=() removed=() edited=()
+  for f in "$US"/*; do
+    [[ -f $f && ! -L $f ]] || continue
+    name="${f##*/}"
+    current="$DOTS/config/hypr/UserScripts/$name"
+    if [[ -f $current ]]; then
+      cmp -s -- "$current" "$f" && continue
+      if kool_made "$f"; then cp -- "$current" "$f" && refreshed+=("$name"); else edited+=("$name"); fi
+    elif [[ -f $HYPR/scripts/$name ]]; then
+      if kool_made "$f"; then rm -f -- "$f" && removed+=("$name"); else edited+=("$name"); fi
+    fi # else the user's own
+  done
+  (( ${#refreshed[@]} )) && ok "updated ${refreshed[*]}"
+  (( ${#removed[@]} )) && ok "removed ${removed[*]}, which KooL ships in scripts/"
+  (( ${#edited[@]} )) &&
+    todo+=("UserScripts: ${edited[*]} edited here, so not updated; compare with KooL's in ${DOTS/#"$HOME"/\~}/config/hypr")
+
+  repointed=()
+  mapfile -d '' -t files < <(grep -rlIZ --exclude-dir=UserScripts --exclude-dir=LegacyConfigs 'hypr/UserScripts/' "$HYPR")
+  for file in "${files[@]}"; do
+    names=()
+    while read -r name; do
+      [[ ! -e $US/$name && -f $HYPR/scripts/$name ]] || continue
+      sed -i -E "s#hypr/UserScripts/${name//./\\.}([^A-Za-z0-9._-]|\$)#hypr/scripts/$name\\1#g" "$file" &&
+        names+=("$name")
+    done < <(grep -oE 'hypr/UserScripts/[A-Za-z0-9._-]+' "$file" | cut -d/ -f3 | sort -u)
+    if (( ${#names[@]} )); then
+      ok "pointed ${file#"$HYPR/"} at scripts/ for ${names[*]}"
+      repointed+=("${file#"$HYPR/"}")
+    fi
+  done
+  if (( post_only )) && [[ " ${repointed[*]}" == *" waybar/"* ]]; then
+    todo+=("Restart waybar for its repointed buttons: ~/.config/hypr/scripts/Refresh.sh")
+  fi
+  (( ${#refreshed[@]} + ${#removed[@]} + ${#edited[@]} + ${#repointed[@]} )) || skip "already KooL's current ones"
+fi
 
 # --- Settings this machine adds -----------------------------------------------
 # Upgrades copy UserConfigs back, so these normally survive; each is re-added
