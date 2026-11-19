@@ -91,8 +91,8 @@ update() {
       drift+=("Helium's $line (rerun helium/apply-preferences.sh with Helium quit, MIGRATION.md section 3)")
     done
   fi
-  # keepassxc/keepassxc.ini's settings, the launch agent that opens it at login,
-  # and the read-only local copy of the database
+  # keepassxc/keepassxc.ini's and keepassxc_local.ini's settings, the launch
+  # agent that opens it at login, and the read-only local copy of the database
   if [[ -d /Applications/KeePassXC.app ]]; then
     for line in ${(f)"$($DOTFILES/keepassxc/apply-settings.sh --check)"}; do
       drift+=("KeePassXC's $line (rerun keepassxc/apply-settings.sh, MIGRATION.md section 3)")

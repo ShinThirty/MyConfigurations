@@ -971,8 +971,11 @@ Then KeePassXC:
 2. With KeePassXC not running, run
    `~\MyConfigurations\keepassxc\apply-settings.ps1 -Database Z:\<folder>\<database>.kdbx`.
    It merges `keepassxc\keepassxc.ini`, the settings every machine shares,
-   into KeePassXC's own file, and adds a Run entry, `KeePassXC database`, that
-   starts KeePassXC at sign-in with that database open, locked in the tray.
+   and `keepassxc\keepassxc_local.ini` into KeePassXC's own two files, so
+   saves write straight into the database file, after a copy of it in
+   `%LOCALAPPDATA%\KeePassXC\backup`. It also adds a Run entry,
+   `KeePassXC database`, that starts KeePassXC at sign-in with that database
+   open, locked in the tray.
    It needs only its password; there's no key file. Leave Settings → General
    → *Automatically launch KeePassXC at system startup* off: KeePassXC writes
    that checkbox's entry again, as the bare program, each time its settings
@@ -1317,7 +1320,7 @@ parsers rebuild themselves the next time nvim starts), `ya pkg upgrade` and
 installed copies back in line with the repo (restarting aria2 if its config
 changed), rebuilds GlazeWM's workspace tray if its source changed, checks that an update
 hasn't reset the section 5 settings or Helium's policies, link handlers and
-new tab page, or put Edge back, that KeePassXC's settings are still `keepassxc\keepassxc.ini`'s and it still
+new tab page, or put Edge back, that KeePassXC's settings are still `keepassxc\keepassxc.ini`'s and `keepassxc_local.ini`'s and it still
 starts at sign-in with the database, that the firewall and Defender are on,
 turns Claude Code's own update checks back off if `~\.claude\settings.json` has
 lost `DISABLE_AUTOUPDATER`, compares Helium's new tab links with the sites you

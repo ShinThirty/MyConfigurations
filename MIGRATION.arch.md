@@ -176,11 +176,16 @@ folder (section 6), or make it:
    reach. The main database's: *Don't expose this database*.
 4. Quit KeePassXC, run `keepassxc/apply-settings.sh`, and start it again. It
    merges `keepassxc/keepassxc.ini`, the settings every machine shares, into
-   `~/.config/keepassxc/keepassxc.ini`: the tray icon, minimizing to it instead
-   of quitting, no databases reopened or remembered, the lock after an hour
-   unused, apps reading the Secret Service without a prompt, and browser
+   `~/.config/keepassxc/keepassxc.ini`, and `keepassxc/keepassxc_local.ini`
+   into `~/.local/state/keepassxc/keepassxc.ini`: the tray icon, minimizing to
+   it instead of quitting, no databases reopened or remembered, the lock after
+   an hour unused, apps reading the Secret Service without a prompt, browser
    integration, searching every open database for a login, so
-   KeePassXC-Browser fills from the main database whichever tab is active.
+   KeePassXC-Browser fills from the main database whichever tab is active, and
+   saves that write straight into the database file, after a copy of it in
+   `~/.local/share/keepassxc/backup`. KeePassXC's other two saves fail on
+   tp-share, and one of them deletes the share's database first
+   ([section 7](#7-known-gotchas)).
 5. The SSH keys' passphrases: SSH Agent integration and an entry per key in
    the `SSH` group ([SECURITY.md section 5](SECURITY.md#5-ssh-keys)).
 
@@ -540,6 +545,24 @@ set it under hypridle's 30 s screen-off, to about 25.
 **GitHub key is RSA.** `~/.ssh/github` is a 4096-bit RSA key with no comment.
 Still accepted by GitHub, but a good moment to rotate to ed25519.
 
+**Qt apps can't save a new file onto tp-share.** The kernel's SMB client opens
+an unnamed temporary file on `/mnt/tp-share` (`O_TMPFILE`), but giving it a name
+fails with *Permission denied*. Qt's safe save, `QSaveFile`, takes that route
+whenever the open works, so every save through it fails there, and so does
+Qt's copy or move of a file onto the share. `cp`, `mv` and hard links from the
+shell work, so it looks like a permissions problem on the share and isn't one.
+It's why KeePassXC writes straight into its database file (step 4 of
+[section 2](#2-clone-and-bootstrap)): its safe save fails, and its
+*Temporary file moved into place* deletes the share's database, then fails to
+move the new one there, which it leaves as `/tmp/KeePassXC.XXXXXX`, gone at the
+next boot. To tell whether a folder on the share still has it, a
+`PermissionError` from this:
+
+```sh
+python3 -c 'import os,sys; fd=os.open(sys.argv[1], os.O_TMPFILE|os.O_RDWR, 0o600); os.link(f"/proc/self/fd/{fd}", sys.argv[1]+"/.tmpfile-test")' /mnt/tp-share/Password \
+  && rm /mnt/tp-share/Password/.tmpfile-test
+```
+
 ---
 
 ## 8. Verification
@@ -613,7 +636,7 @@ it runs `rustup update`, `go install` for the Brewfile's `go` lines,
 `PlugUpdate`, nvim's `Lazy! sync` and `MasonToolsUpdateSync` (headless; the parsers rebuild
 themselves the next time nvim starts), and `ya pkg upgrade`, and brings
 aria2's installed copies back in line with the repo (restarting aria2 if its
-config or unit changed). Then it checks for a newer GE-Proton and a newer release of KooL's Hyprland-Dots, that Hyprland still loads `~/.config/hypr`, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on, its other settings are `keepassxc/keepassxc.ini`'s, and Hyprland starts it at login with both databases, that gh's token isn't in plain text, that a new tab in Helium opens `newtab.html` and Helium's menu entry starts it once Login is unlocked, that the night light follows the sun, that systemd-boot is still first in the boot order,
+config or unit changed). Then it checks for a newer GE-Proton and a newer release of KooL's Hyprland-Dots, that Hyprland still loads `~/.config/hypr`, that ufw is on, LLMNR off and each SMB share signed with its login readable only by root, that DNS goes over TLS, that KeePassXC's Secret Service is on, its other settings are `keepassxc/keepassxc.ini`'s and `keepassxc_local.ini`'s, and Hyprland starts it at login with both databases, that gh's token isn't in plain text, that a new tab in Helium opens `newtab.html` and Helium's menu entry starts it once Login is unlocked, that the night light follows the sun, that systemd-boot is still first in the boot order,
 failed units, orphans and AUR packages that were deleted, turns Claude Code's
 own update checks back off if `~/.claude/settings.json` has lost
 `DISABLE_AUTOUPDATER`, compares Helium's new tab links with the sites you
@@ -631,7 +654,7 @@ open, and runs the cleanup below. It ends with what's left, which is some of:
   ([MIGRATION.windows.md section 4](MIGRATION.windows.md#4-restoring-arch-boot)).
   pacman resets nothing itself, since it writes a `.pacnew` rather than
   replace a config you changed. Or a KeePassXC setting that's no longer
-  `keepassxc/keepassxc.ini`'s: quit KeePassXC and rerun
+  `keepassxc/keepassxc.ini`'s or `keepassxc_local.ini`'s: quit KeePassXC and rerun
   `keepassxc/apply-settings.sh` ([section 2](#2-clone-and-bootstrap)). Or
   KeePassXC's start at login missing from `user_startup.lua`, or different:
   `arch/kooldots-upgrade.sh --post-only` puts it back. Or a new tab in Helium

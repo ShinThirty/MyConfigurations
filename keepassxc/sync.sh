@@ -4,9 +4,10 @@
 # (macOS). The share's is the one in use, the one KeePassXC opens at home
 # (start.sh) and every machine saves to. The local copy is what start.sh opens
 # away from home, so it stays read-only: an entry saved there would never reach
-# the share. Mode 444 alone doesn't stop KeePassXC, which saves by replacing
-# the file, a change to the folder rather than the file; macOS's user
-# immutable flag does, and you can lift it without sudo (chflags nouchg).
+# the share. Mode 444 stops the save keepassxc.ini sets, which writes into the
+# file; macOS's user immutable flag also stops KeePassXC's other saves, which
+# replace the file, a change to the folder, and you can lift it without sudo
+# (chflags nouchg).
 # Run it by hand at home, from a terminal, before you leave; the monthly update
 # lists a copy that's behind. start.sh can't run it at login: macOS won't let a
 # script launchd starts read files on a network volume. It only copies, so it

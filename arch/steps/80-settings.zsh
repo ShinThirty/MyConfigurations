@@ -4,9 +4,9 @@
 # firmware's boot order (MIGRATION.windows.md section 4). And the firewall,
 # LLMNR, SMB signing and logins, and KeePassXC's Secret Service SECURITY.md has
 # you set up, and the DNS over TLS MIGRATION.arch.md section 1 does, which Arch
-# doesn't come with. And KeePassXC's settings from keepassxc/keepassxc.ini, and
-# its start at login, Helium's new tab page and its start once Login is
-# unlocked, and the night light's timer.
+# doesn't come with. And KeePassXC's settings from keepassxc/keepassxc.ini and
+# keepassxc_local.ini, and its start at login, Helium's new tab page and its
+# start once Login is unlocked, and the night light's timer.
 
 update() {
   info 'Settings'
@@ -103,7 +103,7 @@ update() {
       warn "KeePassXC's settings changed, listed below"
       todo+=("Reset: KeePassXC's "${^changed}" (rerun keepassxc/apply-settings.sh, MIGRATION.arch.md section 2)")
     else
-      ok "KeePassXC's settings are keepassxc.ini's"
+      ok "KeePassXC's settings are keepassxc.ini's and keepassxc_local.ini's"
     fi
     # Hyprland's user_startup.lua runs keepassxc/start.arch.sh at login, the
     # entry arch/kooldots-upgrade.sh puts back when KooL's upgrade drops it.
