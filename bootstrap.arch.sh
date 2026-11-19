@@ -19,6 +19,10 @@
 
 set -euo pipefail
 
+# Bash expands a bare ~ in ${path/#$HOME/~} back to $HOME, so the paths this
+# prints take their ~ from a variable
+tilde='~'
+
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PKGLIST="$DOTFILES/pkglist.arch"
 
@@ -65,10 +69,10 @@ command -v pacman >/dev/null 2>&1 ||
 write_if_missing() {
   local path="$1"
   if [[ -e "$path" ]]; then
-    skip "${path/#$HOME/~} (exists)"
+    skip "${path/#$HOME/$tilde} (exists)"
   else
     cat > "$path"
-    ok "${path/#$HOME/~}"
+    ok "${path/#$HOME/$tilde}"
   fi
 }
 

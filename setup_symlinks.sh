@@ -2,13 +2,17 @@
 
 set -euo pipefail
 
+# Bash expands a bare ~ in ${path/#$HOME/~} back to $HOME, so the paths this
+# prints take their ~ from a variable
+tilde='~'
+
 DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 
 setup_symlink() {
   local original="$1"
   local link="$2"
   mkdir -p "$(dirname "$link")"
-  local short_link="${link/#$HOME/~}"
+  local short_link="${link/#$HOME/$tilde}"
   if [ -L "$link" ]; then
     echo "  🔗 $short_link"
   elif [ -e "$link" ]; then

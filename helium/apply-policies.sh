@@ -14,6 +14,10 @@
 #
 set -euo pipefail
 
+# Bash expands a bare ~ in ${path/#$HOME/~} back to $HOME, so the paths this
+# prints take their ~ from a variable
+tilde='~'
+
 here="$(cd "$(dirname "$0")" && pwd)"
 domain=net.imput.helium
 installed="/Library/Managed Preferences/$domain.plist"
@@ -51,4 +55,4 @@ jq --arg domain "$domain" '{
 plutil -lint "$out" >/dev/null
 open "$out"
 open 'x-apple.systempreferences:com.apple.Profiles-Settings.extension'
-echo "Opened ${out/#$HOME/~}: install it in System Settings → General → Device Management"
+echo "Opened ${out/#$HOME/$tilde}: install it in System Settings → General → Device Management"

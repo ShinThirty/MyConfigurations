@@ -30,6 +30,10 @@
 #
 set -euo pipefail
 
+# Bash expands a bare ~ in ${path/#$HOME/~} back to $HOME, so the paths this
+# prints take their ~ from a variable
+tilde='~'
+
 here="$(cd "$(dirname "$0")" && pwd)"
 label=local.keepassxc
 plist="$HOME/Library/LaunchAgents/$label.plist"
@@ -172,7 +176,7 @@ if [[ ${1-} == --check ]]; then
     if [[ -f ${files[n]} ]]; then
       compare $n check
     else
-      echo "${names[n]}, ${files[n]/#$HOME/~}, isn't there yet"
+      echo "${names[n]}, ${files[n]/#$HOME/$tilde}, isn't there yet"
     fi
   done
   if [[ $OSTYPE == darwin* ]]; then
@@ -205,7 +209,7 @@ else
     tmp="$(mktemp "$file.XXXXXX")"
     compare $n merge >"$tmp"
     mv "$tmp" "$file"
-    echo "Merged ${from[n]} into ${file/#$HOME/~}: $(printf '%s\n' "${changes[n]}" | wc -l | tr -d ' ') settings changed"
+    echo "Merged ${from[n]} into ${file/#$HOME/$tilde}: $(printf '%s\n' "${changes[n]}" | wc -l | tr -d ' ') settings changed"
   done
 fi
 

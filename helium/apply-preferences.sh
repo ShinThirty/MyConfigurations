@@ -31,6 +31,10 @@
 #
 set -euo pipefail
 
+# Bash expands a bare ~ in ${path/#$HOME/~} back to $HOME, so the paths this
+# prints take their ~ from a variable
+tilde='~'
+
 # -P, so the page's address is the same however the script was reached
 here="$(cd "$(dirname "$0")" && pwd -P)"
 
@@ -56,7 +60,7 @@ ntp="file://$here/newtab.html?dir=file://$HOME/.config/helium-newtab/"
 
 if [[ ${1-} == --check ]]; then
   if [[ ! -f $state ]]; then
-    echo "Local State, ${state/#$HOME/~}, isn't there yet"
+    echo "Local State, ${state/#$HOME/$tilde}, isn't there yet"
     exit 0
   fi
   on="$(jq '.browser.enabled_labs_experiments // [] | any(. == "custom-ntp")' "$state")"
@@ -82,7 +86,7 @@ cp -p "$prefs" "$prefs.bak"
 tmp="$(mktemp "$prefs.XXXXXX")"
 jq -c -s '.[0] * .[1] * .[2]' "$prefs" "$here/preferences.json" "$fragment" >"$tmp"
 mv "$tmp" "$prefs"
-echo "Merged preferences.json and ${fragment##*/} into ${prefs/#$HOME/~}"
+echo "Merged preferences.json and ${fragment##*/} into ${prefs/#$HOME/$tilde}"
 
 # The profile menu shows the name and avatar from Local State's profile cache,
 # which Helium doesn't refresh from Preferences on its own. The flags are there
@@ -103,4 +107,4 @@ jq -c --slurpfile f "$here/preferences.json" --arg ntp "$ntp" '
       }
     else . end' "$state" >"$tmp"
 mv "$tmp" "$state"
-echo "Set the profile's name and avatar, and the new tab page, in ${state/#$HOME/~}"
+echo "Set the profile's name and avatar, and the new tab page, in ${state/#$HOME/$tilde}"

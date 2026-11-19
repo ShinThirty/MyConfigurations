@@ -22,6 +22,10 @@
 #
 set -euo pipefail
 
+# Bash expands a bare ~ in ${path/#$HOME/~} back to $HOME, so the paths this
+# prints take their ~ from a variable
+tilde='~'
+
 id=local.dns-over-https
 # The addresses spare macOS a plain lookup of cloudflare-dns.com to begin with
 settings='{
@@ -96,4 +100,4 @@ if [[ ${1-} == --iphone ]]; then
 fi
 open "$out"
 open 'x-apple.systempreferences:com.apple.Profiles-Settings.extension'
-echo "Opened ${out/#$HOME/~}: install it in System Settings → General → Device Management"
+echo "Opened ${out/#$HOME/$tilde}: install it in System Settings → General → Device Management"

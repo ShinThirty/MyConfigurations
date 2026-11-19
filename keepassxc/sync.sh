@@ -18,6 +18,10 @@
 #
 set -euo pipefail
 
+# Bash expands a bare ~ in ${path/#$HOME/~} back to $HOME, so the paths this
+# prints take their ~ from a variable
+tilde='~'
+
 backup="$HOME/.local/share/keepass/shinthirty.kdbx"
 remote=/Volumes/tp-share/Password/shinthirty.kdbx
 
@@ -26,10 +30,10 @@ locked() { [[ ! -w $backup && "$(stat -f %Sf "$backup")" == *uchg* ]]; }
 
 if [[ ${1-} == --check ]]; then
   if [[ ! -f $backup ]]; then
-    echo "local copy of the database, ${backup/#$HOME/~}, isn't there"
+    echo "local copy of the database, ${backup/#$HOME/$tilde}, isn't there"
     exit 0
   fi
-  locked || echo "local copy of the database, ${backup/#$HOME/~}, isn't read-only"
+  locked || echo "local copy of the database, ${backup/#$HOME/$tilde}, isn't read-only"
   if [[ -f $remote ]] && ! cmp -s "$remote" "$backup"; then
     echo "local copy of the database is behind tp-share's"
   fi
@@ -53,7 +57,7 @@ else
   cmp -s "$remote" "$tmp" || { command rm -f "$tmp"; echo "The copy doesn't match tp-share's; the local copy stays as it is" >&2; exit 1; }
   [[ -e $backup ]] && chflags nouchg "$backup"
   mv -f "$tmp" "$backup"
-  echo "Copied tp-share's database to ${backup/#$HOME/~}"
+  echo "Copied tp-share's database to ${backup/#$HOME/$tilde}"
 fi
 chflags nouchg "$backup"
 chmod 444 "$backup"

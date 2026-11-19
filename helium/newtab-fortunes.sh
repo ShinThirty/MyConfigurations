@@ -9,6 +9,10 @@
 #
 set -euo pipefail
 
+# Bash expands a bare ~ in ${path/#$HOME/~} back to $HOME, so the paths this
+# prints take their ~ from a variable
+tilde='~'
+
 out="$HOME/.config/helium-newtab/fortunes.js"
 
 # fortune -f lists what it reads: the directory, then each file in it
@@ -34,4 +38,4 @@ tmp="$(mktemp "$out.XXXXXX")"
 printf '// Written by MyConfigurations/helium/newtab-fortunes.sh\nconst fortunes = %s\n' \
   "$fortunes" >"$tmp"
 mv "$tmp" "$out"
-echo "Wrote $(jq length <<<"$fortunes") fortunes from ${#files[@]} files to ${out/#$HOME/~}"
+echo "Wrote $(jq length <<<"$fortunes") fortunes from ${#files[@]} files to ${out/#$HOME/$tilde}"
