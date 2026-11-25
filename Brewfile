@@ -81,6 +81,9 @@ brew "sevenzip"
 # compiles parsers locally. The compiler, curl, unzip and python3 come from the
 # Xcode Command Line Tools, which bootstrap.sh installs first; zsh is the macOS
 # system shell, so neither needs a formula here.
+# GNU Make 4, installed as gmake: the Command Line Tools' make is GNU Make 3.81.
+# Arch gets it from base-devel
+brew "make"
 brew "go"
 # Node runtime for the npm-based LSP servers mason installs
 brew "node"
