@@ -44,6 +44,12 @@ the same way as on Windows and Arch. macOS has one setting for the mouse and
 the trackpad, so this flips the trackpad too. The monthly update checks that
 it stays off.
 
+**Caps Lock is Esc on every keyboard**, as on Windows and Arch:
+`mac/caps-lock-esc.sh` saves the mapping for each keyboard connected. An
+external keyboard takes it when you plug it in again, the built-in one at the
+next login. macOS saves it per keyboard, so run it again for a keyboard new to
+the Mac. The monthly update checks every keyboard connected.
+
 **Settings for AeroSpace, the network share and USB drives.** Then log out and
 back in, which the first one needs:
 
@@ -476,7 +482,9 @@ and runs the cleanup below. It ends with what's left, which is some of:
   without an RPC secret ([SECURITY.md section 6](SECURITY.md#6-aria2s-rpc-secret))
 - **Reset** — something a macOS update turned back: the PATH order
   ([section 5](#5-known-gotchas)), a setting from this runbook, such as
-  natural scrolling ([section 1](#1-clone-and-bootstrap)), a Helium policy
+  natural scrolling, or Caps Lock as Esc, which a keyboard new to the Mac
+  doesn't have yet (run `mac/caps-lock-esc.sh`), both in
+  [section 1](#1-clone-and-bootstrap), a Helium policy
   (rerun `helium/apply-policies.sh`) or its new tab page (rerun
   `helium/apply-preferences.sh`), or a KeePassXC setting or its launch
   agent (rerun `keepassxc/apply-settings.sh`), all in

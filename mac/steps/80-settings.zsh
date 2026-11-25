@@ -35,6 +35,13 @@ update() {
     [[ $(defaults read $domain $key 2>/dev/null) == $want ]] || drift+=($fix)
   done
 
+  # Caps Lock is Esc on every keyboard connected, a keyboard new to the Mac
+  # included (MIGRATION.md section 1)
+  local line
+  for line in ${(f)"$($DOTFILES/mac/caps-lock-esc.sh --check)"}; do
+    drift+=("Caps Lock isn't Esc on $line: run mac/caps-lock-esc.sh (MIGRATION.md section 1)")
+  done
+
   # SECURITY.md's, which take a command each to read. Listed apart from the
   # drift, since some may never have been set.
   local insecure=() fw=/usr/libexec/ApplicationFirewall/socketfilterfw
@@ -75,7 +82,6 @@ update() {
   done
   # Section 9: lookups go to Cloudflare over HTTPS on any network, from a
   # configuration profile mac/dns-over-https.sh builds
-  local line
   for line in ${(f)"$($DOTFILES/mac/dns-over-https.sh --check)"}; do
     insecure+=("the DNS over HTTPS profile $line (SECURITY.md section 9)")
   done
