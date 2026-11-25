@@ -113,36 +113,38 @@ types into whatever window has focus. `voice-dictate doctor` checks the setup.
 ## AeroSpace (macOS)
 
 ### Focus & Move
-| Key             | Action              |
-|-----------------|---------------------|
-| alt+h/j/k/l     | Focus window        |
-| alt+shift+h/j/k/l | Move window       |
-| alt+- / alt+=   | Resize shrink/grow  |
+| Key                    | Action              |
+|------------------------|---------------------|
+| ctrl+alt+h/j/k/l       | Focus window        |
+| ctrl+alt+shift+h/j/k/l | Move window         |
+| ctrl+alt+- / =         | Resize shrink/grow  |
 
 ### Layout
-| Key             | Action              |
-|-----------------|---------------------|
-| alt+/           | Toggle tiles h/v    |
-| alt+,           | Toggle accordion    |
+| Key                    | Action              |
+|------------------------|---------------------|
+| ctrl+alt+/             | Toggle tiles h/v    |
+| ctrl+alt+,             | Toggle accordion    |
 
 ### Workspaces
-| Key             | Action              |
-|-----------------|---------------------|
-| alt+1-9         | Switch workspace    |
-| alt+a-z         | Switch workspace    |
-| alt+shift+1-9   | Move to workspace   |
-| alt+shift+a-z   | Move to workspace   |
-| alt+tab         | Last workspace      |
-| alt+shift+tab   | Move ws to monitor  |
+1-9 are on the main monitor, the letters on the secondary. h/j/k/l are taken by focus and move.
 
-### Service Mode (alt+shift+;)
-| Key             | Action              |
-|-----------------|---------------------|
-| esc             | Reload config       |
-| r               | Reset layout        |
-| f               | Toggle float/tile   |
-| backspace       | Close other windows |
-| alt+shift+h/j/k/l | Join with direction |
+| Key                    | Action              |
+|------------------------|---------------------|
+| ctrl+alt+1-9           | Switch workspace    |
+| ctrl+alt+a-z           | Switch workspace    |
+| ctrl+alt+shift+1-9     | Move to workspace   |
+| ctrl+alt+shift+a-z     | Move to workspace   |
+| ctrl+alt+tab           | Last workspace      |
+| ctrl+alt+shift+tab     | Move ws to monitor  |
+
+### Service Mode (ctrl+alt+shift+;)
+| Key                    | Action              |
+|------------------------|---------------------|
+| esc                    | Reload config       |
+| r                      | Reset layout        |
+| f                      | Toggle float/tile   |
+| backspace              | Close other windows |
+| ctrl+alt+shift+h/j/k/l | Join with direction |
 
 ## IdeaVim (leader: space)
 
