@@ -902,6 +902,10 @@ foreach ($r in '.', 'vim', 'nvim') { git -C $HOME\MyConfigurations\$r config use
 
 Full details in `glazewm/README.md`. The post-install steps that aren't automated:
 
+- **Display**, the Acer XV325QK V3 on HDMI: Settings → System → Display →
+  **Scale** 100%, for a 3840×2160 desktop, and Advanced display → **160 Hz**
+  with **Dynamic refresh rate** on. Sign out afterwards: some apps take a new
+  scale only at sign-in
 - GlazeWM tray icon → **Run on system startup**
 - The workspace number in the tray: run `glazewm\build-workspace-tray.ps1` in
   `~\MyConfigurations`, then Settings → Personalization → Taskbar → Other

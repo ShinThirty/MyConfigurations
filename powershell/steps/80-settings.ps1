@@ -1,7 +1,7 @@
 # What a Windows update can quietly reset: the section 5 settings, Edge's removal, Helium's
 # policies, link handlers and new tab page, KeePassXC's settings and Run entry, the GlazeWM
-# workspace number's place in the tray, the Run entries apps put back, and SECURITY.md's firewall,
-# Defender and share name
+# workspace number's place in the tray, the display scale, the Run entries apps put back, and
+# SECURITY.md's firewall, Defender and share name
 
 @{
     Update = {
@@ -74,6 +74,10 @@
             if ($icon.IsPromoted -ne 1) {
                 $drift.Add('the GlazeWM workspace number is in the tray''s overflow: Settings > Personalization > Taskbar > Other system tray icons (section 9)')
             }
+        }
+        # Section 9's 100% scale. AppliedDPI is the scale Windows applied at sign-in
+        if ((Get-ItemProperty 'HKCU:\Control Panel\Desktop\WindowMetrics').AppliedDPI -ne 96) {
+            $drift.Add('the display scale isn''t 100%: Settings > System > Display > Scale, then sign out (section 9)')
         }
         $tips = @(Get-ScheduledTask -TaskPath '\SoftLanding\*' -ErrorAction SilentlyContinue | Where-Object State -ne 'Disabled')
         if ($tips) { $drift.Add("$($tips.Count) \SoftLanding\ tip tasks are enabled (section 5.5)") }
