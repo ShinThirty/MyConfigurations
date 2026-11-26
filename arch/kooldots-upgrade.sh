@@ -333,18 +333,20 @@ EOF
     sed -i -E "0,/$re/s|$re.*|\\1$entry|; 0,/$re/!{/$re/d}" "$U/user_startup.lua"
     added+=(keepassxc)
   fi
-  if ! grep -q '"DP-4"' "$U/monitors.lua"; then
+  # The Acer XV325QK V3 on HDMI: 4K144 10-bit fits HDMI 2.1 without DSC. A rule
+  # keyed on the port comes up at 144 Hz at login; a desc: rule comes up at 60
+  if ! grep -q '"HDMI-A-2"' "$U/monitors.lua"; then
     cat >> "$U/monitors.lua" <<'EOF'
 
 hl.monitor({
-    output = "DP-4",
-    mode = "2560x1440@59.95",
+    output = "HDMI-A-2",
+    mode = "3840x2160@144",
     position = "0x0",
     scale = "1",
     bitdepth = 10,
 })
 EOF
-    added+=("DP-4 monitor")
+    added+=("HDMI-A-2 monitor")
   fi
   if (( ${#added[@]} )); then ok "re-added: ${added[*]}"; else skip "all still there"; fi
 fi
