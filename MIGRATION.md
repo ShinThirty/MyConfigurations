@@ -50,6 +50,12 @@ external keyboard takes it when you plug it in again, the built-in one at the
 next login. macOS saves it per keyboard, so run it again for a keyboard new to
 the Mac. The monthly update checks every keyboard connected.
 
+**Displays**, in System Settings → Displays: the built-in on **More Space**,
+which looks like 2056×1329 on a 16" MacBook Pro and 1800×1169 on a 14", and the
+27" LG HDR 4K at **2560×1440**. macOS draws each at twice that size and scales it
+to the panel, so text stays sharp. The monthly update checks each of these
+displays that's connected.
+
 **Settings for AeroSpace, the network share and USB drives.** Then log out and
 back in, which the first one needs:
 

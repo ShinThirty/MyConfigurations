@@ -42,6 +42,26 @@ update() {
     drift+=("Caps Lock isn't Esc on $line: run mac/caps-lock-esc.sh (MIGRATION.md section 1)")
   done
 
+  # What each display looks like, from System Settings → Displays (MIGRATION.md
+  # section 1): the built-in by its panel, the others by name. A display not
+  # listed isn't checked.
+  local -A looks=(
+    3456x2234 2056x1329    # 16" MacBook Pro, More Space
+    3024x1964 1800x1169    # 14" MacBook Pro, More Space
+    'LG HDR 4K' 2560x1440  # 27"
+  )
+  local display label have
+  while IFS=$'\t' read -r display label have; do
+    [[ -z ${looks[$display]} || $have == ${looks[$display]} ]] ||
+      drift+=("$label looks like $have, not ${looks[$display]}: System Settings → Displays (MIGRATION.md section 1)")
+  done < <(system_profiler -json SPDisplaysDataType 2>/dev/null | jq -r '
+    .SPDisplaysDataType[].spdisplays_ndrvs[]?
+    | if .spdisplays_connection_type == "spdisplays_internal"
+      then [(.spdisplays_pixelresolution | capture("(?<p>[0-9]+x[0-9]+)").p) // "", "the built-in display"]
+      else [._name, ._name] end
+      + [._spdisplays_resolution // "" | sub(" @.*"; "") | gsub(" "; "")]
+    | @tsv')
+
   # SECURITY.md's, which take a command each to read. Listed apart from the
   # drift, since some may never have been set.
   local insecure=() fw=/usr/libexec/ApplicationFirewall/socketfilterfw
