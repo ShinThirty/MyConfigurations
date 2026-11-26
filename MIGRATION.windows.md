@@ -194,7 +194,7 @@ The board is an ASRock X870 Riptide WiFi:
 | LAN: Killer E3100G 2.5GbE (Realtek RTL8125, PCI `10EC:3000`) | Built in — Windows' own `rt640x64.inf` matches it, including the April 2024 copy the 26100 image ships. Ethernet works at first login. The 2026-10 install came up on Killer's own September 2020 driver (`e3xw10x64.inf` 10.45); ASRock's LAN package has newer ones, but take only the driver out of it (below) |
 | Wi-Fi 7 + Bluetooth: AMD RZ717 (MediaTek, PCI `14C3:0717`, USB `0E8D:0717`) | No built-in driver. ASRock's support page lists packages for two Wi-Fi modules — take the **MediaTek** WLAN and Bluetooth ones. The AzureWave EB601NF packages are Realtek drivers for the other module and don't match |
 | AMD chipset | X870 / Granite Ridge: PSP, GPIO, I2C, SMBus and four unnamed ACPI devices. AMD's chipset package (amd.com → Chipsets → AM5 → X870). Its *3D V-Cache Performance Optimizer* only matters on two-CCD X3D chips, not the 9800X3D |
-| NVIDIA GeForce RTX 5070 Ti | Blackwell, so it needs a current driver — nvidia.com, or NVCleanstall to leave out the NVIDIA App and telemetry |
+| NVIDIA GeForce RTX 5070 Ti | Blackwell, so it needs a current driver. NVCleanstall (scoop, [section 6](#6-packages-scoop)) downloads NVIDIA's latest and builds an installer without the NVIDIA App and telemetry |
 | AMD Radeon iGPU (the 9800X3D's) | Stays on as a fallback output, though no display uses it. amd.com's driver (Processors with graphics → Ryzen 9000), installed as **Driver Only**, which leaves out the AMD Software app |
 | Fingerprint reader: U.are.U 4500 (USB `05BA:000A`) | Crossmatch "U.are.U Fingerprint Reader Driver (WBF)" 5.0.0.5. Its readme stops at Windows 10, but it installs and starts on LTSC 2024. Needed for Windows Hello fingerprint |
 
@@ -389,14 +389,9 @@ again.
    For the LAN, install only the driver from ASRock's Killer package
    ([section 3.2](#32-drivers)) — Killer Intelligence Center is an optional
    Store app, and the driver works without it
-5. NVIDIA driver from nvidia.com — choose **NVIDIA Graphics Driver**, not
-   *…and NVIDIA App* — or a driver-only package built with NVCleanstall.
-   **NVIDIA Control Panel** won't appear either way: it's a Store app the
-   installer fetches from the Microsoft Store, which LTSC doesn't have.
-   Resolution, refresh rate and HDR are in Windows' display settings; G-SYNC,
-   colour range and DSR need the Control Panel
-6. The iGPU's driver from amd.com, installed as **Driver Only**
-   ([section 3.2](#32-drivers))
+5. The iGPU's driver from amd.com, installed as **Driver Only**
+   ([section 3.2](#32-drivers)). The NVIDIA driver comes from NVCleanstall,
+   once scoop has installed it ([section 6](#6-packages-scoop))
 
 Updating the BIOS (optional): ASRock's Instant Flash reads FAT32 only, so use
 a spare stick — the Ventoy partition is exFAT, and keep that stick intact for
@@ -754,6 +749,8 @@ scoop install 7zip ffmpeg jq poppler resvg imagemagick
 scoop install tree-sitter mingw nodejs rustup-gnu python
 # Desktop
 scoop install extras/glazewm extras/sharex extras/oculante
+# The NVIDIA driver (below)
+scoop install extras/nvcleanstall
 # Music
 scoop install mpv yt-dlp
 # Downloads
@@ -797,7 +794,28 @@ What needs what:
 | `mpv`, `yt-dlp` | The profile's `music` function |
 | `sharex` | Screenshots and screen recording (`glazewm/README.md`) |
 | `oculante` | The image viewer ([section 9](#9-desktop)) |
+| `nvcleanstall` | The NVIDIA driver (below) |
 | `sqlite` | The monthly update, for Helium's new tab links ([section 15](#15-monthly-updates)) |
+
+**The NVIDIA driver.** NVCleanstall downloads the driver from NVIDIA and builds
+an installer with only the components you pick. New drivers go the same way
+([section 15](#15-monthly-updates)):
+
+1. **Install best driver for my hardware**, with *Use fallback servers* and
+   *Periodically check for driver updates in background* off
+2. Components: **Display Driver (required)** and **HD Audio via HDMI**, which
+   gives the monitor a sound device
+3. Installation Tweaks: **Disable Installer Telemetry & Advertising**,
+   **Unattended Express Installation** with **Allow automatic reboot, if
+   needed**, **Perform a Clean Installation** and **Disable Ansel**. On later
+   runs, **Use Previous Settings** ticks the same ones
+4. Finished → **Install**
+
+There's no **NVIDIA Control Panel**: Windows fetches it for the driver from the
+Microsoft Store, which LTSC doesn't have, and NVCleanstall's *Legacy Control
+Panel* component installs nothing from current drivers (621.40). Resolution,
+refresh rate and HDR are in Windows' display settings, and the driver's default
+output is full-range RGB; G-SYNC and DSR need the Control Panel.
 
 ---
 
@@ -1400,7 +1418,8 @@ versions whose rules are left and asks before deleting them, from an elevated
 window of their own.
 
 **Drivers and BIOS.** Compare the printed versions against the sources in
-[section 3.2](#32-drivers)'s table — chipset first, rebooting after each. The
+[section 3.2](#32-drivers)'s table — chipset first, rebooting after each. A
+new NVIDIA driver is built with NVCleanstall ([section 6](#6-packages-scoop)). The
 fingerprint driver is discontinued, so there's nothing to check. Before a BIOS
 flash, note EXPO, SVM, the fan curves and onboard audio off — flashing resets
 them — and use a FAT32 stick, not the Ventoy one
