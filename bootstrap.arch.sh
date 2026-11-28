@@ -159,9 +159,6 @@ write_if_missing "$HOME/.zshrc.local" <<'EOF'
 
 # Go
 export PATH="$PATH:$(go env GOPATH)/bin"
-
-# Haskell (only if ghcup is installed)
-if [ -f "$HOME/.ghcup/env" ]; then . "$HOME/.ghcup/env"; fi
 EOF
 
 # --- Login shell --------------------------------------------------------------

@@ -296,13 +296,11 @@ folder under `~/.claude/projects/`. Have Claude fold it in, run `ferry`, and
 delete the old folder once it's in.
 
 **Regenerate rather than copy:** `~/.rustup`, `~/.cargo`, `~/.npm`, `~/.gradle`,
-`~/.ivy2`, `~/.stack`, `~/.cabal`, `~/.ghcup`, `~/go/pkg`, `~/.cache`,
-`~/.local/share/sheldon`, `~/.local/share/nvim`. These are caches and toolchains
-that rebuild themselves. `~/.battery/` (20 MB of logs) is pure garbage.
+`~/.ivy2`, `~/go/pkg`, `~/.cache`, `~/.local/share/sheldon`,
+`~/.local/share/nvim`. These are caches and toolchains that rebuild themselves.
+`~/.battery/` (20 MB of logs) is pure garbage.
 
-If the Haskell (`.ghcup`/`.cabal`/`.stack`) or JVM (`.gradle`/`.ivy2`) trees are
-stale, just leave them behind — the generated `~/.zshrc.local` guards the ghcup
-source line with a file check, so nothing breaks if ghcup is absent.
+If the JVM trees (`.gradle`/`.ivy2`) are stale, just leave them behind.
 
 ---
 

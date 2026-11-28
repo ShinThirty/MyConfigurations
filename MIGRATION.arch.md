@@ -430,7 +430,7 @@ delete the old folder once it's in.
 
 **Regenerate rather than copy:** `~/.rustup`, `~/.cargo`, `~/.npm`, `~/.cache`,
 `~/.local/share/sheldon`, `~/.local/share/nvim`, `~/.local/share/yazi`,
-`~/go/pkg`, `~/.ghcup`. These are caches and toolchains that rebuild themselves.
+`~/go/pkg`. These are caches and toolchains that rebuild themselves.
 
 ---
 
